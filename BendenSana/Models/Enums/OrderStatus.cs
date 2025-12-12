@@ -1,0 +1,1 @@
+public enum OrderStatus { preparing, shipped, delivered, cancelled }

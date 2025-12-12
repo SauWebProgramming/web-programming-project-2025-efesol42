@@ -1,0 +1,1 @@
+public enum ProductGender { Male, Female, Unisex, Kids }

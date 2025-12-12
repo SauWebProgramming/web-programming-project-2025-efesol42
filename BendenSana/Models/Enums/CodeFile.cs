@@ -1,0 +1,1 @@
+﻿public enum UserRole { admin, seller, buyer }

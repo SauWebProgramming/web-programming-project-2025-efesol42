@@ -1,0 +1,1 @@
+public enum ProductStatus { draft, published, sold, blocked }

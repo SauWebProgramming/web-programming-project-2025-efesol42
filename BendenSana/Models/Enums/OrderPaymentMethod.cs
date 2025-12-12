@@ -1,0 +1,1 @@
+public enum OrderPaymentMethod { bank_transfer, cash_on_delivery, credit_card }

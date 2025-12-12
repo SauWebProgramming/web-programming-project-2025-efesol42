@@ -1,0 +1,884 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Cart</title>
+    <style>
+      body {
+        font-family: system-ui;
+      }
+      .box {
+        width: 13px;
+        height: 28px;
+        background: #db4444;
+        margin-right: 5px;
+      }
+      .box2 {
+        width: 13px;
+        height: 36px;
+        background: #000000;
+        margin-right: 5px;
+      }
+      .box3 {
+        width: 13px;
+        height: 48px;
+        background: #db4444;
+        margin-right: 8px;
+      }
+      .box4 {
+        height: 1px;
+        align-self: stretch;
+      }
+      .box5 {
+        height: 1px;
+        align-self: stretch;
+        background: #000000;
+      }
+      .box6 {
+        width: 5px;
+        height: 11px;
+        background: #000000;
+        margin-right: 13px;
+      }
+      .box7 {
+        height: 1px;
+        align-self: stretch;
+        background: #ffffff;
+      }
+      .button {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        background: #db4444;
+        border-radius: 4px;
+        border: none;
+        padding: 16px 48px;
+        margin-left: 89px;
+        text-align: left;
+      }
+      .button-row-view {
+        width: 221px;
+        box-sizing: border-box;
+        display: flex;
+        align-items: center;
+        background: #f5f5f5;
+        border-radius: 4px;
+        border: none;
+        padding: 7px 20px;
+        gap: 36px;
+        text-align: left;
+      }
+      .button-row-view2 {
+        display: flex;
+        align-items: flex-start;
+        background: #ffffff;
+        border-radius: 4px;
+        border: none;
+        padding: 24px 40px;
+        box-shadow: 0px 1px 13px #0000000d;
+        text-align: left;
+      }
+      .button-row-view3 {
+        width: 72px;
+        box-sizing: border-box;
+        display: flex;
+        align-items: center;
+        background: none;
+        border-radius: 4px;
+        border: 1px solid #00000066;
+        padding: 6px 12px;
+        margin-right: 281px;
+        gap: 20px;
+        text-align: left;
+      }
+      .button-row-view4 {
+        width: 72px;
+        box-sizing: border-box;
+        display: flex;
+        align-items: center;
+        background: none;
+        border-radius: 4px;
+        border: 1px solid #00000066;
+        padding: 6px 12px;
+        margin-right: 281px;
+        gap: 15px;
+        text-align: left;
+      }
+      .button-row-view5 {
+        align-self: stretch;
+        display: flex;
+        align-items: flex-start;
+        background: none;
+        border-radius: 4px;
+        border: 1px solid #f9f9f9;
+        padding: 12px 16px;
+        gap: 36px;
+        text-align: left;
+      }
+      .column {
+        width: 100vw;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        background: #ffffff;
+      }
+      .column2 {
+        align-self: stretch;
+        margin-bottom: 79px;
+      }
+      .column3 {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .column4 {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        margin-bottom: 80px;
+        gap: 24px;
+      }
+      .column5 {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 40px;
+      }
+      .column6 {
+        width: 470px;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        border-radius: 4px;
+        border: 1px solid #000000;
+        padding-top: 32px;
+        padding-bottom: 32px;
+      }
+      .column7 {
+        align-self: stretch;
+        margin-bottom: 15px;
+        margin-left: 24px;
+        margin-right: 24px;
+      }
+      .column8 {
+        align-self: stretch;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        background: #000000;
+      }
+      .column9 {
+        width: 217px;
+        display: flex;
+        flex-direction: column;
+        margin-right: 87px;
+        gap: 16px;
+      }
+      .column10 {
+        align-self: stretch;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        margin-right: 11px;
+        gap: 24px;
+      }
+      .column11 {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 24px;
+      }
+      .column12 {
+        width: 175px;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        margin-right: 87px;
+        gap: 24px;
+      }
+      .column13 {
+        align-self: stretch;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+      }
+      .column14 {
+        width: 123px;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        margin-right: 87px;
+        gap: 24px;
+      }
+      .column15 {
+        width: 109px;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        margin-right: 87px;
+        gap: 24px;
+      }
+      .column16 {
+        width: 198px;
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+      }
+      .column17 {
+        align-self: stretch;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 24px;
+      }
+      .column18 {
+        align-self: stretch;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+      }
+      .column19 {
+        align-self: stretch;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-bottom: 24px;
+        gap: 15px;
+      }
+      .column20 {
+        align-self: stretch;
+      }
+      .contain {
+        align-items: flex-start;
+        background: #ffffff;
+      }
+      .image {
+        width: 24px;
+        height: 24px;
+        object-fit: fill;
+      }
+      .image2 {
+        width: 32px;
+        height: 32px;
+        object-fit: fill;
+      }
+      .image3 {
+        width: 50px;
+        height: 39px;
+        margin-left: 42px;
+        margin-right: 22px;
+        object-fit: fill;
+      }
+      .image4 {
+        width: 16px;
+        height: 32px;
+        object-fit: fill;
+      }
+      .image5 {
+        width: 48px;
+        height: 42px;
+        margin-left: 43px;
+        margin-right: 23px;
+        object-fit: fill;
+      }
+      .image6 {
+        border-radius: 4px;
+        width: 24px;
+        height: 24px;
+        object-fit: fill;
+      }
+      .image7 {
+        width: 76px;
+        height: 76px;
+        object-fit: fill;
+      }
+      .image8 {
+        width: 110px;
+        height: 84px;
+        object-fit: fill;
+      }
+      .image9 {
+        width: 18px;
+        height: 18px;
+        object-fit: fill;
+      }
+      .image10 {
+        width: 16px;
+        height: 16px;
+        object-fit: fill;
+      }
+      .input {
+        color: #000000;
+        font-size: 16px;
+        width: 300px;
+        box-sizing: border-box;
+        background: none;
+        border-radius: 4px;
+        border: 1px solid #000000;
+        padding: 16px 24px;
+      }
+      .row-view {
+        display: flex;
+        align-items: flex-start;
+      }
+      .row-view2 {
+        width: 550px;
+        display: flex;
+        align-items: center;
+        margin-right: 231px;
+        gap: 11px;
+      }
+      .row-view3 {
+        width: 78px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .row-view4 {
+        display: flex;
+        align-items: center;
+        margin-right: 70px;
+      }
+      .row-view5 {
+        width: 823px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-right: 82px;
+      }
+      .row-view6 {
+        width: 157px;
+        display: flex;
+        align-items: center;
+      }
+      .row-view7 {
+        width: 434px;
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+      }
+      .row-view8 {
+        width: 349px;
+        display: flex;
+        align-items: center;
+      }
+      .row-view9 {
+        width: 128px;
+        display: flex;
+        align-items: flex-start;
+        gap: 16px;
+      }
+      .row-view10 {
+        display: flex;
+        align-items: center;
+        margin-bottom: 80px;
+        margin-left: 135px;
+      }
+      .row-view11 {
+        display: flex;
+        align-items: center;
+        background: #ffffff;
+        border-radius: 4px;
+        padding-top: 29px;
+        padding-bottom: 29px;
+        box-shadow: 0px 1px 13px #0000000d;
+      }
+      .row-view12 {
+        width: 527px;
+        display: flex;
+        align-items: flex-start;
+        margin-right: 173px;
+        gap: 16px;
+      }
+      .row-view13 {
+        align-self: stretch;
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 16px;
+        margin-left: 24px;
+        margin-right: 24px;
+      }
+      .row-view14 {
+        display: flex;
+        align-items: flex-start;
+        margin-top: 80px;
+        margin-bottom: 60px;
+      }
+      .row-view15 {
+        align-self: stretch;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .row-view16 {
+        align-self: stretch;
+        display: flex;
+        align-items: flex-start;
+        margin-right: 30px;
+        gap: 24px;
+      }
+      .row-view17 {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .text {
+        color: #f9f9f9;
+        font-size: 14px;
+      }
+      .text2 {
+        color: #f9f9f9;
+        font-size: 14px;
+        font-weight: bold;
+      }
+      .text3 {
+        color: #000000;
+        font-size: 24px;
+        width: 91px;
+      }
+      .text4 {
+        color: #000000;
+        font-size: 16px;
+      }
+      .text5 {
+        color: #000000;
+        font-size: 12px;
+      }
+      .text6 {
+        color: #000000;
+        font-size: 14px;
+        margin-right: 14px;
+      }
+      .text7 {
+        color: #000000;
+        font-size: 14px;
+      }
+      .text8 {
+        color: #000000;
+        font-size: 16px;
+        margin-right: 287px;
+      }
+      .text9 {
+        color: #000000;
+        font-size: 16px;
+        margin-right: 286px;
+      }
+      .text10 {
+        color: #000000;
+        font-size: 16px;
+        margin-right: 180px;
+      }
+      .text11 {
+        color: #000000;
+        font-size: 16px;
+        margin-right: 285px;
+      }
+      .text12 {
+        color: #000000;
+        font-size: 16px;
+        margin-right: 69px;
+      }
+      .text13 {
+        color: #000000;
+        font-size: 16px;
+        margin-right: 173px;
+      }
+      .text14 {
+        color: #f9f9f9;
+        font-size: 16px;
+      }
+      .text15 {
+        color: #000000;
+        font-size: 20px;
+        margin-bottom: 24px;
+        margin-left: 24px;
+      }
+      .text16 {
+        color: #f9f9f9;
+        font-size: 24px;
+        font-weight: bold;
+      }
+      .text17 {
+        color: #f9f9f9;
+        font-size: 20px;
+        margin-right: 20px;
+      }
+      .text18 {
+        color: #f9f9f9;
+        font-size: 20px;
+        margin-right: 97px;
+      }
+      .text19 {
+        color: #f9f9f9;
+        font-size: 20px;
+        margin-right: 41px;
+      }
+      .text20 {
+        color: #f9f9f9;
+        font-size: 20px;
+      }
+      .text21 {
+        color: #f9f9f9;
+        font-size: 12px;
+      }
+      .text22 {
+        color: #ffffff;
+        font-size: 16px;
+      }
+      .view {
+        align-self: stretch;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        background: #000000;
+        padding-top: 12px;
+        padding-bottom: 12px;
+        padding-right: 136px;
+        margin-bottom: 23px;
+      }
+      .view2 {
+        align-self: stretch;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        margin-bottom: 23px;
+      }
+      .view3 {
+        width: 48px;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        padding-bottom: 1px;
+      }
+      .view4 {
+        width: 66px;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        padding-bottom: 1px;
+      }
+      .view5 {
+        width: 61px;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        padding-bottom: 1px;
+      }
+      .view6 {
+        align-self: stretch;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-bottom: 140px;
+      }
+      .view7 {
+        width: 218px;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        border-radius: 4px;
+        border: 1px solid #00000080;
+        padding: 16px 48px;
+        margin-right: 757px;
+      }
+      .view8 {
+        width: 195px;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        border-radius: 4px;
+        border: 1px solid #00000080;
+        padding: 16px 48px;
+      }
+      .view9 {
+        width: 211px;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        background: #db4444;
+        border-radius: 4px;
+        padding: 16px 48px;
+      }
+      .view10 {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        padding-bottom: 1px;
+      }
+      .view11 {
+        width: 80px;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        background: #000000;
+        padding: 2px;
+      }
+      .view12 {
+        width: 24px;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 3px;
+      }
+      .view13 {
+        width: 20px;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 1px 2px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="contain">
+      <div class="column">
+        <div class="view">
+          <div class="row-view">
+            <div class="row-view2">
+              <span class="text">
+                Summer Sale For All Swim Suits And Free Express Delivery - OFF
+                50%!
+              </span>
+              <span class="text2"> ShopNow </span>
+            </div>
+            <div class="row-view3">
+              <span class="text"> English </span>
+              <img src="https://i.imgur.com/1tMFzp8.png" class="image" />
+            </div>
+          </div>
+        </div>
+        <div class="view2">
+          <div class="row-view4">
+            <div class="row-view5">
+              <div class="row-view6">
+                <div class="box"></div>
+                <div class="box2"></div>
+                <div class="box3"></div>
+                <span class="text3"> Benden<br />Sana </span>
+              </div>
+              <div class="row-view7">
+                <div class="view3">
+                  <span class="text4"> Ana Sayfa </span>
+                </div>
+                <div class="view4">
+                  <span class="text4"> Bize Ulasin </span>
+                </div>
+                <div class="view3">
+                  <span class="text4"> Hakkimizda </span>
+                </div>
+                <div class="view5">
+                  <span class="text4"> Giris Yap </span>
+                </div>
+              </div>
+            </div>
+            <div class="row-view8">
+              <button class="button-row-view" onclick="alert('Pressed!')" }>
+                <span class="text5"> Ne Ariyorsun Bu Gun ? </span>
+                <img src="https://i.imgur.com/1tMFzp8.png" class="image" />
+              </button>
+              <div class="row-view9">
+                <img src="https://i.imgur.com/1tMFzp8.png" class="image2" />
+                <img src="https://i.imgur.com/1tMFzp8.png" class="image2" />
+                <img src="https://i.imgur.com/1tMFzp8.png" class="image2" />
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="column2">
+          <div class="box4"></div>
+          <div class="box5"></div>
+        </div>
+        <div class="row-view10">
+          <span class="text6"> Home </span>
+          <div class="box6"></div>
+          <span class="text7"> Cart </span>
+        </div>
+        <div class="view6">
+          <div class="column3">
+            <div class="column4">
+              <div class="column5">
+                <button class="button-row-view2" onclick="alert('Pressed!')" }>
+                  <span class="text8"> Product </span>
+                  <span class="text8"> Price </span>
+                  <span class="text9"> Quantity </span>
+                  <span class="text4"> Subtotal </span>
+                </button>
+                <div class="row-view11">
+                  <img src="https://i.imgur.com/1tMFzp8.png" class="image3" />
+                  <span class="text10"> LCD Monitor </span>
+                  <span class="text11"> $650 </span>
+                  <button
+                    class="button-row-view3"
+                    onclick="alert('Pressed!')"
+                    }
+                  >
+                    <span class="text4"> 01 </span>
+                    <img src="https://i.imgur.com/1tMFzp8.png" class="image4" />
+                  </button>
+                  <span class="text12"> $650 </span>
+                </div>
+                <div class="row-view11">
+                  <img src="https://i.imgur.com/1tMFzp8.png" class="image5" />
+                  <span class="text13"> H1 Gamepad </span>
+                  <span class="text11"> $550 </span>
+                  <button
+                    class="button-row-view4"
+                    onclick="alert('Pressed!')"
+                    }
+                  >
+                    <span class="text4"> 02 </span>
+                    <img src="https://i.imgur.com/1tMFzp8.png" class="image4" />
+                  </button>
+                  <span class="text12"> $1100 </span>
+                </div>
+              </div>
+              <div class="row-view">
+                <div class="view7">
+                  <span class="text4"> Return To Shop </span>
+                </div>
+                <div class="view8">
+                  <span class="text4"> Update Cart </span>
+                </div>
+              </div>
+            </div>
+            <div class="row-view">
+              <div class="row-view12">
+                <input type="text" placeholder="Coupon Code" class="input" />
+                <div class="view9">
+                  <span class="text14"> Apply Coupon </span>
+                </div>
+              </div>
+              <div class="column6">
+                <span class="text15"> Cart Total </span>
+                <div class="row-view13">
+                  <span class="text4"> Subtotal: </span>
+                  <span class="text4"> $1750 </span>
+                </div>
+                <div class="column7">
+                  <div class="box4"></div>
+                  <div class="box5"></div>
+                </div>
+                <div class="row-view13">
+                  <span class="text4"> Shipping: </span>
+                  <span class="text4"> Free </span>
+                </div>
+                <div class="column7">
+                  <div class="box4"></div>
+                  <div class="box5"></div>
+                </div>
+                <div class="row-view13">
+                  <span class="text4"> Total: </span>
+                  <span class="text4"> $1750 </span>
+                </div>
+                <button class="button" onclick="alert('Pressed!')" }>
+                  <span class="text14"> Procees to checkout </span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="column8">
+          <div class="row-view14">
+            <div class="column9">
+              <div class="column10">
+                <div class="column11">
+                  <div class="view10">
+                    <span class="text16"> Exclusive </span>
+                  </div>
+                  <span class="text17"> Subscribe </span>
+                </div>
+                <span class="text14"> Get 10% off your first order </span>
+              </div>
+              <button class="button-row-view5" onclick="alert('Pressed!')" }>
+                <span class="text14"> Enter your email </span>
+                <img src="https://i.imgur.com/1tMFzp8.png" class="image6" />
+              </button>
+            </div>
+            <div class="column12">
+              <span class="text18"> Support </span>
+              <div class="column13">
+                <span class="text14">
+                  111 Bijoy sarani, Dhaka, DH 1515, Bangladesh.
+                </span>
+                <span class="text14"> exclusive@gmail.com </span>
+                <span class="text14"> +88015-88888-9999 </span>
+              </div>
+            </div>
+            <div class="column14">
+              <span class="text19"> Account </span>
+              <div class="column13">
+                <span class="text14"> My Account </span>
+                <span class="text14"> Login / Register </span>
+                <span class="text14"> Cart </span>
+                <span class="text14"> Wishlist </span>
+                <span class="text14"> Shop </span>
+              </div>
+            </div>
+            <div class="column15">
+              <span class="text20"> Quick Link </span>
+              <div class="column13">
+                <span class="text14"> Privacy Policy </span>
+                <span class="text14"> Terms Of Use </span>
+                <span class="text14"> FAQ </span>
+                <span class="text14"> Contact </span>
+              </div>
+            </div>
+            <div class="column16">
+              <div class="column17">
+                <span class="text20"> Download App </span>
+                <div class="column18">
+                  <span class="text21"> Save $3 with App New User Only </span>
+                  <div class="row-view15">
+                    <div class="view11">
+                      <img
+                        src="https://i.imgur.com/1tMFzp8.png"
+                        class="image7"
+                      />
+                    </div>
+                    <img src="https://i.imgur.com/1tMFzp8.png" class="image8" />
+                  </div>
+                </div>
+              </div>
+              <div class="row-view16">
+                <img src="https://i.imgur.com/1tMFzp8.png" class="image" />
+                <img src="https://i.imgur.com/1tMFzp8.png" class="image" />
+                <div class="view12">
+                  <img src="https://i.imgur.com/1tMFzp8.png" class="image9" />
+                </div>
+                <img src="https://i.imgur.com/1tMFzp8.png" class="image" />
+              </div>
+            </div>
+          </div>
+          <div class="column19">
+            <div class="column20">
+              <div class="box4"></div>
+              <div class="box7"></div>
+            </div>
+            <div class="row-view17">
+              <div class="view13">
+                <img src="https://i.imgur.com/1tMFzp8.png" class="image10" />
+              </div>
+              <span class="text22">
+                Copyright Rimel 2022. All right reserved
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

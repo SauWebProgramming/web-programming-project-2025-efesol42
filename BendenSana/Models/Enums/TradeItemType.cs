@@ -1,0 +1,1 @@
+public enum TradeItemType { offered, requested }
