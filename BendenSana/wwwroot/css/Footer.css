@@ -1,0 +1,150 @@
+﻿/* Footer scope */
+.bs-footer {
+    background: #000;
+}
+
+/* Typography */
+.bs-footer__brand {
+    color: #F9F9F9;
+    font-size: 24px;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.bs-footer__heading {
+    color: #F9F9F9;
+    font-size: 20px;
+    text-decoration: none;
+}
+
+.bs-footer__link {
+    color: #F9F9F9;
+    font-size: 16px;
+    text-decoration: none;
+}
+
+.bs-footer__muted {
+    color: #F9F9F9;
+    font-size: 12px;
+    opacity: 0.85;
+}
+
+/* Hover (kırmızı) */
+.bs-footer a.bs-footer__brand:hover,
+.bs-footer a.bs-footer__heading:hover,
+.bs-footer a.bs-footer__link:hover {
+    color: #ff0000;
+    text-decoration: underline;
+    text-decoration-color: #ff0000;
+}
+
+/* Subscribe box */
+.bs-footer__subscribe {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border: 1px solid #F9F9F9;
+    border-radius: 4px;
+    padding: 12px 16px;
+}
+
+    .bs-footer__subscribe:hover {
+        border-color: #ff0000;
+        background-color: rgba(255, 0, 0, 0.08);
+    }
+
+.bs-footer__subscribe-input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: #F9F9F9;
+    font-size: 16px;
+    min-width: 0; /* mobil taşmayı engeller */
+}
+
+    .bs-footer__subscribe-input::placeholder {
+        color: #F9F9F9;
+        opacity: 0.8;
+    }
+
+/* Footer titles (başlıklar) */
+.bs-footer__title {
+    color: #F9F9F9;
+    font-size: 20px;
+    font-weight: 600; /* normalden kalın, aşırı değil */
+    letter-spacing: 0.2px;
+}
+
+/* Subscribe alt başlık */
+.bs-footer__subtitle {
+    color: #F9F9F9;
+    font-size: 20px;
+    font-weight: 500;
+}
+
+    /* Başlıklar hover ALMAZ */
+    .bs-footer__title:hover,
+    .bs-footer__subtitle:hover {
+        color: #F9F9F9;
+        text-decoration: none;
+        cursor: default;
+    }
+
+.bs-footer__subscribe-btn {
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+}
+
+.bs-footer__icon {
+    width: 24px;
+    height: 24px;
+    border-radius: 4px;
+    object-fit: fill;
+}
+
+/* App images */
+.bs-footer__qr {
+    width: 80px;
+    height: 80px;
+    object-fit: fill;
+}
+
+.bs-footer__store {
+    width: 110px;
+    height: 84px;
+    object-fit: fill;
+}
+
+/* Social icons (hover kalsın) */
+.bs-footer__social {
+    width: 24px;
+    height: 24px;
+    object-fit: fill;
+    transition: all 0.25s ease;
+    cursor: pointer;
+}
+
+    .bs-footer__social:hover {
+        transform: scale(1.15);
+        filter: brightness(0) saturate(100%) invert(18%) sepia(95%) saturate(7000%) hue-rotate(0deg);
+    }
+
+/* Divider + bottom */
+.bs-footer__hr {
+    border-color: rgba(255,255,255,0.25);
+}
+
+.bs-footer__copyright-icon {
+    width: 20px;
+    height: 20px;
+    object-fit: fill;
+}
+
+.bs-footer__copyright {
+    color: #FFFFFF;
+    font-size: 16px;
+    opacity: 0.7;
+}

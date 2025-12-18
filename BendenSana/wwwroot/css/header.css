@@ -1,0 +1,134 @@
+﻿/* Scope */
+.bs-header {
+    width: 100%;
+    position: fixed;
+    z-index: 100000;
+}
+
+/* Topbar */
+.bs-header__topbar {
+  background: #000;
+  color: #fff;
+  font-size: 12px;
+
+}
+
+.bs-header__topbar-text { opacity: 0.9; }
+.bs-header__topbar-link,
+.bs-header__lang {
+  color: #fff;
+  text-decoration: none;
+  transition: color .2s ease;
+}
+.bs-header__topbar-link:hover,
+.bs-header__lang:hover { color: #ff0000; }
+
+.bs-header__chev { font-size: 11px; opacity: 0.9; }
+
+/* Main */
+.bs-header__main { background: #fff; }
+.bs-header__divider { height: 1px; background: rgba(0,0,0,0.12); }
+
+/* Logo */
+.bs-header__logo { text-decoration: none; color: #000; }
+.bs-header__logo-text {
+    font-family: "Paytone One", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    font-size: 20px;
+    line-height: 1.0;
+    font-weight: 700;
+}
+.bs-header__logo-bars {
+  display: inline-block;
+  width: 34px;
+  height: 34px;
+  position: relative;
+}
+.bs-header__logo-bars::before,
+.bs-header__logo-bars::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 8px;
+  border-radius: 1px;
+}
+.bs-header__logo-bars::before { left: 0; background: #db4444; }
+.bs-header__logo-bars::after  { left: 12px; background: #000; }
+.bs-header__logo-bars { background: transparent; }
+.bs-header__logo-bars span { display:none; }
+
+/* Nav */
+.bs-header__navlink {
+  color: #000;
+  text-decoration: none;
+  font-size: 14px;
+  transition: color .2s ease;
+}
+.bs-header__navlink:hover { color: #ff0000; }
+
+/* Search */
+.bs-header__search {
+  display: flex;
+  align-items: center;
+  background: #f5f5f5;
+  border-radius: 6px;
+  padding: 6px 10px;
+  gap: 8px;
+  min-width: 280px;
+}
+
+.bs-header__search-input {
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 13px;
+  width: 100%;
+  min-width: 0;
+}
+
+.bs-header__iconbtn {
+  border: none;
+  background: transparent;
+  padding: 0;
+  color: #000;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: color .2s ease, transform .2s ease;
+  cursor: pointer;
+}
+
+.bs-header__iconbtn:hover {
+  color: #ff0000;
+  transform: translateY(-1px);
+}
+
+/* RoadMap wrapper - figma'daki absolute yerine layout uyumlu */
+.RoadMap {
+    padding: 0;
+    margin-top: 150px; /* istersen ayarla */
+    z-index: 99999;
+}
+
+/* Breadcrumb görünümü */
+.bs-roadmap .breadcrumb {
+    gap: 12px;
+    align-items: center;
+    font-size: 14px;
+}
+
+.bs-roadmap__link {
+    color: #000;
+    text-decoration: none;
+    transition: color .2s ease;
+}
+
+    .bs-roadmap__link:hover {
+        color: #ff0000;
+        text-decoration: underline;
+        text-decoration-color: #ff0000;
+    }
+
+
+.bs-header__icon { font-size: 18px; line-height: 1; }

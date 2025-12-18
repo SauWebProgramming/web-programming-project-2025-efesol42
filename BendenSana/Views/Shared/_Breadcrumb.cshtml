@@ -1,0 +1,51 @@
+﻿@{
+    var controller = (ViewContext.RouteData.Values["controller"]?.ToString() ?? "Home");
+    var action = (ViewContext.RouteData.Values["action"]?.ToString() ?? "Index");
+
+    // Home sayfasında sadece Home gösterelim
+    var isHome = controller.Equals("Home", StringComparison.OrdinalIgnoreCase)
+                 && action.Equals("Index", StringComparison.OrdinalIgnoreCase);
+
+    string ToText(string x)
+    {
+        // İstersen burada Türkçe isim map'i yaparsın
+        // örn: Product -> Ürünler
+        return x switch
+        {
+            "Home" => "Home",
+            "Product" => "Ürünler",
+            "Cart" => "Sepet",
+            "Favorite" => "Favoriler",
+            "Account" => "Hesap",
+            "Search" => "Arama",
+            _ => x
+        };
+    }
+}
+
+<nav aria-label="breadcrumb" class="bs-roadmap">
+    
+    <ol class="breadcrumb mb-0">
+
+        <!-- Home -->
+        @if (isHome)
+        {
+            <li class="breadcrumb-item active" aria-current="page">Home</li>
+        }
+        else
+        {
+            <li class="breadcrumb-item">
+                <a asp-controller="Home" asp-action="Index" class="bs-roadmap__link">Home</a>
+            </li>
+
+            <!-- Controller -->
+            <li class="breadcrumb-item active" aria-current="page">
+                @ToText(controller)
+            </li>
+
+            @* İstersen Action'ı da ekleyebilirsin:
+            <li class="breadcrumb-item active">@ToText(action)</li>
+            *@
+        }
+    </ol>
+</nav>

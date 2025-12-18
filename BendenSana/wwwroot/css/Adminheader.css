@@ -1,0 +1,236 @@
+﻿/* Wrapper */
+.adm-topbar {
+    width: 100%;
+    background: transparent;
+    position: fixed;
+    z-index: 100000;
+}
+
+/* Ortak buton kutusu */
+.adm-topbar__btn,
+.adm-topbar__user {
+    background: #fff;
+    border: 1px solid #E9ECEF;
+    border-radius: 8px;
+    padding: 8px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    line-height: 1;
+    transition: border-color .2s ease, box-shadow .2s ease, transform .2s ease;
+}
+
+.adm-topbar__btn:hover,
+.adm-topbar__user:hover {
+    border-color: #ff0000;
+    transform: translateY(-1px);
+}
+
+/* iconlar */
+.adm-topbar__icon {
+    width: 24px;
+    height: 24px;
+    object-fit: contain;
+}
+
+/* kırmızı nokta */
+.adm-topbar__dot {
+    width: 8px;
+    height: 8px;
+    background: #FF1F25;
+    border-radius: 9999px;
+    position: absolute;
+    top: 8px;
+    right: 8px;
+}
+
+/* user */
+.adm-topbar__avatar {
+    width: 24px;
+    height: 24px;
+    border-radius: 6px;
+    object-fit: cover;
+}
+
+.adm-topbar__name {
+    font-size: 14px;
+    font-weight: 500;
+    color: #343A40;
+}
+
+/* Bootstrap dropdown okunu kontrol (istersen) */
+.adm-topbar__user.dropdown-toggle::after {
+    margin-left: 8px;
+    vertical-align: middle;
+    opacity: 0.6;
+}
+
+
+/* ---- Layout Shell ---- */
+.adm-shell{
+  display: flex;
+  min-height: 100vh;
+  background: #f8f9fa;
+}
+
+/* ---- Sidebar ---- */
+.adm-sidebar{
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  width: 260px;
+  background: #000;
+  color: #fff;
+  overflow-y: auto; /* İçerik fazlaysa scroll */
+  z-index: 1040;
+  transition: transform .28s ease;
+  overflow: visible;
+  will-change: transform;
+}
+
+/* collapsed: sidebar sola kayar */
+.adm-shell.is-collapsed .adm-sidebar{
+  transform: translateX(-100%);
+}
+
+/* ---- Content ---- */
+.adm-content{
+  flex: 1;
+  min-width: 0;
+  padding: 24px;
+  transition: margin-left .28s ease;
+}
+
+/* İstersen içerik de sola kayarak boşluğu kapatsın */
+.adm-shell.is-collapsed .adm-content{
+  margin-left: 0;
+}
+
+/* ---- Sidebar Header ---- */
+.adm-sidebar__header{
+  padding: 32px 32px 16px 32px;
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+}
+
+.adm-sidebar__brand{
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: .2px;
+}
+
+/* Kırmızı toggle butonu */
+.adm-sidebar__toggle {
+    width: 40px;
+    height: 40px;
+    border: none;
+    background: #DB4444;
+    border-radius: 8px;
+    box-shadow: 0px 8px 32px rgba(206, 212, 218, 0.15);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    right: -30px;
+    cursor: pointer;
+    transition: transform .2s ease;
+    z-index:200000;
+    
+}
+
+.adm-sidebar__toggle:hover{
+  transform: translateY(-1px);
+}
+
+.adm-sidebar__toggle-icon{
+  color: #fff;
+  font-size: 18px;
+  line-height: 1;
+}
+
+/* Sidebar kapalıyken ok yönü değişsin */
+.adm-shell.is-collapsed .adm-sidebar__toggle-icon{
+  transform: rotate(180deg);
+}
+
+/* ---- Sidebar Body ---- */
+.adm-sidebar__body{
+  padding: 16px 32px 32px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+/* menu grup */
+.adm-sidebar__group{
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* settings */
+.adm-sidebar__settings{
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.adm-sidebar__label{
+  color: #979797;
+  font-size: 14px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .35px;
+}
+
+/* Menu item */
+.adm-sidebar__item{
+  width: 176px;
+  height: 48px;
+  padding: 0 12px;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+  color: #fff;
+  text-transform: uppercase;
+  font-size: 14px;
+  letter-spacing: .35px;
+  transition: color .2s ease, background-color .2s ease;
+}
+
+.adm-sidebar__item:hover{
+  color: #ff0000;
+  background: rgba(255, 0, 0, 0.08);
+}
+
+/* Aktif menü (istersen controller'a göre class basarsın) */
+.adm-sidebar__item.is-active{
+  background: rgba(255,255,255,0.06);
+}
+
+/* item icon */
+.adm-sidebar__item-icon{
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+}
+
+/* Mobilde sidebar overlay gibi gelsin (isteğe bağlı) */
+@media (max-width: 992px){
+  .adm-sidebar{
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 1040;
+  }
+  .adm-content{
+    padding: 16px;
+  }
+}
