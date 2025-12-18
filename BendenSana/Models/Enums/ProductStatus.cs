@@ -1,1 +1,1 @@
-public enum ProductStatus { draft, published, sold, blocked }
+public enum ProductStatus { draft, published, sold, blocked,available }

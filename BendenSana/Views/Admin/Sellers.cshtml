@@ -1,0 +1,90 @@
+﻿@model List<BendenSana.ViewModels.SellerListViewModel>
+
+@{
+    ViewData["Title"] = "Satıcılar";
+    Layout = "~/Views/Shared/_Layout.cshtml"; 
+}
+
+<div class="container-fluid py-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <span class="text-danger fw-bold border-start border-4 border-danger ps-2">Featured</span>
+            <h2 class="fw-bold mt-2">Satıcılar</h2>
+        </div>
+
+        <div class="bg-white p-2 rounded shadow-sm" style="min-width: 300px;">
+            <input type="text" class="form-control border-0" placeholder="Search..." id="sellerSearch">
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm">
+        <div class="card-body p-0">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="bg-light text-secondary">
+                    <tr>
+                        <th scope="col" class="ps-4">#</th>
+                        <th scope="col">Full Name</th>
+                        <th scope="col">E-Mail</th>
+                        <th scope="col">Address</th>
+                        <th scope="col" class="text-end pe-4">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model != null && Model.Any())
+                    {
+                        int index = 1;
+                        foreach (var seller in Model)
+                        {
+                            <tr>
+                                <td class="ps-4 text-muted">@index</td>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div class="bg-light rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+                                            <span class="fw-bold text-secondary">@seller.FullName.Substring(0, 1)</span>
+                                        </div>
+                                        <span class="fw-semibold">@seller.FullName</span>
+                                    </div>
+                                </td>
+                                <td class="text-muted">@seller.Email</td>
+                                <td class="text-muted">@seller.Address</td>
+                                <td class="text-end pe-4">
+                                    <div class="d-flex justify-content-end gap-2">
+                                        <a asp-controller="Admin" asp-action="Details" asp-route-id="@seller.Id" class="btn btn-light btn-sm border" title="Detay">
+                                            <i class="bi bi-arrow-up-right"></i> ↗
+                                        </a>
+                                        <form asp-action="DeleteUser" asp-controller="Admin" method="post" onsubmit="return confirm('Bu satıcıyı silmek istediğinize emin misiniz?');">
+                                            <input type="hidden" name="id" value="@seller.Id" />
+                                            <button type="submit" class="btn btn-light btn-sm border text-danger" title="Sil">
+                                                <i class="bi bi-trash"></i> 🗑
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                            index++;
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="5" class="text-center py-4">Hiç satıcı bulunamadı.</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.getElementById('sellerSearch').addEventListener('keyup', function() {
+        var value = this.value.toLowerCase();
+        var rows = document.querySelectorAll("tbody tr");
+
+        rows.forEach(function(row) {
+            var text = row.textContent.toLowerCase();
+            row.style.display = text.indexOf(value) > -1 ? "" : "none";
+        });
+    });
+</script>

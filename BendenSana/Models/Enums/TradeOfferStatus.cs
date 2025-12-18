@@ -1,1 +1,0 @@
-public enum TradeOfferStatus { pending, accepted, rejected, cancelled }

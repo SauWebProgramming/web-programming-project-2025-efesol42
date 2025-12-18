@@ -1,0 +1,106 @@
+﻿@model IEnumerable<global::CartItem>
+
+@{
+    ViewData["Title"] = "Sepetim";
+    decimal totalCartPrice = 0;
+}
+
+<div class="container mt-5">
+    <div class="d-flex align-items-center mb-4">
+        <i class="bi bi-cart3 fs-1 me-3 text-primary"></i>
+        <h2 class="mb-0">Alışveriş Sepetim</h2>
+    </div>
+
+    @if (Model == null || !Model.Any())
+    {
+        <div class="alert alert-warning shadow-sm">
+            <h4 class="alert-heading"><i class="bi bi-exclamation-circle"></i> Sepetiniz Boş!</h4>
+            <p>Sepetinizde henüz ürün bulunmamaktadır. Hemen alışverişe başlayıp fırsatları yakalayabilirsiniz.</p>
+            <hr>
+            <a href="/Product" class="btn btn-warning text-dark fw-bold">
+                <i class="bi bi-arrow-left"></i> Alışverişe Başla
+            </a>
+        </div>
+    }
+    else
+    {
+        <div class="card shadow-sm">
+            <div class="card-body p-0">
+                <table class="table table-hover table-striped mb-0">
+                    <thead class="bg-light">
+                        <tr>
+                            <th style="width: 40%">Ürün</th>
+                            <th style="width: 15%">Birim Fiyat</th>
+                            <th style="width: 15%">Adet</th>
+                            <th style="width: 15%">Toplam</th>
+                            <th style="width: 15%">İşlem</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            
+                            if (item.Product != null)
+                            {
+                                var lineTotal = item.Product.Price * item.Quantity;
+                                totalCartPrice += lineTotal;
+                                <tr>
+                                    <td class="align-middle">
+                                        <div class="d-flex align-items-center">
+                                            @if (item.Product.Images != null && item.Product.Images.Any())
+                                            {
+                                                <img src="@item.Product.Images.First().ImageUrl"
+                                                     alt="@item.Product.Title"
+                                                     class="rounded border me-3"
+                                                     width="60" height="60" style="object-fit: cover;" />
+                                            }
+                                            else
+                                            {
+                                                <div class="bg-secondary text-white d-flex align-items-center justify-content-center rounded me-3"
+                                                     style="width: 60px; height: 60px;">
+                                                    <i class="bi bi-camera-fill"></i>
+                                                </div>
+                                            }
+
+                                            <div>
+                                                <h6 class="mb-0">@item.Product.Title</h6>
+                                                <small class="text-muted">Kod: #@item.Product.Id</small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="align-middle">@item.Product.Price.ToString("C2")</td>
+                                    <td class="align-middle">
+                                        <span class="badge bg-white text-dark border border-secondary px-3 py-2">
+                                            @item.Quantity Adet
+                                        </span>
+                                    </td>
+                                    <td class="align-middle fw-bold text-primary">@lineTotal.ToString("C2")</td>
+                                    <td class="align-middle">
+                                        <a asp-action="RemoveFromCart" asp-route-id="@item.Id" class="btn btn-outline-danger btn-sm" title="Sepetten Çıkar">
+                                            <i class="bi bi-trash"></i> Sil
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+            <div class="card-footer bg-white p-4">
+                <div class="row align-items-center">
+                    <div class="col-md-6">
+                        <a href="/Product" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-left"></i> Alışverişe Devam Et
+                        </a>
+                    </div>
+                    <div class="col-md-6 text-end">
+                        <h4 class="mb-3">Genel Toplam: <span class="text-success fw-bold">@totalCartPrice.ToString("C2")</span></h4>
+                        <a asp-controller="Order" asp-action="Checkout" class="btn btn-success btn-lg w-100">
+                            Siparişi Tamamla <i class="bi bi-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>

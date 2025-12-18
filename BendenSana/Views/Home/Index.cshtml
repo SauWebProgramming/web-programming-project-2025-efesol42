@@ -1,8 +1,148 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+﻿@model List<Product>
+
+@{
+    ViewData["Title"] = "Ana Sayfa";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="p-5 mb-4 bg-light rounded-3 shadow-sm" style="background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);">
+    <div class="container-fluid py-5 text-center">
+        <h1 class="display-5 fw-bold text-dark mb-3">Benden Sana, Senden Bana!</h1>
+        <p class="fs-4 text-muted mb-4">İhtiyacın olmayanı sat, hayalindekini takasla. <br>Güvenli alışverişin ve takasın yeni adresi.</p>
+
+        <div class="row justify-content-center mb-4">
+            <div class="col-md-8 col-lg-6">
+                <form asp-controller="Product" asp-action="Index" method="get" class="d-flex bg-white p-1 rounded-pill shadow-sm border">
+                    <input type="text" name="search" class="form-control border-0 rounded-pill px-4" placeholder="Ne arıyorsun? (Örn: PS5, Bisiklet...)" aria-label="Search">
+                    <button class="btn btn-primary rounded-pill px-4 fw-bold" type="submit">
+                        <i class="bi bi-search"></i> Ara
+                    </button>
+                </form>
+            </div>
+        </div>
+        <div class="mt-4">
+            @if (User.Identity.IsAuthenticated)
+            {
+                <a asp-controller="Product" asp-action="Create" class="btn btn-outline-dark btn-lg px-4">
+                    <i class="bi bi-camera"></i> Hemen Sat / İlan Ver
+                </a>
+            }
+            else
+            {
+                <a asp-controller="Account" asp-action="Register" class="btn btn-dark btn-lg px-4">
+                    <i class="bi bi-person-plus"></i> Aramıza Katıl
+                </a>
+            }
+        </div>
+    </div>
 </div>
+
+<div class="container">
+
+    <div class="row mb-5 text-center">
+        <div class="col-12 mb-3">
+            <h3 class="fw-bold text-secondary">Popüler Kategoriler</h3>
+        </div>
+        <div class="col-md-3 col-6 mb-3">
+            <a asp-controller="Product" asp-action="Index" asp-route-categoryId="1" class="card border-0 shadow-sm text-decoration-none hover-up h-100">
+                <div class="card-body">
+                    <i class="bi bi-laptop fs-1 text-primary"></i>
+                    <h5 class="mt-2 text-dark">Elektronik</h5>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-3 col-6 mb-3">
+            <a asp-controller="Product" asp-action="Index" asp-route-categoryId="2" class="card border-0 shadow-sm text-decoration-none hover-up h-100">
+                <div class="card-body">
+                    <i class="bi bi-controller fs-1 text-danger"></i>
+                    <h5 class="mt-2 text-dark">Hobi & Oyun</h5>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-3 col-6 mb-3">
+            <a asp-controller="Product" asp-action="Index" asp-route-categoryId="3" class="card border-0 shadow-sm text-decoration-none hover-up h-100">
+                <div class="card-body">
+                    <i class="bi bi-book fs-1 text-success"></i>
+                    <h5 class="mt-2 text-dark">Kitap & Dergi</h5>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-3 col-6 mb-3">
+            <a asp-controller="Product" asp-action="Index" asp-route-categoryId="4" class="card border-0 shadow-sm text-decoration-none hover-up h-100">
+                <div class="card-body">
+                    <i class="bi bi-bicycle fs-1 text-warning"></i>
+                    <h5 class="mt-2 text-dark">Spor & Outdoor</h5>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="fw-bold"><i class="bi bi-stars text-warning"></i> Vitrin</h3>
+        <a asp-controller="Product" asp-action="Index" class="text-decoration-none fw-bold">Tümünü Gör <i class="bi bi-arrow-right"></i></a>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-light text-center py-5 border">
+            <p class="mb-0 text-muted">Henüz vitrine eklenecek ürün yok. İlk ilanı sen ver!</p>
+        </div>
+    }
+    else
+    {
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-4 g-4 mb-5">
+            @foreach (var item in Model)
+            {
+                <div class="col">
+                    <div class="card h-100 border-0 shadow-sm product-card">
+                        <div class="position-relative overflow-hidden rounded-top" style="height: 200px;">
+                            @if (item.Images != null && item.Images.Any())
+                            {
+                                <img src="@item.Images.First().ImageUrl" class="card-img-top w-100 h-100" style="object-fit: cover;" alt="@item.Title">
+                            }
+                            else
+                            {
+                                <div class="bg-light w-100 h-100 d-flex align-items-center justify-content-center text-muted">
+                                    <i class="bi bi-image fs-1"></i>
+                                </div>
+                            }
+                            <span class="position-absolute bottom-0 start-0 bg-dark text-white px-2 py-1 m-2 rounded small fw-bold shadow">
+                                @item.Price.ToString("C0")
+                            </span>
+                        </div>
+
+                        <div class="card-body">
+                            <h6 class="card-title text-truncate">
+                                <a asp-controller="Product" asp-action="Details" asp-route-id="@item.Id" class="text-decoration-none text-dark fw-bold stretched-link">
+                                    @item.Title
+                                </a>
+                            </h6>
+                            <small class="text-muted d-block mb-2">
+                                <i class="bi bi-person"></i> @(item.Seller?.UserName ?? "Satıcı")
+                            </small>
+                            <small class="text-muted">
+                                <i class="bi bi-clock"></i> @item.CreatedAt.ToString("dd.MM.yyyy")
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+<style>
+    .hover-up:hover {
+        transform: translateY(-5px);
+        transition: 0.3s;
+        background-color: #fff;
+    }
+
+    .product-card {
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 .5rem 1rem rgba(0,0,0,.15) !important;
+        }
+</style>

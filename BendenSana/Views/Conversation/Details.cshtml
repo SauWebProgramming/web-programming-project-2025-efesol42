@@ -1,0 +1,78 @@
+﻿@using Microsoft.AspNetCore.Identity
+@inject UserManager<ApplicationUser> UserManager
+@model Conversation
+
+@{
+    ViewData["Title"] = "Sohbet";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var currentUserId = UserManager.GetUserId(User);
+    var otherUser = (Model.BuyerId == currentUserId) ? Model.Seller : Model.Buyer;
+}
+
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow-sm" style="height: 80vh; display: flex; flex-direction: column;">
+
+                <div class="card-header bg-white py-3 border-bottom">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="d-flex align-items-center">
+                            <a asp-action="Index" class="btn btn-sm btn-light me-2 rounded-circle"><i class="bi bi-arrow-left"></i></a>
+                            <div>
+                                <h6 class="mb-0 fw-bold">@otherUser?.UserName</h6>
+                                <a asp-controller="Product" asp-action="Details" asp-route-id="@Model.ProductId" class="text-decoration-none small text-muted">
+                                    <i class="bi bi-box-arrow-up-right"></i> @Model.Product?.Title
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-body bg-light overflow-auto p-4" id="chatBox" style="flex: 1;">
+                    @if (Model.Messages != null && Model.Messages.Any())
+                    {
+                        foreach (var msg in Model.Messages.OrderBy(m => m.SentAt))
+                        {
+                            bool isMe = (msg.SenderId == currentUserId);
+
+                            <div class="d-flex mb-3 @(isMe ? "justify-content-end" : "justify-content-start")">
+                                <div class="px-3 py-2 rounded-3 shadow-sm @(isMe ? "bg-primary text-white" : "bg-white text-dark")" style="max-width: 75%; position: relative;">
+                                    <p class="mb-1 text-break">@msg.Content</p>
+                                    <small class="@(isMe ? "text-light" : "text-muted") opacity-75 d-block text-end" style="font-size: 0.65rem;">
+                                        @msg.SentAt.ToString("HH:mm")
+                                    </small>
+                                </div>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <div class="text-center mt-5 text-muted opacity-50">
+                            <i class="bi bi-chat-dots fs-1"></i>
+                            <p>Sohbeti başlatın...</p>
+                        </div>
+                    }
+                </div>
+
+                <div class="card-footer bg-white p-3 border-top">
+                    <form asp-action="SendMessage" method="post" class="d-flex gap-2">
+                        <input type="hidden" name="conversationId" value="@Model.Id" />
+                        <input type="text" name="content" class="form-control rounded-pill bg-light border-0 px-3" placeholder="Bir mesaj yazın..." required autocomplete="off" />
+                        <button type="submit" class="btn btn-primary rounded-circle" style="width: 40px; height: 40px;">
+                            <i class="bi bi-send-fill"></i>
+                        </button>
+                    </form>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+   
+    window.onload = function () {
+        var chatBox = document.getElementById("chatBox");
+        chatBox.scrollTop = chatBox.scrollHeight;
+    }
+</script>

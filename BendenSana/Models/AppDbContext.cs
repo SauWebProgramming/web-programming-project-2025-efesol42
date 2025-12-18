@@ -1,5 +1,6 @@
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+
 
 public class AppDbContext : IdentityDbContext<ApplicationUser>
 {
@@ -24,12 +25,14 @@ public class AppDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<Review> Reviews => Set<Review>();
     public DbSet<ProductReport> ProductReports => Set<ProductReport>();
 
+    
+
     protected override void OnModelCreating(ModelBuilder b)
     {
         base.OnModelCreating(b);
 
-        // A) Enum -> string (CHECK�lere birebir yakla�mak i�in)
-        b.Entity<Product>().Property(x => x.Gender).HasConversion<string>();
+       
+        b.Entity<Product>().Property(x => x.Gender).HasConversion<string>();
         b.Entity<Product>().Property(x => x.Status).HasConversion<string>();
         b.Entity<Coupon>().Property(x => x.DiscountType).HasConversion<string>();
         b.Entity<Order>().Property(x => x.PaymentMethod).HasConversion<string>();
@@ -37,23 +40,23 @@ public class AppDbContext : IdentityDbContext<ApplicationUser>
         b.Entity<TradeOffer>().Property(x => x.Status).HasConversion<string>();
         b.Entity<TradeItem>().Property(x => x.ItemType).HasConversion<string>();
 
-        // B) Parent-Child delete davran��� (SQL�de parent_id FK var ama davran�� belirtilmemi�) :contentReference[oaicite:21]{index=21}
-        b.Entity<Category>()
-            .HasOne(x => x.Parent)
-            .WithMany(x => x.Children)
-            .HasForeignKey(x => x.ParentId)
-            .OnDelete(DeleteBehavior.Restrict);
+       
+        b.Entity<Category>()
+      .HasOne(x => x.Parent)
+      .WithMany(x => x.Children)
+      .HasForeignKey(x => x.ParentId)
+      .OnDelete(DeleteBehavior.Restrict);
 
-        // C) SQL�de ON DELETE CASCADE olanlar :contentReference[oaicite:22]{index=22}
-        b.Entity<UserCard>().HasOne(x => x.User).WithMany().HasForeignKey(x => x.UserId).OnDelete(DeleteBehavior.Cascade);
+        b.Entity<UserCard>().HasOne(x => x.User).WithMany().HasForeignKey(x => x.UserId).OnDelete(DeleteBehavior.Cascade);
         b.Entity<ProductImage>().HasOne(x => x.Product).WithMany(p => p.Images).HasForeignKey(x => x.ProductId).OnDelete(DeleteBehavior.Cascade);
         b.Entity<OrderItem>().HasOne(x => x.Order).WithMany(o => o.Items).HasForeignKey(x => x.OrderId).OnDelete(DeleteBehavior.Cascade);
-        b.Entity<TradeItem>().HasOne(x => x.TradeOffer).WithMany(t => t.Items).HasForeignKey(x => x.TradeId).OnDelete(DeleteBehavior.Cascade);
-        b.Entity<Message>().HasOne(x => x.Conversation).WithMany(c => c.Messages).HasForeignKey(x => x.ConversationId).OnDelete(DeleteBehavior.Cascade);
+        b.Entity<TradeItem>().HasOne(x => x.TradeOffer).WithMany(t => t.Items).HasForeignKey(x => x.TradeId).OnDelete(DeleteBehavior.Cascade);
+        //b.Entity<TradeItem>().HasOne(x => x.TradeOffer).WithMany(t => t.Items).HasForeignKey(x => x.TradeId).OnDelete(DeleteBehavior.Cascade);
+        b.Entity<Message>().HasOne(x => x.Conversation).WithMany(c => c.Messages).HasForeignKey(x => x.ConversationId).OnDelete(DeleteBehavior.Cascade);
         b.Entity<ProductReport>().HasOne(x => x.Product).WithMany().HasForeignKey(x => x.ProductId).OnDelete(DeleteBehavior.Cascade);
 
-        // D) User FK�lerde �kullan�c� silinince her �ey u�mas�n� diye Restrict (�nerilen)
-        b.Entity<Product>().HasOne(x => x.Seller).WithMany().HasForeignKey(x => x.SellerId).OnDelete(DeleteBehavior.Restrict);
+        
+        b.Entity<Product>().HasOne(x => x.Seller).WithMany().HasForeignKey(x => x.SellerId).OnDelete(DeleteBehavior.Restrict);
         b.Entity<Order>().HasOne(x => x.Buyer).WithMany().HasForeignKey(x => x.BuyerId).OnDelete(DeleteBehavior.Restrict);
         b.Entity<OrderItem>().HasOne(x => x.Seller).WithMany().HasForeignKey(x => x.SellerId).OnDelete(DeleteBehavior.Restrict);
         b.Entity<Message>().HasOne(x => x.Sender).WithMany().HasForeignKey(x => x.SenderId).OnDelete(DeleteBehavior.Restrict);
@@ -62,11 +65,11 @@ public class AppDbContext : IdentityDbContext<ApplicationUser>
         b.Entity<TradeOffer>().HasOne(x => x.Offerer).WithMany().HasForeignKey(x => x.OffererId).OnDelete(DeleteBehavior.Restrict);
         b.Entity<TradeOffer>().HasOne(x => x.Receiver).WithMany().HasForeignKey(x => x.ReceiverId).OnDelete(DeleteBehavior.Restrict);
 
-        // E) CHECK constraint�ler (SQL�de var) :contentReference[oaicite:23]{index=23}
-        b.Entity<Product>().ToTable(t =>
+        
+        b.Entity<Product>().ToTable(t =>
         {
             t.HasCheckConstraint("CK_Products_Gender", "Gender IN ('Male','Female','Unisex','Kids')");
-            t.HasCheckConstraint("CK_Products_Status", "Status IN ('draft','published','sold','blocked')");
+            t.HasCheckConstraint("CK_Products_Status", "Status IN ('available', 'draft','published','sold','blocked')");
         });
 
         b.Entity<Coupon>().ToTable(t =>
@@ -82,7 +85,8 @@ public class AppDbContext : IdentityDbContext<ApplicationUser>
 
         b.Entity<TradeOffer>().ToTable(t =>
         {
-            t.HasCheckConstraint("CK_TradeOffers_Status", "Status IN ('pending','accepted','rejected','cancelled')");
+           
+            t.HasCheckConstraint("CK_TradeOffers_Status", "Status IN ('pending', 'accepted', 'rejected', 'cancelled', 'Pending', 'Accepted', 'Rejected', 'Cancelled')");
         });
 
         b.Entity<TradeItem>().ToTable(t =>

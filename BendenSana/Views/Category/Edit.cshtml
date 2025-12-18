@@ -1,0 +1,79 @@
+﻿@model global::Category
+
+@{
+    ViewData["Title"] = "Edit Category";
+}
+
+<div class="container mt-5">
+    <div class="d-flex align-items-center gap-3 mb-4">
+        <a asp-action="Index" class="btn btn-danger btn-sm rounded text-white">
+            <i class="bi bi-arrow-left"></i>
+        </a>
+        <h1 class="fw-bold mb-0">Edit Category</h1>
+    </div>
+
+    <form asp-action="Edit" method="post" enctype="multipart/form-data">
+        <input type="hidden" asp-for="Id" />
+
+        <input type="hidden" asp-for="ImageUrl" />
+
+        <div class="card shadow-sm border-0">
+            <div class="card-header bg-white py-3">
+                <h5 class="mb-0 fw-bold">Basic details</h5>
+            </div>
+            <div class="card-body">
+
+                <div class="row">
+                    <div class="col-md-8">
+                        <div class="mb-4">
+                            <label class="form-label text-muted">Category Name</label>
+                            <input asp-for="Name" class="form-control form-control-lg" />
+                            <span asp-validation-for="Name" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label text-muted">Update Image</label>
+                            <input type="file" name="imageFile" class="form-control" accept="image/*" />
+                            <div class="form-text">Değiştirmek istemiyorsanız boş bırakın.</div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4 text-center">
+                        <label class="form-label text-muted d-block">Current Image</label>
+                        @if (!string.IsNullOrEmpty(Model.ImageUrl))
+                        {
+                            <img src="@Model.ImageUrl" class="img-thumbnail rounded shadow-sm" style="max-height: 200px;" />
+                        }
+                        else
+                        {
+                            <div class="alert alert-secondary py-5">
+                                <i class="bi bi-image-alt fs-1"></i>
+                                <p>Resim Yok</p>
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                <div class="mt-4 border-top pt-4">
+                    <label class="form-label fw-bold">Sub Categories</label>
+                    <div class="p-3 bg-light rounded border">
+                        <div class="d-flex flex-wrap gap-2 mb-3">
+                            <span class="badge bg-white text-dark border p-2 d-flex align-items-center gap-2">
+                                Örnek Etiket <i class="bi bi-x text-muted" style="cursor:pointer"></i>
+                            </span>
+                        </div>
+                        <div class="input-group">
+                            <input type="text" class="form-control" placeholder="sub category" disabled>
+                            <button class="btn btn-primary" type="button" disabled>Add</button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <div class="card-footer bg-light py-3 d-flex justify-content-end gap-2">
+                <a asp-action="Index" class="btn btn-outline-secondary">Cancel</a>
+                <button type="submit" class="btn btn-success px-5">Update Category</button>
+            </div>
+        </div>
+    </form>
+</div>

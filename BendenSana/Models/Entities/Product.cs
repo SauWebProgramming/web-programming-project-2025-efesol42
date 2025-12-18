@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -38,5 +38,10 @@ public class Product
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime? UpdatedAt { get; set; }
 
+    // Resimler Koleksiyonu (Zaten vardı)
     public ICollection<ProductImage> Images { get; set; } = new List<ProductImage>();
+
+    // 👇 EKLENMESİ GEREKEN SATIR BU 👇
+    // Bu satır sayesinde Repository'de ".Include(x => x.Reviews)" diyebileceğiz.
+    public virtual ICollection<Review> Reviews { get; set; } = new List<Review>();
 }

@@ -1,0 +1,120 @@
+﻿@model Order
+
+@{
+    ViewData["Title"] = "Sipariş Detayı";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container py-5">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h6 class="text-muted mb-1">Sipariş Detayı</h6>
+            <h2 class="fw-bold">@Model.OrderCode</h2>
+        </div>
+        <a asp-action="Index" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i> Listeye Dön
+        </a>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-white py-3">
+                    <h5 class="mb-0 fw-bold">Sepet İçeriği</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table align-middle mb-0">
+                            <tbody>
+                                @foreach (var item in Model.Items)
+                                {
+                                    <tr>
+                                        <td class="ps-4" style="width: 100px;">
+                                            @if (item.Product.Images != null && item.Product.Images.Any())
+                                            {
+                                                <img src="@item.Product.Images.First().ImageUrl" class="img-fluid rounded" style="width: 60px; height: 60px; object-fit: cover;">
+                                            }
+                                            else
+                                            {
+                                                <div class="bg-light rounded d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
+                                                    <i class="bi bi-image text-muted"></i>
+                                                </div>
+                                            }
+                                        </td>
+                                        <td>
+                                            <a asp-controller="Product" asp-action="Details" asp-route-id="@item.ProductId" class="text-decoration-none text-dark fw-bold">
+                                                @item.Product.Title
+                                            </a>
+                                            <div class="small text-muted">Satıcı: @(item.Seller?.UserName ?? "-")</div>
+                                        </td>
+                                        <td class="text-center">x @item.Quantity</td>
+                                        <td class="text-end pe-4 fw-bold">@item.Price.ToString("C")</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body">
+                    <h6 class="text-muted text-uppercase small fw-bold">Sipariş Durumu</h6>
+                    <h4 class="mb-3">
+                        <span class="badge bg-warning text-dark">@Model.Status</span>
+                    </h4>
+                    <small class="text-muted">Sipariş Tarihi: @Model.CreatedAt.ToString("dd.MM.yyyy HH:mm")</small>
+                </div>
+            </div>
+
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-white">
+                    <h6 class="mb-0 fw-bold">Teslimat Adresi</h6>
+                </div>
+                <div class="card-body">
+                    @if (Model.Address != null)
+                    {
+                        <h6 class="fw-bold">@Model.Address.Title</h6>
+                        <p class="mb-1 text-muted small">@Model.Address.AddressLine</p>
+                        <p class="mb-0 fw-bold small">@Model.Address.City / @Model.Address.Country</p>
+                    }
+                    else
+                    {
+                        <span class="text-muted fst-italic">Adres bilgisi bulunamadı.</span>
+                    }
+                </div>
+            </div>
+
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white">
+                    <h6 class="mb-0 fw-bold">Ödeme Özeti</h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Ara Toplam</span>
+                        <span>@Model.Subtotal.ToString("C")</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Kargo</span>
+                        <span>@Model.ShippingCost.ToString("C")</span>
+                    </div>
+                    @if (Model.DiscountAmount > 0)
+                    {
+                        <div class="d-flex justify-content-between mb-2 text-success">
+                            <span>İndirim</span>
+                            <span>-@Model.DiscountAmount.ToString("C")</span>
+                        </div>
+                    }
+                    <hr />
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="h6 fw-bold mb-0">Genel Toplam</span>
+                        <span class="h5 fw-bold text-primary mb-0">@Model.TotalPrice.ToString("C")</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

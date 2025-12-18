@@ -1,0 +1,55 @@
+﻿@model global::TradeOffer
+
+@{
+    ViewData["Title"] = "Takas Teklifi Oluştur";
+    var targetProductName = ViewBag.TargetProductName as string;
+    var sellerName = ViewBag.SellerName as string;
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-lg border-0">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0"><i class="bi bi-arrow-left-right"></i> Takas Teklifi</h4>
+                </div>
+                <div class="card-body p-4">
+
+                    <div class="alert alert-light border mb-4">
+                        <strong>@targetProductName</strong> ürünü için <strong>@sellerName</strong> kullanıcısına teklif yapıyorsunuz.
+                    </div>
+
+                    <form asp-action="Create" method="post">
+                        <input type="hidden" name="targetProductId" value="@ViewBag.TargetProductId" />
+
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">Senin Ürünlerin (Takas etmek istediğini seç)</label>
+                            <select name="offeredProductId" class="form-select" asp-items="ViewBag.MyProducts">
+                                <option value="">-- Ürün Seçmeyip Sadece Para Teklif Edeceğim --</option>
+                            </select>
+                            <div class="form-text text-muted">İsterseniz sadece para teklif edebilirsiniz.</div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">Üzerine Nakit Para (Opsiyonel)</label>
+                            <div class="input-group">
+                                <span class="input-group-text">₺</span>
+                                <input type="number" name="offeredCash" class="form-control" placeholder="0.00" step="0.01" min="0" />
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">Satıcıya Notun</label>
+                            <textarea name="message" class="form-control" rows="3" placeholder="Örn: Üstüne 100 lira veririm, kargo benden olsun..."></textarea>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-success btn-lg">Teklifi Gönder 🚀</button>
+                            <a asp-controller="Products" asp-action="Details" asp-route-id="@ViewBag.TargetProductId" class="btn btn-outline-secondary">Vazgeç</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

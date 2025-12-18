@@ -1,0 +1,76 @@
+﻿@model List<Favorite>
+
+@{
+    ViewData["Title"] = "Favorilerim";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container py-5">
+    <div class="d-flex align-items-center gap-3 mb-4">
+        <h2 class="fw-bold mb-0"><i class="bi bi-heart-fill text-danger"></i> Favorilerim</h2>
+        <span class="badge bg-secondary rounded-pill">@Model.Count Ürün</span>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="text-center py-5 border rounded bg-light shadow-sm">
+            <i class="bi bi-heartbreak text-muted" style="font-size: 4rem;"></i>
+            <h4 class="mt-3 fw-bold text-muted">Listeniz Boş</h4>
+            <p class="text-muted">Henüz favori listenize bir ürün eklemediniz.</p>
+            <a asp-controller="Product" asp-action="Index" class="btn btn-primary mt-2 px-4">
+                Ürünleri Keşfet
+            </a>
+        </div>
+    }
+    else
+    {
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
+            @foreach (var fav in Model)
+            {
+                <div class="col">
+                    <div class="card h-100 shadow-sm border-0 position-relative">
+
+                        <form asp-controller="Favorite" asp-action="Toggle" method="post" class="position-absolute top-0 end-0 m-2" style="z-index: 10;">
+                            <input type="hidden" name="productId" value="@fav.Product.Id" />
+                            <button type="submit" class="btn btn-light btn-sm rounded-circle shadow-sm text-danger" title="Listeden Kaldır">
+                                <i class="bi bi-x-lg"></i>
+                            </button>
+                        </form>
+
+                        <a asp-controller="Product" asp-action="Details" asp-route-id="@fav.Product.Id" class="text-decoration-none text-dark">
+                            <div class="overflow-hidden rounded-top" style="height: 200px;">
+                                <img src="@(fav.Product.Images?.FirstOrDefault()?.ImageUrl ?? "https://via.placeholder.com/300x300?text=Resim+Yok")"
+                                     class="card-img-top h-100 w-100"
+                                     style="object-fit: cover; transition: transform 0.3s;"
+                                     onmouseover="this.style.transform='scale(1.05)'"
+                                     onmouseout="this.style.transform='scale(1)'"
+                                     alt="@fav.Product.Title">
+                            </div>
+
+                            <div class="card-body">
+                                <h6 class="card-title text-truncate fw-bold mb-1" title="@fav.Product.Title">
+                                    @fav.Product.Title
+                                </h6>
+                                <p class="card-text text-primary fw-bold mb-2">
+                                    @fav.Product.Price.ToString("C2")
+                                </p>
+                                <small class="text-muted" style="font-size: 0.8rem;">
+                                    <i class="bi bi-clock"></i> Eklenme: @fav.CreatedAt.ToString("dd.MM.yyyy")
+                                </small>
+                            </div>
+                        </a>
+
+                        <div class="card-footer bg-white border-top-0 pt-0">
+                            <div class="d-grid">
+                                <a asp-controller="Product" asp-action="Details" asp-route-id="@fav.Product.Id" class="btn btn-outline-primary btn-sm">
+                                    <i class="bi bi-cart-plus"></i> Ürüne Git
+                                </a>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>

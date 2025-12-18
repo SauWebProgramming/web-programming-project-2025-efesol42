@@ -1,0 +1,43 @@
+﻿@{
+    ViewData["Title"] = "Ürün Bildir";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow border-0">
+                <div class="card-header bg-danger text-white">
+                    <h5 class="mb-0"><i class="bi bi-exclamation-triangle-fill"></i> Ürün Şikayet Et</h5>
+                </div>
+                <div class="card-body p-4">
+                    <form asp-action="Report" method="post">
+                        <input type="hidden" name="productId" value="@ViewBag.ProductId" />
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Şikayet Sebebi</label>
+                            <select name="reason" class="form-select" required>
+                                <option value="">Seçiniz...</option>
+                                <option value="Sahte Ürün">Sahte / Replika Ürün</option>
+                                <option value="Dolandırıcılık">Dolandırıcılık Şüphesi</option>
+                                <option value="Yasaklı Ürün">Yasaklı / İllegal Ürün</option>
+                                <option value="Hakaret/Küfür">Açıklamada Hakaret/Küfür</option>
+                                <option value="Diğer">Diğer</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Açıklama (Opsiyonel)</label>
+                            <textarea name="description" class="form-control" rows="4" maxlength="500" placeholder="Detayları buraya yazabilirsiniz..."></textarea>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-danger">Bildirimi Gönder</button>
+                            <a href="javascript:history.back()" class="btn btn-link text-muted">İptal</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

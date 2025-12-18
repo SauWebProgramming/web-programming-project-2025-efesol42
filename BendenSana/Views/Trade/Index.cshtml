@@ -1,0 +1,201 @@
+﻿@using System.Security.Claims
+@model List<TradeOffer>
+
+@{
+    ViewData["Title"] = "Takaslarım";
+    var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+   
+    var incomingOffers = Model.Where(x => x.ReceiverId == currentUserId).ToList();
+    var outgoingOffers = Model.Where(x => x.OffererId == currentUserId).ToList();
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="bi bi-arrow-left-right"></i> Takaslarım</h2>
+        <a asp-controller="Home" asp-action="Index" class="btn btn-outline-secondary">Alışverişe Dön</a>
+    </div>
+
+    <ul class="nav nav-tabs mb-3" id="tradeTabs" role="tablist">
+        <li class="nav-item">
+            <button class="nav-link active" id="incoming-tab" data-bs-toggle="tab" data-bs-target="#incoming" type="button">
+                📩 Gelen Teklifler
+                @if (incomingOffers.Any(x => x.Status == TradeOfferStatus.Pending))
+                {
+                    <span class="badge bg-danger ms-1">@incomingOffers.Count(x => x.Status == TradeOfferStatus.Pending)</span>
+                }
+            </button>
+        </li>
+        <li class="nav-item">
+            <button class="nav-link" id="outgoing-tab" data-bs-toggle="tab" data-bs-target="#outgoing" type="button">
+                📤 Giden Teklifler
+            </button>
+        </li>
+    </ul>
+
+    <div class="tab-content" id="tradeTabsContent">
+
+        <div class="tab-pane fade show active" id="incoming">
+            @if (!incomingOffers.Any())
+            {
+                <div class="alert alert-light text-center border p-5">
+                    <i class="bi bi-inbox fs-1 text-muted"></i>
+                    <p class="mt-3">Henüz size gelen bir takas teklifi yok.</p>
+                </div>
+            }
+            else
+            {
+                <div class="row">
+                    @foreach (var item in incomingOffers)
+                    {
+                        <div class="col-md-6 mb-4">
+                            <div class="card h-100 shadow-sm border-start border-4 @GetStatusBorder(item.Status)">
+                                <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                                    <h6 class="mb-0 fw-bold">
+                                        <i class="bi bi-person-circle"></i> @item.Offerer.UserName
+                                    </h6>
+                                    <span class="badge @GetStatusBadge(item.Status)">@item.Status</span>
+                                </div>
+                                <div class="card-body">
+                                    <small class="text-muted d-block mb-3">@item.CreatedAt.ToString("dd MMMM yyyy HH:mm")</small>
+
+                                    <div class="mb-3">
+                                        <strong class="text-danger">İstediği Ürün (Senden):</strong>
+                                        <ul class="list-group list-group-flush mt-1">
+                                            @foreach (var prod in item.Items.Where(x => x.ItemType == TradeItemType.requested))
+                                            {
+                                                <li class="list-group-item bg-light border-0 py-1">
+                                                    <i class="bi bi-box-seam"></i> @prod.Product?.Title
+                                                </li>
+                                            }
+                                        </ul>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <strong class="text-success">Teklif Ettiği (Sana):</strong>
+                                        <div class="mt-1 p-2 bg-light rounded">
+                                            @if (item.OfferedCashAmount > 0)
+                                            {
+                                                <div class="text-success fw-bold mb-1">
+                                                    <i class="bi bi-cash-stack"></i> @item.OfferedCashAmount ₺ Nakit
+                                                </div>
+                                            }
+
+                                            @foreach (var prod in item.Items.Where(x => x.ItemType == TradeItemType.offered))
+                                            {
+                                                <div><i class="bi bi-gift"></i> @prod.Product?.Title</div>
+                                            }
+
+                                            @if (item.OfferedCashAmount == null && !item.Items.Any(x => x.ItemType == TradeItemType.offered))
+                                            {
+                                                <span class="text-muted fst-italic">Sadece takas isteği (Karşılık belirtilmemiş)</span>
+                                            }
+                                        </div>
+                                    </div>
+
+                                    @if (!string.IsNullOrEmpty(item.OffererMessage))
+                                    {
+                                        <div class="alert alert-secondary py-2 small">
+                                            <i class="bi bi-chat-quote"></i> "@item.OffererMessage"
+                                        </div>
+                                    }
+                                </div>
+
+                                @if (item.Status == TradeOfferStatus.Pending)
+                                {
+                                    <div class="card-footer bg-white border-top-0 d-flex gap-2 pb-3">
+                                        <form asp-action="Accept" method="post" class="flex-grow-1">
+                                            <input type="hidden" name="id" value="@item.Id" />
+                                            <button type="submit" class="btn btn-success w-100">
+                                                <i class="bi bi-check-lg"></i> Kabul Et
+                                            </button>
+                                        </form>
+                                        <form asp-action="Reject" method="post" class="flex-grow-1">
+                                            <input type="hidden" name="id" value="@item.Id" />
+                                            <button type="submit" class="btn btn-outline-danger w-100">
+                                                <i class="bi bi-x-lg"></i> Reddet
+                                            </button>
+                                        </form>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+
+        <div class="tab-pane fade" id="outgoing">
+            @if (!outgoingOffers.Any())
+            {
+                <div class="alert alert-light text-center border p-5">
+                    <i class="bi bi-send fs-1 text-muted"></i>
+                    <p class="mt-3">Henüz kimseye takas teklifi yapmadınız.</p>
+                    <a asp-controller="Home" asp-action="Index" class="btn btn-primary btn-sm">Ürünleri İncele</a>
+                </div>
+            }
+            else
+            {
+                <div class="row">
+                    @foreach (var item in outgoingOffers)
+                    {
+                        <div class="col-md-6 mb-4">
+                            <div class="card h-100 shadow-sm border-start border-4 @GetStatusBorder(item.Status)">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between mb-3">
+                                        <h6 class="card-subtitle text-muted">
+                                            Kime: <strong>@item.Receiver.UserName</strong>
+                                        </h6>
+                                        <span class="badge @GetStatusBadge(item.Status)">@item.Status</span>
+                                    </div>
+
+                                    <p class="card-text">
+                                        <strong>İstediğim:</strong>
+                                        @foreach (var prod in item.Items.Where(x => x.ItemType == TradeItemType.requested))
+                                        {
+                                            <span class="badge bg-secondary">@prod.Product?.Title</span>
+                                        }
+                                    </p>
+                                    <p class="card-text">
+                                        <strong>Verdiğim:</strong>
+                                        @if (item.OfferedCashAmount > 0)
+                                        {
+                                            <span class="fw-bold text-success">@item.OfferedCashAmount ₺ + </span>
+                                        }
+                                        @foreach (var prod in item.Items.Where(x => x.ItemType == TradeItemType.offered))
+                                        {
+                                            <span class="badge bg-light text-dark border">@prod.Product?.Title</span>
+                                        }
+                                    </p>
+
+                                    <hr />
+                                    <small class="text-muted">Tarih: @item.CreatedAt.ToString("dd.MM.yyyy HH:mm")</small>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@functions {
+    string GetStatusBorder(TradeOfferStatus status) => status switch
+    {
+        TradeOfferStatus.Pending => "border-warning",
+        TradeOfferStatus.Accepted => "border-success",
+        TradeOfferStatus.Rejected => "border-danger",
+        TradeOfferStatus.Cancelled => "border-secondary",
+        _ => "border-light"
+    };
+
+    string GetStatusBadge(TradeOfferStatus status) => status switch
+    {
+        TradeOfferStatus.Pending => "bg-warning text-dark",
+        TradeOfferStatus.Accepted => "bg-success",
+        TradeOfferStatus.Rejected => "bg-danger",
+        TradeOfferStatus.Cancelled => "bg-secondary",
+        _ => "bg-light text-dark"
+    };
+}

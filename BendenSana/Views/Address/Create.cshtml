@@ -1,0 +1,64 @@
+﻿@model Address
+
+@{
+    ViewData["Title"] = "Yeni Adres Ekle";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white py-3">
+                    <h5 class="mb-0 fw-bold">📍 Yeni Adres Ekle</h5>
+                </div>
+                <div class="card-body p-4">
+                    <form asp-action="Create" asp-route-returnUrl="@Context.Request.Query["returnUrl"]" method="post">
+
+                        <div class="mb-3">
+                            <label asp-for="Title" class="form-label fw-semibold">Adres Başlığı</label>
+                            <input asp-for="Title" class="form-control" placeholder="Örn: Evim, İş Yerim" required />
+                            <span asp-validation-for="Title" class="text-danger"></span>
+                        </div>
+
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label asp-for="Country" class="form-label">Ülke</label>
+                                <input asp-for="Country" class="form-control" value="Türkiye" />
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="City" class="form-label">Şehir</label>
+                                <input asp-for="City" class="form-control" placeholder="İstanbul, Ankara..." required />
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="AddressLine" class="form-label">Açık Adres</label>
+                            <textarea asp-for="AddressLine" class="form-control" rows="2" placeholder="Mahalle, Cadde, Sokak, No..." required></textarea>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="AddressLine2" class="form-label">Adres Tarifi / Ek Bilgi</label>
+                            <input asp-for="AddressLine2" class="form-control" placeholder="Bina adı, kat, daire..." />
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="ZipCode" class="form-label">Posta Kodu</label>
+                            <input asp-for="ZipCode" class="form-control" placeholder="34000" />
+                        </div>
+
+                        <div class="d-flex justify-content-between mt-4">
+                            @{
+                                var returnUrl = Context.Request.Query["returnUrl"].ToString();
+                                var cancelUrl = string.IsNullOrEmpty(returnUrl) ? Url.Action("Index", "Address") : returnUrl;
+                            }
+                            <a href="@cancelUrl" class="btn btn-light border">İptal</a>
+
+                            <button type="submit" class="btn btn-primary px-4">Kaydet</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

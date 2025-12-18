@@ -1,21 +1,29 @@
-using System.Diagnostics;
 using BendenSana.Models;
+using BendenSana.Repositories;
 using Microsoft.AspNetCore.Mvc;
+using System.Diagnostics;
 
 namespace BendenSana.Controllers
 {
     public class HomeController : Controller
     {
-        private readonly ILogger<HomeController> _logger;
+        private readonly IProductRepository _productRepository;
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(IProductRepository productRepository)
         {
-            _logger = logger;
+            _productRepository = productRepository;
         }
 
         public IActionResult Index()
         {
-            return View();
+            
+            var recentProducts = _productRepository.GetProductsWithCategories()
+                                                   .Where(p => p.Status == ProductStatus.available) 
+                                                   .OrderByDescending(p => p.CreatedAt)
+                                                   .Take(8)
+                                                   .ToList();
+
+            return View(recentProducts);
         }
 
         public IActionResult Privacy()

@@ -244,6 +244,9 @@ namespace BendenSana.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("TEXT");
 
+                    b.Property<DateTime>("LastMessageDate")
+                        .HasColumnType("TEXT");
+
                     b.Property<int>("ProductId")
                         .HasColumnType("INTEGER");
 
@@ -643,7 +646,7 @@ namespace BendenSana.Migrations
                         {
                             t.HasCheckConstraint("CK_Products_Gender", "Gender IN ('Male','Female','Unisex','Kids')");
 
-                            t.HasCheckConstraint("CK_Products_Status", "Status IN ('draft','published','sold','blocked')");
+                            t.HasCheckConstraint("CK_Products_Status", "Status IN ('available', 'draft','published','sold','blocked')");
                         });
                 });
 
@@ -781,6 +784,9 @@ namespace BendenSana.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("TEXT");
 
+                    b.Property<decimal?>("OfferedCashAmount")
+                        .HasColumnType("decimal(18,2)");
+
                     b.Property<string>("OffererId")
                         .IsRequired()
                         .HasColumnType("TEXT");
@@ -815,7 +821,7 @@ namespace BendenSana.Migrations
 
                     b.ToTable("Trade_Offers", t =>
                         {
-                            t.HasCheckConstraint("CK_TradeOffers_Status", "Status IN ('pending','accepted','rejected','cancelled')");
+                            t.HasCheckConstraint("CK_TradeOffers_Status", "Status IN ('pending', 'accepted', 'rejected', 'cancelled', 'Pending', 'Accepted', 'Rejected', 'Cancelled')");
                         });
                 });
 
@@ -1135,7 +1141,7 @@ namespace BendenSana.Migrations
             modelBuilder.Entity("Review", b =>
                 {
                     b.HasOne("Product", "Product")
-                        .WithMany()
+                        .WithMany("Reviews")
                         .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1230,6 +1236,8 @@ namespace BendenSana.Migrations
             modelBuilder.Entity("Product", b =>
                 {
                     b.Navigation("Images");
+
+                    b.Navigation("Reviews");
                 });
 
             modelBuilder.Entity("TradeOffer", b =>
