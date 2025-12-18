@@ -2,33 +2,94 @@
     ViewData["Title"] = "Giriş Yap";
 }
 
-<div class="container mt-5" style="max-width: 400px;">
-    <div class="card shadow">
-        <div class="card-body">
-            <h3 class="text-center mb-4">Giriş Yap</h3>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+
+<div class="container mt-4 mb-5">
+    <div class="d-flex align-items-center gap-2 text-muted small mb-4">
+        <a asp-controller="Home" asp-action="Index" class="text-decoration-none text-muted">Ana Sayfa</a>
+        <span>/</span>
+        <span class="text-dark fw-bold">Giriş Yap</span>
+    </div>
+
+    <div class="row align-items-center">
+
+        <div class="col-lg-7 mb-5 mb-lg-0">
+            <div class="d-flex align-items-end justify-content-center overflow-hidden rounded shadow-sm" style="background-color: #CBE4E8; height: 600px;">
+                <img src="https://cdni.iconscout.com/illustration/premium/thumb/online-shopping-illustration-download-in-svg-png-gif-file-formats--ecommerce-website-digital-marketing-web-development-pack-business-illustrations-4387877.png"
+                     alt="Shopping" class="img-fluid" style="max-height: 90%; object-fit: contain;">
+            </div>
+        </div>
+
+        <div class="col-lg-4 offset-lg-1">
+            <div class="mb-4">
+                <h1 class="fw-bold mb-2" style="font-family: 'Inter', sans-serif; letter-spacing: 1px;">Giriş Yap</h1>
+                <p class="text-muted">Aşağıya bilgilerinizi giriniz</p>
+            </div>
 
             @if (ViewBag.Error != null)
             {
-                <div class="alert alert-danger">@ViewBag.Error</div>
+                <div class="alert alert-danger border-0 shadow-sm rounded-0">
+                    <i class="bi bi-exclamation-circle me-2"></i> @ViewBag.Error
+                </div>
             }
 
             <form asp-action="Login" method="post">
-                <div class="mb-3">
-                    <label>Email Adresi</label>
-                    <input type="email" name="email" class="form-control" required value="alici@test.com" />
+
+                <div class="mb-4">
+                    <input type="email" name="email" class="form-control custom-input py-2" placeholder="Email veya Telefon Numarası" required />
                 </div>
-                <div class="mb-3">
-                    <label>Şifre</label>
-                    <input type="password" name="password" class="form-control" required value="Sifre123!" />
+
+                <div class="mb-4">
+                    <input type="password" name="password" class="form-control custom-input py-2" placeholder="Şifre" required />
                 </div>
-                <button type="submit" class="btn btn-primary w-100">Giriş Yap</button>
+
+                <div class="d-flex justify-content-between align-items-center mt-5">
+                    <button type="submit" class="btn btn-primary px-4 py-3 rounded-1 fw-bold border-0" style="background-color: #DB4444; min-width: 140px;">
+                        Giriş Yap
+                    </button>
+
+                    <a asp-action="Register" class="text-danger text-decoration-none hover-underline">
+                        Hesabın Yok mu?
+                    </a>
+                </div>
             </form>
 
-            <hr />
-            <div class="text-center">
-                <small class="text-muted">Test için hızlı kurulum:</small><br />
-                <a asp-action="CreateDemoUsers" class="btn btn-sm btn-outline-success mt-2">Demo Kullanıcıları Oluştur</a>
+            <div class="mt-5 text-center opacity-50">
+                <small class="d-block text-muted mb-2" style="font-size: 0.7rem;">GELİŞTİRİCİ ARAÇLARI</small>
+                <a asp-action="CreateDemoUsers" class="btn btn-sm btn-light border" style="font-size: 0.8rem;">Demo Kullanıcıları Yükle</a>
             </div>
+
         </div>
     </div>
 </div>
+
+<style>
+    /* CSS Ayarları */
+    body {
+        font-family: 'Poppins', sans-serif;
+    }
+
+    /* Özel Input Tasarımı: Sadece alt çizgi */
+    .custom-input {
+        border: none;
+        border-bottom: 1px solid #ccc;
+        border-radius: 0;
+        padding-left: 0;
+        background-color: transparent;
+    }
+
+        .custom-input:focus {
+            box-shadow: none;
+            border-bottom: 1px solid #DB4444; /* Odaklanınca kırmızı çizgi */
+            background-color: transparent;
+        }
+
+    /* Buton Hover Efekti */
+    .btn-primary:hover {
+        background-color: #c93636 !important; /* Biraz daha koyu kırmızı */
+    }
+
+    .hover-underline:hover {
+        text-decoration: underline !important;
+    }
+</style>

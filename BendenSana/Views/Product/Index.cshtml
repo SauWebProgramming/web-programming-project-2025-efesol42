@@ -6,86 +6,103 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<div class="container py-5">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="fw-bold mb-0">Tüm Ürünler</h2>
-        @if (User.Identity.IsAuthenticated)
-        {
-            <a asp-action="Create" class="btn btn-primary">
-                <i class="bi bi-plus-lg"></i> Ürün Sat
-            </a>
-        }
-    </div>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700&family=Inter:wght@400;500;600&family=Avenir+Next:wght@400;700&display=swap" rel="stylesheet">
 
-    <form asp-action="Index" method="get" class="mb-5">
-        <div class="row g-2">
-            <div class="col-md-4">
-                <div class="input-group">
-                    <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
-                    <input type="text" name="search" class="form-control" placeholder="Ürün adı ara..." value="@Context.Request.Query["search"]">
-                </div>
+<div class="container-fluid py-5" style="background-color: #F8F9FA; min-height: 100vh;">
+
+    <div class="row mb-5 align-items-end">
+        <div class="col-md-6">
+            <div class="d-flex align-items-center gap-3 mb-2">
+                <div style="width: 20px; height: 40px; background: #DB4444; border-radius: 4px;"></div>
+                <span style="color: #DB4444; font-weight: 600; font-family: 'Poppins', sans-serif;">Featured</span>
             </div>
-            <div class="col-md-3">
-                <select name="categoryId" class="form-select">
-                    <option value="">Tüm Kategoriler</option>
-                </select>
-            </div>
-            <div class="col-md-2">
-                <button type="submit" class="btn btn-dark w-100">Filtrele</button>
-            </div>
+            <h1 class="fw-bold display-6" style="font-family: 'Inter', sans-serif;">Latest Products</h1>
         </div>
-    </form>
+
+        <div class="col-md-6">
+            <form asp-action="Index" method="get" class="d-flex gap-2 justify-content-md-end mt-3 mt-md-0">
+                <input type="text" name="search" class="form-control border-0 shadow-sm" placeholder="Ürün ara..." value="@Context.Request.Query["search"]" style="max-width: 300px;">
+                <select name="categoryId" class="form-select border-0 shadow-sm" style="max-width: 200px;">
+                    <option value="">Kategori</option>
+                    <option value="1">Elektronik</option>
+                    <option value="2">Giyim</option>
+                </select>
+                <button type="submit" class="btn btn-dark shadow-sm px-4">Ara</button>
+            </form>
+        </div>
+    </div>
 
     @if (!Model.Any())
     {
-        <div class="alert alert-warning text-center p-5">
-            <i class="bi bi-emoji-frown fs-1"></i>
-            <p class="mt-2">Aradığınız kriterlere uygun ürün bulunamadı.</p>
-            <a asp-action="Index" class="btn btn-outline-dark btn-sm">Filtreleri Temizle</a>
+        <div class="d-flex justify-content-center align-items-center" style="min-height: 600px;">
+            <div class="bg-white rounded-5 shadow p-5 text-center position-relative overflow-hidden" style="width: 400px; height: 474px; border-radius: 28px;">
+
+                <div class="mb-4 d-flex justify-content-center">
+                    <div class="position-relative" style="width: 200px; height: 150px;">
+                        <i class="bi bi-search" style="font-size: 5rem; color: #DB4444; opacity: 0.2;"></i>
+                        <i class="bi bi-x-circle-fill position-absolute" style="font-size: 2rem; color: #DB4444; bottom: 40px; right: 60px; border: 3px solid white; border-radius: 50%;"></i>
+                    </div>
+                </div>
+
+                <h3 class="fw-bold mb-2" style="font-family: 'Avenir Next', sans-serif; color: #4A4A4A;">No results found</h3>
+                <p class="text-muted mb-5" style="font-family: 'Avenir Next', sans-serif;">
+                    Try adjusting your search<br>to find what you are looking for
+                </p>
+
+                @if (User.Identity.IsAuthenticated)
+                {
+                    <a asp-action="Create" class="btn btn-primary rounded-pill w-75 py-3 fw-bold shadow-sm" style="background-color: #DB4444; border: none; font-family: 'ABeeZee', sans-serif;">
+                        Ürün Ekle
+                    </a>
+                }
+                else
+                {
+                    <a asp-action="Index" class="btn btn-outline-dark rounded-pill w-75 py-3 fw-bold">
+                        Tümünü Gör
+                    </a>
+                }
+            </div>
         </div>
     }
     else
     {
-        <div class="row row-cols-1 row-cols-md-3 row-cols-lg-4 g-4">
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
             @foreach (var item in Model)
             {
                 <div class="col">
-                    <div class="card h-100 border-0 shadow-sm product-card">
-                        <div class="position-relative" style="height: 200px; overflow: hidden;">
+                    <div class="card h-100 border-0 shadow-sm product-card overflow-hidden" style="border-radius: 12px;">
+                        <div class="position-relative" style="height: 250px; background-color: #F5F5F5;">
                             @if (item.Images != null && item.Images.Any())
                             {
                                 <img src="@item.Images.First().ImageUrl" class="card-img-top h-100 w-100" style="object-fit: cover;" alt="@item.Title">
                             }
                             else
                             {
-                                <div class="bg-light h-100 w-100 d-flex align-items-center justify-content-center text-muted">
-                                    <i class="bi bi-image fs-1"></i>
+                                <div class="h-100 w-100 d-flex align-items-center justify-content-center text-muted">
+                                    <i class="bi bi-image fs-1 opacity-25"></i>
                                 </div>
                             }
 
-                            <span class="position-absolute bottom-0 start-0 bg-dark text-white px-3 py-1 m-2 rounded-pill small fw-bold">
+                            <span class="position-absolute top-0 end-0 m-3 badge bg-white text-dark shadow-sm fs-6 px-3 py-2 rounded-3">
                                 @item.Price.ToString("C0")
                             </span>
                         </div>
 
-                        <div class="card-body">
-                            <h6 class="card-title fw-bold text-truncate" title="@item.Title">
+                        <div class="card-body p-4">
+                            <h6 class="card-title fw-bold text-truncate mb-1" style="font-family: 'Inter', sans-serif;">
                                 <a asp-action="Details" asp-route-id="@item.Id" class="text-decoration-none text-dark stretched-link">
                                     @item.Title
                                 </a>
                             </h6>
-                            <p class="card-text text-muted small text-truncate">
-                                @item.Description
-                            </p>
-                        </div>
+                            <p class="text-muted small mb-3 text-truncate">@item.Description</p>
 
-                        <div class="card-footer bg-white border-top-0 d-flex justify-content-between align-items-center">
-                            <small class="text-muted">
-                                <i class="bi bi-clock"></i> @item.CreatedAt.ToString("dd.MM")
-                            </small>
-                            <small class="text-primary fw-bold">
-                                @(item.Category?.Name ?? "Genel")
-                            </small>
+                            <div class="d-flex align-items-center justify-content-between">
+                                <small class="text-muted"><i class="bi bi-geo-alt"></i> İstanbul</small>
+                                <div class="d-flex gap-1 text-warning small">
+                                    <i class="bi bi-star-fill"></i>
+                                    <span class="text-dark fw-bold">4.8</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -95,9 +112,16 @@
 </div>
 
 <style>
-    .product-card:hover {
-        transform: translateY(-5px);
-        transition: transform 0.3s ease;
-        box-shadow: 0 1rem 3rem rgba(0,0,0,.175) !important;
+    body {
+        font-family: 'Inter', sans-serif;
     }
+
+    .product-card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+        .product-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 1rem 3rem rgba(0,0,0,.1) !important;
+        }
 </style>
