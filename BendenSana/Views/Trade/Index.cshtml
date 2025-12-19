@@ -1,201 +1,348 @@
 ﻿@using System.Security.Claims
+@using BendenSana.Models
 @model List<TradeOffer>
 
 @{
-    ViewData["Title"] = "Takaslarım";
+    ViewData["Title"] = "Takas Tekliflerim";
+    Layout = "~/Views/Shared/_Layout.cshtml";
     var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-   
+    // Gelen ve Giden Teklifleri Ayır
     var incomingOffers = Model.Where(x => x.ReceiverId == currentUserId).ToList();
     var outgoingOffers = Model.Where(x => x.OffererId == currentUserId).ToList();
 }
 
-<div class="container mt-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2><i class="bi bi-arrow-left-right"></i> Takaslarım</h2>
-        <a asp-controller="Home" asp-action="Index" class="btn btn-outline-secondary">Alışverişe Dön</a>
-    </div>
+<style>
+    /* Figma Uyumlu Temiz Stiller */
+    .trade-card {
+        background: white;
+        border: 1px solid #E5E7EB;
+        border-radius: 12px;
+        padding: 24px;
+        margin-bottom: 30px;
+        position: relative;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    }
 
-    <ul class="nav nav-tabs mb-3" id="tradeTabs" role="tablist">
-        <li class="nav-item">
-            <button class="nav-link active" id="incoming-tab" data-bs-toggle="tab" data-bs-target="#incoming" type="button">
-                📩 Gelen Teklifler
-                @if (incomingOffers.Any(x => x.Status == TradeOfferStatus.Pending))
-                {
-                    <span class="badge bg-danger ms-1">@incomingOffers.Count(x => x.Status == TradeOfferStatus.Pending)</span>
-                }
-            </button>
-        </li>
-        <li class="nav-item">
-            <button class="nav-link" id="outgoing-tab" data-bs-toggle="tab" data-bs-target="#outgoing" type="button">
-                📤 Giden Teklifler
-            </button>
-        </li>
-    </ul>
+    .trade-date {
+        color: #DB4444;
+        font-family: 'Poppins', sans-serif;
+        font-weight: 600;
+        font-size: 18px;
+        margin-bottom: 20px;
+    }
 
-    <div class="tab-content" id="tradeTabsContent">
+    /* Statü Badge */
+    .status-badge {
+        position: absolute;
+        top: 24px;
+        right: 24px;
+        padding: 6px 12px;
+        border-radius: 6px;
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+    }
 
-        <div class="tab-pane fade show active" id="incoming">
-            @if (!incomingOffers.Any())
-            {
-                <div class="alert alert-light text-center border p-5">
-                    <i class="bi bi-inbox fs-1 text-muted"></i>
-                    <p class="mt-3">Henüz size gelen bir takas teklifi yok.</p>
-                </div>
-            }
-            else
-            {
-                <div class="row">
-                    @foreach (var item in incomingOffers)
-                    {
-                        <div class="col-md-6 mb-4">
-                            <div class="card h-100 shadow-sm border-start border-4 @GetStatusBorder(item.Status)">
-                                <div class="card-header bg-white d-flex justify-content-between align-items-center">
-                                    <h6 class="mb-0 fw-bold">
-                                        <i class="bi bi-person-circle"></i> @item.Offerer.UserName
-                                    </h6>
-                                    <span class="badge @GetStatusBadge(item.Status)">@item.Status</span>
-                                </div>
-                                <div class="card-body">
-                                    <small class="text-muted d-block mb-3">@item.CreatedAt.ToString("dd MMMM yyyy HH:mm")</small>
+    .status-pending {
+        background: #FFF7ED;
+        color: #C2410C;
+        border: 1px solid #FFEDD5;
+    }
 
-                                    <div class="mb-3">
-                                        <strong class="text-danger">İstediği Ürün (Senden):</strong>
-                                        <ul class="list-group list-group-flush mt-1">
-                                            @foreach (var prod in item.Items.Where(x => x.ItemType == TradeItemType.requested))
-                                            {
-                                                <li class="list-group-item bg-light border-0 py-1">
-                                                    <i class="bi bi-box-seam"></i> @prod.Product?.Title
-                                                </li>
-                                            }
-                                        </ul>
-                                    </div>
+    .status-accepted {
+        background: #ECFDF5;
+        color: #047857;
+        border: 1px solid #D1FAE5;
+    }
 
-                                    <div class="mb-3">
-                                        <strong class="text-success">Teklif Ettiği (Sana):</strong>
-                                        <div class="mt-1 p-2 bg-light rounded">
-                                            @if (item.OfferedCashAmount > 0)
-                                            {
-                                                <div class="text-success fw-bold mb-1">
-                                                    <i class="bi bi-cash-stack"></i> @item.OfferedCashAmount ₺ Nakit
-                                                </div>
-                                            }
+    .status-rejected {
+        background: #FEF2F2;
+        color: #B91C1C;
+        border: 1px solid #FEE2E2;
+    }
 
-                                            @foreach (var prod in item.Items.Where(x => x.ItemType == TradeItemType.offered))
-                                            {
-                                                <div><i class="bi bi-gift"></i> @prod.Product?.Title</div>
-                                            }
+    /* Ürün Alanları */
+    .product-comparison {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 30px;
+    }
 
-                                            @if (item.OfferedCashAmount == null && !item.Items.Any(x => x.ItemType == TradeItemType.offered))
-                                            {
-                                                <span class="text-muted fst-italic">Sadece takas isteği (Karşılık belirtilmemiş)</span>
-                                            }
-                                        </div>
-                                    </div>
+    .product-column {
+        flex: 1;
+        max-width: 300px;
+        text-align: left;
+    }
 
-                                    @if (!string.IsNullOrEmpty(item.OffererMessage))
-                                    {
-                                        <div class="alert alert-secondary py-2 small">
-                                            <i class="bi bi-chat-quote"></i> "@item.OffererMessage"
-                                        </div>
-                                    }
-                                </div>
+    .product-label {
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+        margin-bottom: 8px;
+        display: block;
+    }
 
-                                @if (item.Status == TradeOfferStatus.Pending)
-                                {
-                                    <div class="card-footer bg-white border-top-0 d-flex gap-2 pb-3">
-                                        <form asp-action="Accept" method="post" class="flex-grow-1">
-                                            <input type="hidden" name="id" value="@item.Id" />
-                                            <button type="submit" class="btn btn-success w-100">
-                                                <i class="bi bi-check-lg"></i> Kabul Et
-                                            </button>
-                                        </form>
-                                        <form asp-action="Reject" method="post" class="flex-grow-1">
-                                            <input type="hidden" name="id" value="@item.Id" />
-                                            <button type="submit" class="btn btn-outline-danger w-100">
-                                                <i class="bi bi-x-lg"></i> Reddet
-                                            </button>
-                                        </form>
-                                    </div>
-                                }
-                            </div>
-                        </div>
-                    }
-                </div>
-            }
+    .label-yours {
+        color: #DB4444;
+    }
+
+    .label-theirs {
+        color: #059669;
+    }
+
+    .product-img-box {
+        background: #F3F4F6;
+        border-radius: 8px;
+        height: 320px; /* Figma'daki gibi uzun görsel alanı */
+        width: 100%;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 12px;
+    }
+
+    .product-img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover; /* Resmi kutuya doldur */
+    }
+
+    .product-title {
+        font-family: 'Inter', sans-serif;
+        font-weight: 600;
+        font-size: 16px;
+        color: #111;
+        margin-bottom: 4px;
+    }
+
+    .product-price {
+        font-family: 'Inter', sans-serif;
+        font-weight: 500;
+        font-size: 14px;
+        color: #111;
+    }
+
+    .cash-offer {
+        color: #059669;
+        font-weight: 600;
+        font-size: 14px;
+        margin-top: 4px;
+    }
+
+    /* Ortadaki İkon */
+    .exchange-icon-wrapper {
+        width: 48px;
+        height: 48px;
+        background: #9CA3AF;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 20px;
+        flex-shrink: 0;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+
+    /* Butonlar */
+    .btn-action-group {
+        display: flex;
+        justify-content: flex-end;
+        gap: 12px;
+        margin-top: 24px;
+        border-top: 1px solid #F3F4F6;
+        padding-top: 20px;
+    }
+
+    .nav-tabs .nav-link.active {
+        color: #DB4444;
+        border-bottom: 2px solid #DB4444;
+    }
+
+    .nav-tabs .nav-link {
+        color: #6B7280;
+    }
+</style>
+
+<div class="container py-5">
+    <div class="mb-5 text-muted small">Home / <span class="text-dark fw-bold">Takas Tekliflerim</span></div>
+
+    <div class="row">
+        <div class="col-lg-3 d-none d-lg-block">
+            <div class="mb-4">
+                <div class="fw-bold mb-3">Manage My Account</div>
+                <ul class="list-unstyled ms-3">
+                    <li class="mb-2"><a href="@Url.Action("EditProfile", "Profile")" class="text-decoration-none text-muted">My Profile</a></li>
+                    <li class="mb-2"><a href="@Url.Action("Index", "Address")" class="text-decoration-none text-muted">Address Book</a></li>
+                    <li class="mb-2"><a href="@Url.Action("Index", "Payment")" class="text-decoration-none text-muted">My Payment Options</a></li>
+                </ul>
+            </div>
+            <div>
+                <div class="fw-bold mb-3">My Orders</div>
+                <ul class="list-unstyled ms-3">
+                    <li class="mb-2"><a href="@Url.Action("Index", "Order")" class="text-decoration-none text-muted">Siparişlerim</a></li>
+                    <li class="mb-2"><a href="@Url.Action("MyProducts", "Product")" class="text-decoration-none text-muted">Takas Ürünlerim</a></li>
+                    <li class="mb-2"><a href="#" class="text-decoration-none text-danger fw-bold">Takas Tekliflerim</a></li>
+                </ul>
+            </div>
         </div>
 
-        <div class="tab-pane fade" id="outgoing">
-            @if (!outgoingOffers.Any())
-            {
-                <div class="alert alert-light text-center border p-5">
-                    <i class="bi bi-send fs-1 text-muted"></i>
-                    <p class="mt-3">Henüz kimseye takas teklifi yapmadınız.</p>
-                    <a asp-controller="Home" asp-action="Index" class="btn btn-primary btn-sm">Ürünleri İncele</a>
-                </div>
-            }
-            else
-            {
-                <div class="row">
-                    @foreach (var item in outgoingOffers)
+        <div class="col-lg-9">
+
+            <ul class="nav nav-tabs mb-4" role="tablist">
+                <li class="nav-item">
+                    <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#incoming">Gelen Teklifler</button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#outgoing">Giden Teklifler</button>
+                </li>
+            </ul>
+
+            <div class="tab-content">
+                <div class="tab-pane fade show active" id="incoming">
+                    @if (!incomingOffers.Any())
                     {
-                        <div class="col-md-6 mb-4">
-                            <div class="card h-100 shadow-sm border-start border-4 @GetStatusBorder(item.Status)">
-                                <div class="card-body">
-                                    <div class="d-flex justify-content-between mb-3">
-                                        <h6 class="card-subtitle text-muted">
-                                            Kime: <strong>@item.Receiver.UserName</strong>
-                                        </h6>
-                                        <span class="badge @GetStatusBadge(item.Status)">@item.Status</span>
+                        <div class="alert alert-light border text-center py-5">Gelen bir teklif yok.</div>
+                    }
+
+                    @foreach (var offer in incomingOffers)
+                    {
+                        var requestedItem = offer.Items.FirstOrDefault(x => x.ItemType == TradeItemType.requested)?.Product;
+                        var offeredItem = offer.Items.FirstOrDefault(x => x.ItemType == TradeItemType.offered)?.Product;
+
+                        // Eğer ürünlerden biri silinmişse bu teklifi gösterme (İSTEĞİN BU YÖNDEYDİ)
+                        if (requestedItem == null || offeredItem == null) continue;
+
+                        <div class="trade-card">
+                            <div class="trade-date">@offer.CreatedAt.ToString("dd MMMM yyyy")</div>
+                            <span class="status-badge status-@offer.Status.ToString().ToLower()">@offer.Status</span>
+
+                            <div class="product-comparison flex-column flex-md-row">
+
+                                <div class="product-column">
+                                    <span class="product-label label-yours">SENİN ÜRÜNÜN</span>
+                                    <div class="product-img-box">
+                                        @if (requestedItem.Images != null && requestedItem.Images.Any())
+                                        {
+                                            <img src="@requestedItem.Images.First().ImageUrl" class="product-img" />
+                                        }
+                                        else
+                                        {
+                                            <div class="text-muted small">Görsel Yok</div>
+                                        }
                                     </div>
+                                    <div class="product-title">@requestedItem.Title</div>
+                                    <div class="product-price">@requestedItem.Price.ToString("C0")</div>
+                                </div>
 
-                                    <p class="card-text">
-                                        <strong>İstediğim:</strong>
-                                        @foreach (var prod in item.Items.Where(x => x.ItemType == TradeItemType.requested))
-                                        {
-                                            <span class="badge bg-secondary">@prod.Product?.Title</span>
-                                        }
-                                    </p>
-                                    <p class="card-text">
-                                        <strong>Verdiğim:</strong>
-                                        @if (item.OfferedCashAmount > 0)
-                                        {
-                                            <span class="fw-bold text-success">@item.OfferedCashAmount ₺ + </span>
-                                        }
-                                        @foreach (var prod in item.Items.Where(x => x.ItemType == TradeItemType.offered))
-                                        {
-                                            <span class="badge bg-light text-dark border">@prod.Product?.Title</span>
-                                        }
-                                    </p>
+                                <div class="exchange-icon-wrapper">
+                                    <i class="bi bi-arrow-left-right"></i>
+                                </div>
 
-                                    <hr />
-                                    <small class="text-muted">Tarih: @item.CreatedAt.ToString("dd.MM.yyyy HH:mm")</small>
+                                <div class="product-column">
+                                    <span class="product-label label-theirs">TEKLİF EDİLEN</span>
+                                    <div class="product-img-box">
+                                        @if (offeredItem.Images != null && offeredItem.Images.Any())
+                                        {
+                                            <img src="@offeredItem.Images.First().ImageUrl" class="product-img" />
+                                        }
+                                        else
+                                        {
+                                            <div class="text-muted small">Görsel Yok</div>
+                                        }
+                                    </div>
+                                    <div class="product-title">@offeredItem.Title</div>
+                                    <div class="product-price">@offeredItem.Price.ToString("C0")</div>
+                                    @if (offer.OfferedCashAmount > 0)
+                                    {
+                                        <div class="cash-offer">+ @offer.OfferedCashAmount?.ToString("C0") Nakit</div>
+                                    }
+                                </div>
+                            </div>
+
+                            @if (offer.Status == TradeOfferStatus.Pending)
+                            {
+                                <div class="btn-action-group">
+                                    <form asp-controller="Trade" asp-action="Reject" method="post">
+                                        <input type="hidden" name="id" value="@offer.Id" />
+                                        <button class="btn btn-outline-secondary px-4">Reddet</button>
+                                    </form>
+                                    <form asp-controller="Trade" asp-action="Accept" method="post">
+                                        <input type="hidden" name="id" value="@offer.Id" />
+                                        <button class="btn btn-danger px-4">Kabul Et</button>
+                                    </form>
+                                </div>
+                            }
+                        </div>
+                    }
+                </div>
+
+                <div class="tab-pane fade" id="outgoing">
+                    @if (!outgoingOffers.Any())
+                    {
+                        <div class="alert alert-light border text-center py-5">Giden bir teklif yok.</div>
+                    }
+
+                    @foreach (var offer in outgoingOffers)
+                    {
+                        var requestedItem = offer.Items.FirstOrDefault(x => x.ItemType == TradeItemType.requested)?.Product;
+                        var offeredItem = offer.Items.FirstOrDefault(x => x.ItemType == TradeItemType.offered)?.Product;
+
+                        if (requestedItem == null || offeredItem == null) continue;
+
+                        <div class="trade-card">
+                            <div class="trade-date">@offer.CreatedAt.ToString("dd MMMM yyyy")</div>
+                            <span class="status-badge status-@offer.Status.ToString().ToLower()">@offer.Status</span>
+
+                            <div class="product-comparison flex-column flex-md-row">
+                                <div class="product-column">
+                                    <span class="product-label label-yours">İSTEDİĞİN ÜRÜN</span>
+                                    <div class="product-img-box">
+                                        @if (requestedItem.Images != null && requestedItem.Images.Any())
+                                        {
+                                            <img src="@requestedItem.Images.First().ImageUrl" class="product-img" />
+                                        }
+                                        else
+                                        {
+                                            <div class="text-muted small">Görsel Yok</div>
+                                        }
+                                    </div>
+                                    <div class="product-title">@requestedItem.Title</div>
+                                    <div class="product-price">@requestedItem.Price.ToString("C0")</div>
+                                </div>
+
+                                <div class="exchange-icon-wrapper">
+                                    <i class="bi bi-arrow-left-right"></i>
+                                </div>
+
+                                <div class="product-column">
+                                    <span class="product-label label-theirs">SENİN TEKLİFİN</span>
+                                    <div class="product-img-box">
+                                        @if (offeredItem.Images != null && offeredItem.Images.Any())
+                                        {
+                                            <img src="@offeredItem.Images.First().ImageUrl" class="product-img" />
+                                        }
+                                        else
+                                        {
+                                            <div class="text-muted small">Görsel Yok</div>
+                                        }
+                                    </div>
+                                    <div class="product-title">@offeredItem.Title</div>
+                                    <div class="product-price">@offeredItem.Price.ToString("C0")</div>
+                                    @if (offer.OfferedCashAmount > 0)
+                                    {
+                                        <div class="cash-offer">+ @offer.OfferedCashAmount?.ToString("C0") Nakit</div>
+                                    }
                                 </div>
                             </div>
                         </div>
                     }
                 </div>
-            }
+            </div>
+
         </div>
     </div>
 </div>
-
-@functions {
-    string GetStatusBorder(TradeOfferStatus status) => status switch
-    {
-        TradeOfferStatus.Pending => "border-warning",
-        TradeOfferStatus.Accepted => "border-success",
-        TradeOfferStatus.Rejected => "border-danger",
-        TradeOfferStatus.Cancelled => "border-secondary",
-        _ => "border-light"
-    };
-
-    string GetStatusBadge(TradeOfferStatus status) => status switch
-    {
-        TradeOfferStatus.Pending => "bg-warning text-dark",
-        TradeOfferStatus.Accepted => "bg-success",
-        TradeOfferStatus.Rejected => "bg-danger",
-        TradeOfferStatus.Cancelled => "bg-secondary",
-        _ => "bg-light text-dark"
-    };
-}
