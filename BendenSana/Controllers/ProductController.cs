@@ -1,7 +1,6 @@
 ﻿using BendenSana.Models;
 using BendenSana.ViewModels;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -25,68 +24,131 @@ namespace BendenSana.Controllers
             _webHostEnvironment = webHostEnvironment;
         }
 
-        public async Task<IActionResult> Index(string search, int? categoryId)
+        // --- 1. GELİŞMİŞ ARAMA VE FİLTRELEME (Search Sayfası) ---
+        // Home sayfasındaki arama çubuğu buraya istek atacak: asp-controller="Product" asp-action="Search"
+        [HttpGet]
+        public async Task<IActionResult> Search(SearchViewModel model)
         {
-            var productsQuery = _context.Products
+            // 1. Ana Sorgu
+            var query = _context.Products
                 .Include(p => p.Category)
                 .Include(p => p.Images)
+                .Include(p => p.Color)
+                .Where(p => p.Status == ProductStatus.available)
                 .AsQueryable();
 
-            if (!string.IsNullOrEmpty(search))
+            // 2. Arama Kelimesi
+            if (!string.IsNullOrEmpty(model.SearchQuery))
             {
-                productsQuery = productsQuery.Where(p => p.Title.ToLower().Contains(search.ToLower()));
+                var lowerQuery = model.SearchQuery.ToLower();
+                query = query.Where(p => p.Title.ToLower().Contains(lowerQuery) ||
+                                         p.Description.ToLower().Contains(lowerQuery));
             }
 
-            if (categoryId.HasValue)
+            // 3. Kategori Filtresi
+            if (model.SelectedCategoryIds != null && model.SelectedCategoryIds.Any())
             {
-                productsQuery = productsQuery.Where(p => p.CategoryId == categoryId.Value);
+                query = query.Where(p => model.SelectedCategoryIds.Contains(p.CategoryId));
             }
 
-            var products = await productsQuery.ToListAsync();
-            return View(products);
+            // 4. Renk Filtresi
+            if (model.SelectedColorIds != null && model.SelectedColorIds.Any())
+            {
+                query = query.Where(p => p.ColorId.HasValue && model.SelectedColorIds.Contains(p.ColorId.Value));
+            }
+
+            // 5. Cinsiyet Filtresi
+            if (model.SelectedGenders != null && model.SelectedGenders.Any())
+            {
+                query = query.Where(p => p.Gender.HasValue && model.SelectedGenders.Contains(p.Gender.Value));
+            }
+
+            // 6. Fiyat
+            if (model.MinPrice.HasValue) query = query.Where(p => p.Price >= model.MinPrice.Value);
+            if (model.MaxPrice.HasValue) query = query.Where(p => p.Price <= model.MaxPrice.Value);
+
+            // 7. Sıralama
+            query = model.SortBy switch
+            {
+                "price_asc" => query.OrderBy(p => p.Price),
+                "price_desc" => query.OrderByDescending(p => p.Price),
+                _ => query.OrderByDescending(p => p.CreatedAt)
+            };
+
+            // 8. Sonuçları Doldur
+            model.Products = await query.ToListAsync();
+            model.TotalResults = model.Products.Count;
+
+            // 9. View'ın hata vermemesi için Dropdownları Doldur (Çok Önemli)
+            model.AllCategories = await _context.Categories
+                .Where(c => c.ParentId == null)
+                .Include(c => c.Children)
+                .ToListAsync();
+
+            model.AllColors = await _context.Set<Color>().ToListAsync();
+
+            return View(model); // Views/Product/Search.cshtml sayfasına gider
         }
+
+        // --- 2. VARSAYILAN INDEX (İstersen Search'e yönlendir) ---
+        public IActionResult Index()
+        {
+            return RedirectToAction("Search");
+        }
+
+        // --- 3. SATICININ ÜRÜNLERİM SAYFASI ---
         [Authorize]
         [HttpGet]
         public async Task<IActionResult> MyProducts()
         {
             var user = await _userManager.GetUserAsync(User);
-
             if (user == null) return RedirectToAction("Login", "Account");
+
             var myProducts = await _context.Products
                 .Include(p => p.Category)
                 .Include(p => p.Images)
-                .Where(p=>p.SellerId==user.Id)
-                .OrderByDescending(p=>p.CreatedAt)
+                .Where(p => p.SellerId == user.Id)
+                .OrderByDescending(p => p.CreatedAt)
                 .ToListAsync();
+
             return View(myProducts);
-           
         }
 
+        // --- 4. ÜRÜN DETAY ---
         public async Task<IActionResult> Details(int id)
         {
             var product = await _context.Products
-                .Include(p => p.Category)
                 .Include(p => p.Images)
+                .Include(p => p.Category)
+                .Include(p => p.Color)
                 .Include(p => p.Seller)
-                .Include(p => p.Reviews)
-                    .ThenInclude(r => r.User)
+                .Include(p => p.Reviews).ThenInclude(r => r.User)
                 .FirstOrDefaultAsync(p => p.Id == id);
 
             if (product == null) return NotFound();
 
-            if (User.Identity.IsAuthenticated)
+            // Benzer Ürünler
+            var relatedProducts = await _context.Products
+                .Include(p => p.Images)
+                .Where(p => p.CategoryId == product.CategoryId && p.Id != id && p.Status == ProductStatus.available)
+                .OrderByDescending(p => p.CreatedAt)
+                .Take(4)
+                .ToListAsync();
+
+            ViewBag.RelatedProducts = relatedProducts;
+
+            // Favori Kontrolü
+            var userId = _userManager.GetUserId(User);
+            ViewBag.IsFavorite = false;
+            if (userId != null)
             {
-                var userId = _userManager.GetUserId(User);
                 ViewBag.IsFavorite = await _context.Favorites.AnyAsync(f => f.UserId == userId && f.ProductId == id);
-            }
-            else
-            {
-                ViewBag.IsFavorite = false;
             }
 
             return View(product);
         }
 
+        // --- 5. YORUM EKLEME ---
         [HttpPost]
         [Authorize]
         public async Task<IActionResult> AddReview(int productId, int? rating, string? comment)
@@ -95,7 +157,6 @@ namespace BendenSana.Controllers
             var product = await _context.Products.FindAsync(productId);
 
             if (product == null) return NotFound();
-
             if (product.SellerId == user.Id)
             {
                 TempData["Error"] = "Kendi ürününüze yorum yapamazsınız.";
@@ -119,11 +180,11 @@ namespace BendenSana.Controllers
 
             _context.Reviews.Add(review);
             await _context.SaveChangesAsync();
-
             TempData["Success"] = "Değerlendirmeniz eklendi.";
             return RedirectToAction("Details", new { id = productId });
         }
 
+        // --- 6. RAPORLAMA ---
         [Authorize]
         [HttpGet]
         public IActionResult Report(int id)
@@ -137,7 +198,6 @@ namespace BendenSana.Controllers
         public async Task<IActionResult> Report(int productId, string reason, string description)
         {
             var user = await _userManager.GetUserAsync(User);
-
             var report = new ProductReport
             {
                 ProductId = productId,
@@ -150,11 +210,11 @@ namespace BendenSana.Controllers
 
             _context.ProductReports.Add(report);
             await _context.SaveChangesAsync();
-
             TempData["Success"] = "Şikayetiniz alındı.";
             return RedirectToAction("Details", new { id = productId });
         }
 
+        // --- 7. YENİ ÜRÜN EKLEME ---
         [Authorize]
         [HttpGet]
         public IActionResult Create()
@@ -174,7 +234,6 @@ namespace BendenSana.Controllers
             }
 
             var user = await _userManager.GetUserAsync(User);
-
             var product = new Product
             {
                 Title = model.Title,
@@ -183,7 +242,7 @@ namespace BendenSana.Controllers
                 CategoryId = model.CategoryId,
                 SellerId = user.Id,
                 CreatedAt = DateTime.UtcNow,
-                Status = ProductStatus.available // Enum kullanımına dikkat
+                Status = ProductStatus.available
             };
 
             _context.Products.Add(product);
@@ -218,19 +277,15 @@ namespace BendenSana.Controllers
             }
 
             TempData["Success"] = "İlanınız yayınlandı.";
-            return RedirectToAction("Index");
+            return RedirectToAction("Index"); // Search sayfasına yönlendirir
         }
 
-        // 👇 GÜNCELLENEN KISIM: EDIT (GET) 👇
+        // --- 8. DÜZENLEME (EDIT) ---
         [Authorize]
         [HttpGet]
         public async Task<IActionResult> Edit(int id)
         {
-            // Resimleri de (.Include) çekiyoruz
-            var product = await _context.Products
-                                        .Include(p => p.Images)
-                                        .FirstOrDefaultAsync(p => p.Id == id);
-
+            var product = await _context.Products.Include(p => p.Images).FirstOrDefaultAsync(p => p.Id == id);
             if (product == null) return NotFound();
 
             var user = await _userManager.GetUserAsync(User);
@@ -243,19 +298,17 @@ namespace BendenSana.Controllers
                 Description = product.Description,
                 Price = product.Price,
                 CategoryId = product.CategoryId,
-                // Veritabanındaki resim URL'lerini ViewModel'e aktarıyoruz
                 ExistingImageUrls = product.Images.Select(i => i.ImageUrl).ToList()
             };
 
             ViewBag.Categories = new SelectList(_context.Categories, "Id", "Name", product.CategoryId);
-            return View(model); // View adı Edit veya Update olabilir, dosya ismine dikkat et.
+            return View(model);
         }
 
         [Authorize]
         [HttpPost]
         public async Task<IActionResult> Edit(ProductCreateViewModel model)
         {
-            // Model valid değilse kategorileri tekrar yükle ve dön
             if (!ModelState.IsValid)
             {
                 ViewBag.Categories = new SelectList(_context.Categories, "Id", "Name", model.CategoryId);
@@ -284,35 +337,26 @@ namespace BendenSana.Controllers
                     {
                         string uniqueFileName = Guid.NewGuid().ToString() + "_" + file.FileName;
                         string filePath = Path.Combine(uploadFolder, uniqueFileName);
-
                         using (var fileStream = new FileStream(filePath, FileMode.Create))
                         {
                             await file.CopyToAsync(fileStream);
                         }
-
-                        var productImage = new ProductImage
-                        {
-                            ProductId = product.Id,
-                            ImageUrl = "/images/products/" + uniqueFileName
-                        };
+                        var productImage = new ProductImage { ProductId = product.Id, ImageUrl = "/images/products/" + uniqueFileName };
                         _context.ProductImages.Add(productImage);
                     }
                 }
             }
-
             await _context.SaveChangesAsync();
             TempData["Success"] = "Ürün güncellendi.";
             return RedirectToAction("Details", new { id = product.Id });
         }
 
+        // --- 9. SİLME (DELETE) ---
         [Authorize]
         [HttpPost]
         public async Task<IActionResult> Delete(int id)
         {
-            var product = await _context.Products
-                .Include(p => p.Images)
-                .FirstOrDefaultAsync(p => p.Id == id);
-
+            var product = await _context.Products.Include(p => p.Images).FirstOrDefaultAsync(p => p.Id == id);
             if (product == null) return NotFound();
 
             var user = await _userManager.GetUserAsync(User);

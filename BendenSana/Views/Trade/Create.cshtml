@@ -1,55 +1,339 @@
-﻿@model global::TradeOffer
+﻿@using BendenSana.Models
+@model List<Product>
 
 @{
     ViewData["Title"] = "Takas Teklifi Oluştur";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
     var targetProductName = ViewBag.TargetProductName as string;
     var sellerName = ViewBag.SellerName as string;
+    var targetProductImage = ViewBag.TargetProductImage as string ?? "https://placehold.co/400x400?text=No+Image";
+    var targetProductPrice = ViewBag.TargetProductPrice != null ? Convert.ToDecimal(ViewBag.TargetProductPrice) : 0;
 }
 
-<div class="container mt-5">
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card shadow-lg border-0">
-                <div class="card-header bg-primary text-white">
-                    <h4 class="mb-0"><i class="bi bi-arrow-left-right"></i> Takas Teklifi</h4>
-                </div>
-                <div class="card-body p-4">
+<style>
+    body {
+        font-family: 'Poppins', sans-serif;
+        background-color: #fff;
+    }
 
-                    <div class="alert alert-light border mb-4">
-                        <strong>@targetProductName</strong> ürünü için <strong>@sellerName</strong> kullanıcısına teklif yapıyorsunuz.
+    h4, h5, h6 {
+        font-family: 'Inter', sans-serif;
+        font-weight: 600;
+    }
+
+    /* KART STİLLERİ */
+    .trade-card {
+        border: 1px solid #E5E7EB;
+        border-radius: 8px;
+        padding: 24px;
+        height: 100%;
+        background: white;
+        transition: box-shadow 0.3s;
+    }
+
+        .trade-card:hover {
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        }
+
+    .card-label {
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 16px;
+        display: block;
+    }
+
+    .label-target {
+        color: #DB4444;
+    }
+
+    .label-offer {
+        color: #0F172A;
+    }
+
+    /* ÜRÜN GÖRSEL ALANI */
+    .product-img-box {
+        background: #F9FAFB;
+        border-radius: 8px;
+        height: 250px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 20px;
+        overflow: hidden;
+    }
+
+    .product-img {
+        max-height: 100%;
+        max-width: 100%;
+        object-fit: contain;
+    }
+
+    /* ORTA İKON */
+    .exchange-icon-wrapper {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+        width: 100%;
+    }
+
+    .exchange-icon {
+        width: 60px;
+        height: 60px;
+        background: #DB4444;
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+        box-shadow: 0 4px 15px rgba(219, 68, 68, 0.3);
+    }
+
+    /* ÇOKLU SEÇİM LİSTESİ */
+    .inventory-list {
+        max-height: 300px;
+        overflow-y: auto;
+        border: 1px solid #eee;
+        border-radius: 6px;
+        padding: 10px;
+        background-color: #FAFAFA;
+    }
+
+    .inventory-item {
+        display: flex;
+        align-items: center;
+        background: white;
+        padding: 10px;
+        margin-bottom: 8px;
+        border: 1px solid #eee;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: 0.2s;
+    }
+
+        .inventory-item:hover {
+            border-color: #DB4444;
+        }
+
+        .inventory-item input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            margin-right: 12px;
+            accent-color: #DB4444;
+        }
+
+    .item-thumb {
+        width: 40px;
+        height: 40px;
+        object-fit: cover;
+        border-radius: 4px;
+        margin-right: 12px;
+        background: #eee;
+    }
+
+    .item-info h6 {
+        margin: 0;
+        font-size: 14px;
+        font-weight: 600;
+    }
+
+    .item-info small {
+        color: #666;
+        font-size: 12px;
+    }
+
+    /* ALT KISIM */
+    .summary-box {
+        border: 1px solid #000;
+        border-radius: 4px;
+        padding: 32px;
+    }
+
+    .summary-row {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 16px;
+        font-size: 16px;
+    }
+
+    .summary-divider {
+        border-bottom: 1px solid #E5E7EB;
+        margin: 16px 0;
+    }
+
+    .btn-submit {
+        background-color: #DB4444;
+        color: white;
+        border: none;
+        width: 100%;
+        padding: 16px;
+        border-radius: 4px;
+        font-weight: 500;
+        transition: 0.2s;
+    }
+
+        .btn-submit:hover {
+            background-color: #c93e3e;
+        }
+
+    .form-control:focus {
+        border-color: #DB4444;
+        box-shadow: none;
+    }
+</style>
+
+<div class="container py-5">
+
+    <div class="d-flex align-items-center gap-2 mb-5 text-muted small">
+        <a asp-controller="Home" asp-action="Index" class="text-decoration-none text-muted">Home</a> /
+        <span class="text-dark fw-bold">Takas Teklifi Oluştur</span>
+    </div>
+
+    <form asp-action="Create" method="post">
+        <input type="hidden" name="targetProductId" value="@ViewBag.TargetProductId" />
+
+        <div class="row align-items-center mb-5">
+
+            <div class="col-md-5">
+                <div class="trade-card">
+                    <span class="card-label label-target">İstediğin Ürün (Hedef)</span>
+
+                    <div class="product-img-box">
+                        <img src="@targetProductImage" class="product-img" alt="Target Product">
                     </div>
 
-                    <form asp-action="Create" method="post">
-                        <input type="hidden" name="targetProductId" value="@ViewBag.TargetProductId" />
+                    <h5 class="mb-1">@targetProductName</h5>
+                    <p class="text-muted small mb-2">Satıcı: @sellerName</p>
+                    <h4 class="text-danger">@targetProductPrice.ToString("C0")</h4>
+                </div>
+            </div>
 
-                        <div class="mb-4">
-                            <label class="form-label fw-bold">Senin Ürünlerin (Takas etmek istediğini seç)</label>
-                            <select name="offeredProductId" class="form-select" asp-items="ViewBag.MyProducts">
-                                <option value="">-- Ürün Seçmeyip Sadece Para Teklif Edeceğim --</option>
-                            </select>
-                            <div class="form-text text-muted">İsterseniz sadece para teklif edebilirsiniz.</div>
-                        </div>
+            <div class="col-md-2 my-4 my-md-0">
+                <div class="exchange-icon-wrapper">
+                    <div class="exchange-icon">
+                        <i class="bi bi-arrow-left-right"></i>
+                    </div>
+                </div>
+            </div>
 
-                        <div class="mb-4">
-                            <label class="form-label fw-bold">Üzerine Nakit Para (Opsiyonel)</label>
-                            <div class="input-group">
-                                <span class="input-group-text">₺</span>
-                                <input type="number" name="offeredCash" class="form-control" placeholder="0.00" step="0.01" min="0" />
+            <div class="col-md-5">
+                <div class="trade-card" style="border-color: #0F172A;">
+                    <span class="card-label label-offer">Senin Teklifin</span>
+
+                    <div class="mb-4">
+                        <label class="form-label text-muted small mb-2">Takas etmek istediğin ürünleri seç:</label>
+
+                        @if (Model != null && Model.Any())
+                        {
+                            <div class="inventory-list">
+                                @foreach (var item in Model)
+                                {
+                                    <label class="inventory-item">
+                                        <input type="checkbox" name="offeredProductIds" value="@item.Id">
+
+                                        @if (item.Images != null && item.Images.Any())
+                                        {
+                                            <img src="@item.Images.First().ImageUrl" class="item-thumb">
+                                        }
+                                        else
+                                        {
+                                            <img src="https://placehold.co/50x50?text=No" class="item-thumb">
+                                        }
+
+                                        <div class="item-info">
+                                            <h6>@item.Title</h6>
+                                            <small>@item.Price.ToString("C0")</small>
+                                        </div>
+                                    </label>
+                                }
                             </div>
-                        </div>
+                            <div class="mt-2 text-end text-muted small">
+                                <span id="selectedCount">0</span> ürün seçildi.
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="alert alert-warning small">
+                                Envanterinizde takasa uygun ürün bulunmuyor. Sadece nakit teklif edebilirsiniz.
+                            </div>
+                        }
+                    </div>
 
-                        <div class="mb-4">
-                            <label class="form-label fw-bold">Satıcıya Notun</label>
-                            <textarea name="message" class="form-control" rows="3" placeholder="Örn: Üstüne 100 lira veririm, kargo benden olsun..."></textarea>
+                    <div class="mb-3">
+                        <label class="form-label text-muted small">Üzerine Nakit Ekle (Opsiyonel):</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-white">₺</span>
+                            <input type="number" name="offeredCash" class="form-control" placeholder="0.00" min="0" step="0.01">
                         </div>
-
-                        <div class="d-grid gap-2">
-                            <button type="submit" class="btn btn-success btn-lg">Teklifi Gönder 🚀</button>
-                            <a asp-controller="Products" asp-action="Details" asp-route-id="@ViewBag.TargetProductId" class="btn btn-outline-secondary">Vazgeç</a>
-                        </div>
-                    </form>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
+
+        <div class="row">
+            <div class="col-md-7 mb-4 mb-md-0">
+                <div class="form-group h-100">
+                    <textarea name="message" class="form-control h-100" style="min-height: 200px; resize: none;"
+                              placeholder="Satıcıya not bırak (Örn: Ürünlerim temizdir, üzerine nakit ekledim...)"></textarea>
+                </div>
+            </div>
+
+            <div class="col-md-5">
+                <div class="summary-box">
+                    <h5 class="mb-4">Teklif Özeti</h5>
+
+                    <div class="summary-row">
+                        <span>Alınacak Ürün:</span>
+                        <span class="fw-bold">@targetProductName</span>
+                    </div>
+                    <div class="summary-row">
+                        <span>Hedef Fiyat:</span>
+                        <span>@targetProductPrice.ToString("C0")</span>
+                    </div>
+
+                    <div class="summary-divider"></div>
+
+                    <div class="summary-row">
+                        <span>Verilecekler:</span>
+                        <span id="summaryText">Seçim Yapılmadı</span>
+                    </div>
+                    <div class="summary-row">
+                        <span>Kargo:</span>
+                        <span>Anlaşmaya Bağlı</span>
+                    </div>
+
+                    <button type="submit" class="btn-submit mt-4">Teklifi Gönder</button>
+
+                    <div class="text-center mt-3">
+                        <a asp-controller="Product" asp-action="Details" asp-route-id="@ViewBag.TargetProductId" class="text-muted text-decoration-underline small">Vazgeç</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
 </div>
+
+<script>
+    const checkboxes = document.querySelectorAll('input[name="offeredProductIds"]');
+    const countSpan = document.getElementById('selectedCount');
+    const summaryText = document.getElementById('summaryText');
+
+    checkboxes.forEach(chk => {
+        chk.addEventListener('change', updateCount);
+    });
+
+    function updateCount() {
+        const selected = document.querySelectorAll('input[name="offeredProductIds"]:checked');
+        countSpan.innerText = selected.length;
+
+        if(selected.length > 0) {
+            summaryText.innerText = selected.length + " Adet Ürün + Nakit";
+        } else {
+            summaryText.innerText = "Sadece Nakit";
+        }
+    }
+</script>

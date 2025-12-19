@@ -1,0 +1,176 @@
+﻿@using BendenSana.ViewModels
+@using BendenSana.Models
+@model SearchViewModel
+
+@{
+    ViewData["Title"] = "Arama Sonuçları";
+}
+
+<div class="container mt-5 mb-5">
+    <div class="text-center">
+        <h2 class="fw-bold text-dark">Arama Sonuçları</h2>
+        <p class="text-muted">
+            "@(Model.SearchQuery ?? "Tüm Ürünler")" için sonuçlar:
+        </p>
+    </div>
+</div>
+
+<div class="container mb-5">
+    <form asp-controller="Product" asp-action="Search" method="get" id="filterForm">
+
+        <input type="hidden" asp-for="SearchQuery" />
+
+        <div class="row">
+            <div class="col-lg-3 mb-4">
+                <div class="pe-lg-3">
+
+                    <div class="mb-4 border-bottom pb-4">
+                        <h6 class="fw-bold mb-3">Kategoriler</h6>
+                        <div class="d-flex flex-column gap-2">
+                            @foreach (var cat in Model.AllCategories)
+                            {
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="SelectedCategoryIds"
+                                           value="@cat.Id" id="cat_@cat.Id"
+                                    @(Model.SelectedCategoryIds.Contains(cat.Id) ? "checked" : "")
+                                           onchange="this.form.submit()">
+                                    <label class="form-check-label fw-semibold" for="cat_@cat.Id">
+                                        @cat.Name
+                                    </label>
+                                </div>
+                                @if (cat.Children != null && cat.Children.Any())
+                                {
+                                    <div class="ms-4 d-flex flex-column gap-1">
+                                        @foreach (var child in cat.Children)
+                                        {
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" name="SelectedCategoryIds"
+                                                       value="@child.Id" id="cat_@child.Id"
+                                                @(Model.SelectedCategoryIds.Contains(child.Id) ? "checked" : "")
+                                                       onchange="this.form.submit()">
+                                                <label class="form-check-label text-muted small" for="cat_@child.Id">
+                                                    @child.Name
+                                                </label>
+                                            </div>
+                                        }
+                                    </div>
+                                }
+                            }
+                        </div>
+                    </div>
+
+                    <div class="mb-4 border-bottom pb-4">
+                        <h6 class="fw-bold mb-3">Cinsiyet</h6>
+                        <div class="d-flex flex-column gap-2">
+                            @foreach (var gender in Enum.GetValues(typeof(ProductGender)).Cast<ProductGender>())
+                            {
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="SelectedGenders"
+                                           value="@gender" id="g_@gender"
+                                    @(Model.SelectedGenders.Contains(gender) ? "checked" : "")
+                                           onchange="this.form.submit()">
+                                    <label class="form-check-label" for="g_@gender">@gender</label>
+                                </div>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="mb-4 border-bottom pb-4">
+                        <h6 class="fw-bold mb-3">Fiyat Aralığı</h6>
+                        <div class="d-flex gap-2 align-items-center">
+                            <input type="number" asp-for="MinPrice" class="form-control form-control-sm" placeholder="Min" onblur="this.form.submit()">
+                            <span>-</span>
+                            <input type="number" asp-for="MaxPrice" class="form-control form-control-sm" placeholder="Max" onblur="this.form.submit()">
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <h6 class="fw-bold mb-3">Renk</h6>
+                        <div class="d-flex flex-wrap gap-2">
+                            @foreach (var color in Model.AllColors)
+                            {
+                                var isChecked = Model.SelectedColorIds.Contains(color.Id);
+                                var borderStyle = isChecked ? "2px solid #000" : "1px solid #ddd";
+                                var hex = !string.IsNullOrEmpty(color.HexCode) ? color.HexCode : "#ccc";
+
+                                <label style="cursor: pointer;" title="@color.Name">
+                                    <input type="checkbox" name="SelectedColorIds" value="@color.Id" class="d-none"
+                                    @(isChecked ? "checked" : "") onchange="this.form.submit()">
+
+                                    <div class="rounded-circle"
+                                         style="width: 32px; height: 32px; background-color: @hex; border: @borderStyle;">
+                                    </div>
+                                    <div class="text-center mt-1" style="font-size: 10px; max-width: 32px; overflow: hidden; white-space: nowrap;">
+                                        @color.Name
+                                    </div>
+                                </label>
+                            }
+                        </div>
+                    </div>
+
+                    <a href="@Url.Action("Search", "Product")" class="btn btn-outline-dark w-100 btn-sm mt-3">Filtreleri Temizle</a>
+                </div>
+            </div>
+
+            <div class="col-lg-9">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <span class="text-muted">Toplam <strong>@Model.TotalResults</strong> ürün bulundu</span>
+                    <div class="d-flex align-items-center gap-2">
+                        <label class="small fw-bold text-nowrap">Sırala:</label>
+                        <select asp-for="SortBy" class="form-select form-select-sm" onchange="this.form.submit()">
+                            <option value="newest">En Yeniler</option>
+                            <option value="price_asc">Fiyat (Artan)</option>
+                            <option value="price_desc">Fiyat (Azalan)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="row g-4">
+                    @if (Model.Products.Count == 0)
+                    {
+                        <div class="col-12 text-center py-5">
+                            <h4>Ürün bulunamadı.</h4>
+                            <p class="text-muted">Filtreleri değiştirerek tekrar deneyebilirsiniz.</p>
+                        </div>
+                    }
+
+                    @foreach (var item in Model.Products)
+                    {
+                        var imgUrl = item.Images.FirstOrDefault()?.ImageUrl ?? "https://placehold.co/300x400?text=Resim+Yok";
+
+                        <div class="col-6 col-md-4">
+                            <div class="card h-100 border-0 shadow-sm">
+                                <div class="position-relative">
+                                    <a asp-controller="Product" asp-action="Details" asp-route-id="@item.Id">
+                                        <img src="@imgUrl" class="card-img-top" style="height: 300px; object-fit: cover;" alt="@item.Title">
+                                    </a>
+
+                                    @if (item.OriginalPrice > item.Price)
+                                    {
+                                        <span class="badge bg-danger position-absolute top-0 start-0 m-2">İNDİRİM</span>
+                                    }
+                                </div>
+
+                                <div class="card-body">
+                                    <h6 class="card-title fw-bold text-truncate">
+                                        <a asp-controller="Product" asp-action="Details" asp-route-id="@item.Id" class="text-decoration-none text-dark">
+                                            @item.Title
+                                        </a>
+                                    </h6>
+
+                                    <div class="d-flex gap-2 align-items-center">
+                                        <span class="fw-bold" style="color: #DB4444;">$@item.Price.ToString("N0")</span>
+                                        @if (item.OriginalPrice > item.Price)
+                                        {
+                                            <span class="text-muted text-decoration-line-through small">$@item.OriginalPrice?.ToString("N0")</span>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </form>
+</div>

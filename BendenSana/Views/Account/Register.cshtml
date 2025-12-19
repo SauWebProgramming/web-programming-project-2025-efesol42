@@ -1,0 +1,66 @@
+﻿@model BendenSana.ViewModels.RegisterViewModel
+
+@{
+    ViewData["Title"] = "Hesap Oluştur";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container py-5">
+
+    <div class="mb-5" style="opacity: 0.5; font-size: 14px; font-family: 'Poppins', sans-serif;">
+        Home / <span style="font-weight: 500; opacity: 1; color: black;">Hesap Oluştur</span>
+    </div>
+
+    <div class="row align-items-center">
+
+        <div class="col-lg-6 mb-5 mb-lg-0">
+            <div style="background: #CBE4E8; border-radius: 4px; overflow: hidden; position: relative; min-height: 600px;">
+                <img src="https://placehold.co/919x706" alt="Login Image" style="width: 100%; height: 100%; object-fit: cover; position: absolute;" />
+            </div>
+        </div>
+
+        <div class="col-lg-5 offset-lg-1">
+            <div class="d-flex flex-column gap-4">
+
+                <div>
+                    <h2 style="font-family: 'Inter', sans-serif; font-weight: 500; font-size: 36px; letter-spacing: 1.4px; margin-bottom: 24px;">Yeni Hesap Oluştur</h2>
+                    <p style="font-family: 'Poppins', sans-serif; font-size: 16px;">Aşağıya bilgilerinizi giriniz</p>
+                </div>
+
+                <form asp-action="Register" method="post">
+
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                    <div class="mb-4">
+                        <input asp-for="Name" class="form-control border-0 border-bottom rounded-0 px-0" placeholder="Adınız" style="background: transparent;" />
+                        <span asp-validation-for="Name" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-4">
+                        <input asp-for="EmailOrPhone" class="form-control border-0 border-bottom rounded-0 px-0" placeholder="Email veya Telefon Numarası" style="background: transparent;" />
+                        <span asp-validation-for="EmailOrPhone" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-4">
+                        <input asp-for="Password" type="password" class="form-control border-0 border-bottom rounded-0 px-0" placeholder="Şifre" style="background: transparent;" />
+                        <span asp-validation-for="Password" class="text-danger small"></span>
+                    </div>
+
+                    <div class="d-flex flex-column gap-3 mt-4">
+                        <button type="submit" class="btn btn-danger w-100 py-3 text-white" style="background-color: #DB4444; border: none; font-family: 'Poppins', sans-serif; font-weight: 500;">
+                            Hesap Oluştur
+                        </button>
+
+                        <div class="text-center">
+                            <span style="opacity: 0.7; font-family: 'Poppins', sans-serif;">Zaten hesabın var mı?</span>
+                            <a asp-action="Login" class="text-dark fw-bold ms-2" style="text-decoration: underline; font-family: 'Poppins', sans-serif;">Giriş Yap</a>
+                        </div>
+                    </div>
+
+                </form>
+
+            </div>
+        </div>
+
+    </div>
+</div>

@@ -14,14 +14,11 @@
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/Footer.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/header.css" asp-append-version="true" />
-
-
 </head>
 <body class="d-flex flex-column min-vh-100">
     @* Header Partial View *@
     <header class="bs-header">
 
-        <!-- Top bar -->
         <div class="bs-header__topbar">
             <div class="container d-flex align-items-center justify-content-center gap-2 py-2">
 
@@ -46,12 +43,10 @@
             </div>
         </div>
 
-        <!-- Main header -->
         <div class="bs-header__main">
             <div class="container">
                 <div class="d-flex align-items-center justify-content-between py-3">
 
-                    <!-- Logo -->
                     <a asp-controller="Home"
                        asp-action="Index"
                        class="bs-header__logo d-flex align-items-center gap-2">
@@ -62,7 +57,6 @@
                         <span class="bs-header__logo-text">Benden<br />Sana</span>
                     </a>
 
-                    <!-- Nav -->
                     <nav class="bs-header__nav d-none d-lg-flex align-items-center gap-4">
                         <a asp-controller="Home" asp-action="Index" class="bs-header__navlink">Ana Sayfa</a>
                         <a asp-controller="Home" asp-action="Contact" class="bs-header__navlink">Bize Ulaşın</a>
@@ -70,16 +64,14 @@
                         <a asp-controller="Account" asp-action="Login" class="bs-header__navlink fw-semibold">Giriş Yap</a>
                     </nav>
 
-                    <!-- Right actions -->
                     <div class="d-flex align-items-center gap-3">
 
-                        <!-- Search -->
-                        <form asp-controller="Search"
-                              asp-action="Index"
+                        <form asp-controller="Product"
+                              asp-action="Search"
                               method="get"
                               class="bs-header__search d-none d-md-flex">
 
-                            <input name="q"
+                            <input name="SearchQuery"
                                    type="text"
                                    class="bs-header__search-input"
                                    placeholder="Ne Arıyorsun Bu Gün ?"
@@ -94,7 +86,6 @@
                             </button>
                         </form>
 
-                        <!-- Favorite -->
                         <a asp-controller="Favorite"
                            asp-action="Index"
                            class="bs-header__iconbtn"
@@ -104,7 +95,6 @@
                                  class="bs-header__icon-img" />
                         </a>
 
-                        <!-- Cart -->
                         <a asp-controller="Cart"
                            asp-action="Index"
                            class="bs-header__iconbtn"
@@ -114,7 +104,6 @@
                                  class="bs-header__icon-img" />
                         </a>
 
-                        <!-- User -->
                         <a asp-controller="Profile"
                            asp-action="EditProfile"
                            class="bs-header__iconbtn"
@@ -130,12 +119,7 @@
             </div>
         </div>
 
-       
-
-
     </header>
-
-
 
     <div class="container flex-grow-1">
         <main role="main" class="pb-3">
@@ -169,79 +153,40 @@
     </div>
 
     @* Footer Partial View *@
-
     <footer class="bs-footer bg-black text-white w-100">
         <div class="container py-5">
-
             <div class="row g-4">
-
-                <!-- Subscribe -->
                 <div class="col-12 col-md-6 col-lg-3">
                     <div class="d-flex flex-column gap-3">
-
-                        <!-- Subscribe -->
                         <div>
-                            <span class="bs-footer__title">
-                                Exclusive
-                            </span>
+                            <span class="bs-footer__title">Exclusive</span>
                         </div>
-
-
                         <a asp-controller="Home" asp-action="Subscribe" class="bs-footer__link">
                             Get 10% off your first order
                         </a>
-
-                        <form asp-controller="Home"
-                              asp-action="Subscribe"
-                              method="post"
-                              class="bs-footer__subscribe">
-
-                            <input type="email"
-                                   name="email"
-                                   placeholder="Enter your email"
-                                   required
-                                   class="bs-footer__subscribe-input" />
-
+                        <form asp-controller="Home" asp-action="Subscribe" method="post" class="bs-footer__subscribe">
+                            <input type="email" name="email" placeholder="Enter your email" required class="bs-footer__subscribe-input" />
                             <button type="submit" class="bs-footer__subscribe-btn" aria-label="Subscribe">
-                                <img src="https://storage.googleapis.com/tagjs-prod.appspot.com/v1/X1k6dJHImM/t0orzn4i_expires_30_days.png"
-                                     class="bs-footer__icon"
-                                     alt="Send" />
+                                <img src="https://storage.googleapis.com/tagjs-prod.appspot.com/v1/X1k6dJHImM/t0orzn4i_expires_30_days.png" class="bs-footer__icon" alt="Send" />
                             </button>
                         </form>
-
                     </div>
                 </div>
 
-                <!-- Support -->
                 <div class="col-12 col-md-6 col-lg-3">
                     <div class="d-flex flex-column gap-3">
-                        <!-- Support -->
-                        <span class="bs-footer__title">
-                            Support
-                        </span>
-
+                        <span class="bs-footer__title">Support</span>
                         <div class="d-flex flex-column gap-2">
-                            <a asp-controller="Home" asp-action="Contact" class="bs-footer__link">
-                                111 Bijoy sarani, Dhaka, DH 1515, Bangladesh.
-                            </a>
-                            <a asp-controller="Home" asp-action="Contact" class="bs-footer__link">
-                                exclusive@gmail.com
-                            </a>
-                            <a asp-controller="Home" asp-action="Contact" class="bs-footer__link">
-                                +88015-88888-9999
-                            </a>
+                            <a asp-controller="Home" asp-action="Contact" class="bs-footer__link">111 Bijoy sarani, Dhaka, DH 1515, Bangladesh.</a>
+                            <a asp-controller="Home" asp-action="Contact" class="bs-footer__link">exclusive@gmail.com</a>
+                            <a asp-controller="Home" asp-action="Contact" class="bs-footer__link">+88015-88888-9999</a>
                         </div>
                     </div>
                 </div>
 
-                <!-- Account -->
                 <div class="col-12 col-md-6 col-lg-2">
                     <div class="d-flex flex-column gap-3">
-                        <!-- Account -->
-                        <span class="bs-footer__title">
-                            Account
-                        </span>
-
+                        <span class="bs-footer__title">Account</span>
                         <div class="d-flex flex-column gap-2">
                             <a asp-controller="Account" asp-action="Index" class="bs-footer__link">My Account</a>
                             <a asp-controller="Account" asp-action="Login" class="bs-footer__link">Login / Register</a>
@@ -252,14 +197,9 @@
                     </div>
                 </div>
 
-                <!-- Quick Links -->
                 <div class="col-12 col-md-6 col-lg-2">
                     <div class="d-flex flex-column gap-3">
-                        <!-- Quick Link -->
-                        <span class="bs-footer__title">
-                            Quick Link
-                        </span>
-
+                        <span class="bs-footer__title">Quick Link</span>
                         <div class="d-flex flex-column gap-2">
                             <a asp-controller="Home" asp-action="Privacy" class="bs-footer__link">Privacy Policy</a>
                             <a asp-controller="Home" asp-action="Terms" class="bs-footer__link">Terms Of Use</a>
@@ -269,54 +209,36 @@
                     </div>
                 </div>
 
-                <!-- Download App -->
                 <div class="col-12 col-lg-2">
                     <div class="d-flex flex-column gap-3">
                         <span class="bs-footer__heading">Download App</span>
-
                         <div class="d-flex flex-column gap-2">
                             <span class="bs-footer__muted">Save $3 with App New User Only</span>
-
                             <div class="d-flex align-items-center gap-2">
-                                <img src="https://storage.googleapis.com/tagjs-prod.appspot.com/v1/X1k6dJHImM/9cz9c7n5_expires_30_days.png"
-                                     class="bs-footer__qr"
-                                     alt="QR" />
-                                <img src="https://storage.googleapis.com/tagjs-prod.appspot.com/v1/X1k6dJHImM/8qkli4eq_expires_30_days.png"
-                                     class="bs-footer__store"
-                                     alt="Store" />
+                                <img src="https://storage.googleapis.com/tagjs-prod.appspot.com/v1/X1k6dJHImM/9cz9c7n5_expires_30_days.png" class="bs-footer__qr" alt="QR" />
+                                <img src="https://storage.googleapis.com/tagjs-prod.appspot.com/v1/X1k6dJHImM/8qkli4eq_expires_30_days.png" class="bs-footer__store" alt="Store" />
                             </div>
                         </div>
-
                         <div class="d-flex align-items-center gap-3">
-                            <img src="https://storage.googleapis.com/tagjs-prod.appspot.com/v1/X1k6dJHImM/yvyws5i2_expires_30_days.png"
-                                 class="bs-footer__social" alt="Facebook" />
-                            <img src="https://storage.googleapis.com/tagjs-prod.appspot.com/v1/X1k6dJHImM/11mweqgb_expires_30_days.png"
-                                 class="bs-footer__social" alt="Twitter" />
-                            <img src="https://storage.googleapis.com/tagjs-prod.appspot.com/v1/X1k6dJHImM/z2d7oia0_expires_30_days.png"
-                                 class="bs-footer__social" alt="Instagram" />
-                            <img src="https://storage.googleapis.com/tagjs-prod.appspot.com/v1/X1k6dJHImM/41dwu10w_expires_30_days.png"
-                                 class="bs-footer__social" alt="LinkedIn" />
+                            <img src="https://storage.googleapis.com/tagjs-prod.appspot.com/v1/X1k6dJHImM/yvyws5i2_expires_30_days.png" class="bs-footer__social" alt="Facebook" />
+                            <img src="https://storage.googleapis.com/tagjs-prod.appspot.com/v1/X1k6dJHImM/11mweqgb_expires_30_days.png" class="bs-footer__social" alt="Twitter" />
+                            <img src="https://storage.googleapis.com/tagjs-prod.appspot.com/v1/X1k6dJHImM/z2d7oia0_expires_30_days.png" class="bs-footer__social" alt="Instagram" />
+                            <img src="https://storage.googleapis.com/tagjs-prod.appspot.com/v1/X1k6dJHImM/41dwu10w_expires_30_days.png" class="bs-footer__social" alt="LinkedIn" />
                         </div>
                     </div>
                 </div>
-
             </div>
 
             <hr class="bs-footer__hr my-4" />
 
             <div class="d-flex justify-content-center align-items-center gap-2 bs-footer__bottom">
-                <img src="https://storage.googleapis.com/tagjs-prod.appspot.com/v1/X1k6dJHImM/4o7y5uxc_expires_30_days.png"
-                     class="bs-footer__copyright-icon"
-                     alt="copyright" />
+                <img src="https://storage.googleapis.com/tagjs-prod.appspot.com/v1/X1k6dJHImM/4o7y5uxc_expires_30_days.png" class="bs-footer__copyright-icon" alt="copyright" />
                 <span class="bs-footer__copyright">
                     © @DateTime.Now.Year BendenSana. All rights reserved.
                 </span>
             </div>
-
         </div>
     </footer>
-
-
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>

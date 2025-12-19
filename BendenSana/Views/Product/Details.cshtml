@@ -14,7 +14,7 @@
 }
 
 <style>
-    /* Figma Tasarımına Özel Stiller */
+    /* GENEL STİLLER */
     .product-title {
         font-family: 'Inter', sans-serif;
         font-weight: 600;
@@ -35,10 +35,11 @@
         font-weight: 400;
         font-size: 14px;
         color: #000;
-        line-height: 21px;
+        line-height: 24px;
         margin-top: 24px;
     }
 
+    /* GÖRSEL ALANI */
     .thumbnail-container {
         background: #F5F5F5;
         border-radius: 4px;
@@ -71,6 +72,7 @@
         justify-content: center;
     }
 
+    /* TESLİMAT KUTUSU */
     .delivery-box {
         border: 1px solid rgba(0, 0, 0, 0.5);
         border-radius: 4px;
@@ -107,13 +109,14 @@
         cursor: pointer;
     }
 
+    /* NİTELİK SATIRLARI */
     .attribute-row {
         display: flex;
         align-items: center;
         justify-content: space-between;
         margin-bottom: 16px;
         font-family: 'Inter', sans-serif;
-        font-size: 20px;
+        font-size: 16px;
     }
 
     .attribute-value {
@@ -125,14 +128,23 @@
         min-width: 80px;
         text-align: center;
     }
+
+    /* BENZER ÜRÜNLER KARTI */
+    .group-hover-effect:hover img {
+        transform: scale(1.05);
+    }
+
+    .group-hover-effect:hover .add-to-cart-overlay {
+        opacity: 1 !important;
+    }
 </style>
 
 <div class="container py-5">
 
-    <div class="d-flex align-items-center gap-3 mb-5">
-        <div style="width: 20px; height: 40px; background: #DB4444; border-radius: 4px;"></div>
-        <span style="color: #DB4444; font-family: 'Poppins', sans-serif; font-weight: 600;">Featured</span>
-        <span style="color: black; font-family: 'Inter', sans-serif; font-weight: 600; font-size: 24px; margin-left: 10px;">@Model.Title</span>
+    <div class="d-flex align-items-center gap-2 mb-5 text-muted small">
+        <a asp-controller="Home" asp-action="Index" class="text-decoration-none text-muted">Ana Sayfa</a> /
+        <a href="#" class="text-decoration-none text-muted">@Model.Category?.Name</a> /
+        <span class="text-dark fw-bold">@Model.Title</span>
     </div>
 
     <div class="row">
@@ -179,18 +191,16 @@
                         }
                     }
                 </div>
-                <span class="text-muted small">(@reviewCount Reviews)</span>
+                <span class="text-muted small">(@reviewCount İnceleme)</span>
                 <span class="text-muted small">|</span>
                 <span class="text-success small fw-bold">Stokta Var</span>
             </div>
 
             <div class="product-price">@Model.Price.ToString("C2")</div>
 
-            <p class="product-desc">
-                @Model.Description
-            </p>
+            <p class="product-desc">@Model.Description</p>
 
-            <hr class="my-4" style="background-color: black; height: 1px; opacity: 0.2;">
+            <hr class="my-4" style="opacity: 0.2;">
 
             <div class="mb-4">
                 <div class="attribute-row">
@@ -240,27 +250,76 @@
                 <div class="delivery-item">
                     <i class="bi bi-truck fs-3"></i>
                     <div>
-                        <div class="delivery-title">Free Delivery</div>
+                        <div class="delivery-title">Ücretsiz Teslimat</div>
                         <div class="delivery-text">
-                            <span class="delivery-link">Enter your postal code for Delivery Availability</span>
+                            <span class="delivery-link">Teslimat durumunu kontrol etmek için posta kodunuzu girin</span>
                         </div>
                     </div>
                 </div>
                 <div class="delivery-item">
                     <i class="bi bi-arrow-repeat fs-3"></i>
                     <div>
-                        <div class="delivery-title">Return Delivery</div>
+                        <div class="delivery-title">İade Garantisi</div>
                         <div class="delivery-text">
-                            Free 30 Days Delivery Returns. <span class="delivery-link">Details</span>
+                            30 Gün İçinde Ücretsiz İade. <span class="delivery-link">Detaylar</span>
                         </div>
                     </div>
                 </div>
             </div>
-
         </div>
     </div>
 
-    <div class="row mt-5 pt-5">
+    <div class="mt-5 pt-5">
+        <div class="d-flex align-items-center gap-3 mb-4">
+            <div style="width: 20px; height: 40px; background: #DB4444; border-radius: 4px;"></div>
+            <h4 class="text-danger fw-bold m-0" style="font-family: 'Poppins', sans-serif;">Benzer Ürünler</h4>
+        </div>
+
+        <div class="row">
+            @if (ViewBag.RelatedProducts != null && ((List<Product>)ViewBag.RelatedProducts).Any())
+            {
+                foreach (var item in (List<Product>)ViewBag.RelatedProducts)
+                {
+                    <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+                        <div class="card border-0 h-100 position-relative group-hover-effect shadow-sm">
+                            <div class="bg-light rounded p-3 d-flex align-items-center justify-content-center position-relative" style="height: 250px; overflow: hidden;">
+                                <img src="@(item.Images?.FirstOrDefault()?.ImageUrl ?? "https://placehold.co/400x300")"
+                                     class="img-fluid"
+                                     style="max-height: 100%; object-fit: contain; transition: transform 0.3s;">
+
+                                <div class="position-absolute w-100 text-center add-to-cart-overlay" style="bottom: 0; background: black; color: white; padding: 8px; opacity: 0; transition: opacity 0.3s;">
+                                    <a asp-action="Details" asp-route-id="@item.Id" class="text-white text-decoration-none small stretched-link">Göz At</a>
+                                </div>
+                            </div>
+
+                            <div class="card-body px-0">
+                                <h6 class="fw-bold mb-1 text-truncate">@item.Title</h6>
+                                <div class="d-flex align-items-center gap-2">
+                                    <span class="text-danger fw-bold">@item.Price.ToString("C2")</span>
+                                </div>
+                                <div class="d-flex align-items-center gap-1 mt-1 text-warning small">
+                                    <i class="bi bi-star-fill"></i>
+                                    <i class="bi bi-star-fill"></i>
+                                    <i class="bi bi-star-fill"></i>
+                                    <i class="bi bi-star-fill"></i>
+                                    <i class="bi bi-star-half"></i>
+                                    <span class="text-muted ms-1">(88)</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="col-12">
+                    <div class="alert alert-light border text-center">Bu kategoride başka benzer ürün bulunamadı.</div>
+                </div>
+            }
+        </div>
+    </div>
+
+    <div class="row mt-5">
         <div class="col-12">
             <div class="d-flex align-items-center gap-3 mb-4">
                 <div style="width: 20px; height: 40px; background: #DB4444; border-radius: 4px;"></div>

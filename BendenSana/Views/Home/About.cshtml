@@ -1,0 +1,337 @@
+﻿@{
+    ViewData["Title"] = "Hakkımızda";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    /* Google Fonts - Razor uyumlu @@import */
+    @@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@400;500;600&display=swap');
+
+    body {
+        font-family: 'Poppins', sans-serif;
+        color: #000;
+    }
+
+    h1, h2, h3, h4, h5 {
+        font-family: 'Inter', sans-serif;
+    }
+
+    /* Our Story */
+    .story-title {
+        font-size: 54px;
+        font-weight: 600;
+        letter-spacing: 2px;
+        margin-bottom: 40px;
+    }
+
+    .story-text {
+        font-size: 16px;
+        line-height: 26px;
+        margin-bottom: 24px;
+        color: #000;
+    }
+
+    .story-img {
+        width: 100%;
+        border-radius: 4px;
+        object-fit: cover;
+        height: 609px;
+    }
+
+    /* İstatistik Kutuları */
+    .stat-box {
+        border: 1px solid rgba(0,0,0,0.3);
+        border-radius: 4px;
+        padding: 30px;
+        text-align: center;
+        transition: all 0.3s;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+
+        .stat-box:hover, .stat-box.active {
+            background-color: #DB4444;
+            border-color: #DB4444;
+            color: white;
+        }
+
+    /* İkon Dairesi */
+    .icon-circle {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        background-color: rgba(47, 46, 48, 0.3); /* Gri Daire */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 24px;
+        transition: all 0.3s;
+    }
+
+    .inner-circle {
+        width: 58px;
+        height: 58px;
+        border-radius: 50%;
+        background-color: black;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+    }
+
+    /* Hover durumunda ikon renkleri */
+    .stat-box:hover .icon-circle, .stat-box.active .icon-circle {
+        background-color: rgba(255,255,255,0.3);
+    }
+
+    .stat-box:hover .inner-circle, .stat-box.active .inner-circle {
+        background-color: white;
+        color: black;
+    }
+
+    .stat-box:hover p, .stat-box.active p {
+        color: white;
+    }
+
+    .stat-number {
+        font-size: 32px;
+        font-weight: 700;
+        font-family: 'Inter', sans-serif;
+        margin-bottom: 12px;
+    }
+
+    .stat-desc {
+        font-size: 16px;
+    }
+
+    /* Takım Kartları */
+    .team-card {
+        background: #F5F5F5;
+        border-radius: 4px;
+        overflow: hidden;
+        margin-bottom: 30px;
+    }
+
+    .team-img-wrapper {
+        height: 430px;
+        display: flex;
+        align-items: flex-end;
+        justify-content: center;
+        padding-top: 30px;
+    }
+
+    .team-img {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+    }
+
+    .team-info {
+        margin-top: 32px;
+    }
+
+    .team-name {
+        font-size: 32px;
+        font-weight: 500;
+        font-family: 'Inter', sans-serif;
+        margin-bottom: 8px;
+    }
+
+    .team-role {
+        font-size: 16px;
+        margin-bottom: 16px;
+    }
+
+    .social-icons a {
+        color: black;
+        margin-right: 16px;
+        font-size: 20px;
+        transition: 0.2s;
+    }
+
+        .social-icons a:hover {
+            color: #DB4444;
+        }
+
+    /* Hizmetler (Alt Kısım) */
+    .service-item {
+        text-align: center;
+    }
+
+    .service-icon-wrapper {
+        width: 80px;
+        height: 80px;
+        margin: 0 auto 24px;
+        background: rgba(47, 46, 48, 0.3);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .service-icon-inner {
+        width: 58px;
+        height: 58px;
+        background: black;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 24px;
+    }
+
+    .service-title {
+        font-size: 20px;
+        font-weight: 600;
+        margin-bottom: 8px;
+        text-transform: uppercase;
+    }
+
+    .service-desc {
+        font-size: 14px;
+    }
+</style>
+
+<div class="container py-5">
+
+    <div class="row align-items-center mb-5" style="min-height: 600px;">
+        <div class="col-lg-6 pe-lg-5 mb-5 mb-lg-0">
+            <h1 class="story-title">Our Story</h1>
+            <p class="story-text">
+                Launced in 2015, Exclusive is South Asia’s premier online shopping makterplace with an active presense in Bangladesh. Supported by wide range of tailored marketing, data and service solutions, Exclusive has 10,500 sallers and 300 brands and serves 3 millioons customers across the region.
+            </p>
+            <p class="story-text">
+                Exclusive has more than 1 Million products to offer, growing at a very fast. Exclusive offers a diverse assotment in categories ranging from consumer.
+            </p>
+        </div>
+        <div class="col-lg-6">
+            <img src="https://placehold.co/837x609/EB7EA8/FFFFFF?text=Our+Story+Image" class="story-img" alt="Our Story">
+        </div>
+    </div>
+
+    <div class="row g-4 mb-5 pt-5">
+        <div class="col-lg-3 col-md-6">
+            <div class="stat-box">
+                <div class="icon-circle">
+                    <div class="inner-circle"><i class="bi bi-shop"></i></div>
+                </div>
+                <div class="stat-number">10.5k</div>
+                <p class="stat-desc mb-0">Sallers active our site</p>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6">
+            <div class="stat-box active">
+                <div class="icon-circle">
+                    <div class="inner-circle"><i class="bi bi-currency-dollar"></i></div>
+                </div>
+                <div class="stat-number">33k</div>
+                <p class="stat-desc mb-0">Mopnthly Produduct Sale</p>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6">
+            <div class="stat-box">
+                <div class="icon-circle">
+                    <div class="inner-circle"><i class="bi bi-handbag"></i></div>
+                </div>
+                <div class="stat-number">45.5k</div>
+                <p class="stat-desc mb-0">Customer active in our site</p>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6">
+            <div class="stat-box">
+                <div class="icon-circle">
+                    <div class="inner-circle"><i class="bi bi-cash-coin"></i></div>
+                </div>
+                <div class="stat-number">25k</div>
+                <p class="stat-desc mb-0">Anual gross sale in our site</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4 mb-5 pt-5 justify-content-center">
+        <div class="col-lg-4 col-md-6">
+            <div class="team-card">
+                <div class="team-img-wrapper">
+                    <img src="https://placehold.co/236x391?text=Tom+Cruise" class="team-img" alt="Tom Cruise">
+                </div>
+            </div>
+            <div class="team-info">
+                <h3 class="team-name">Tom Cruise</h3>
+                <p class="team-role">Founder & Chairman</p>
+                <div class="social-icons">
+                    <a href="#"><i class="bi bi-twitter"></i></a>
+                    <a href="#"><i class="bi bi-instagram"></i></a>
+                    <a href="#"><i class="bi bi-linkedin"></i></a>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4 col-md-6">
+            <div class="team-card">
+                <div class="team-img-wrapper">
+                    <img src="https://placehold.co/294x397?text=Emma+Watson" class="team-img" alt="Emma Watson">
+                </div>
+            </div>
+            <div class="team-info">
+                <h3 class="team-name">Emma Watson</h3>
+                <p class="team-role">Managing Director</p>
+                <div class="social-icons">
+                    <a href="#"><i class="bi bi-twitter"></i></a>
+                    <a href="#"><i class="bi bi-instagram"></i></a>
+                    <a href="#"><i class="bi bi-linkedin"></i></a>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4 col-md-6">
+            <div class="team-card">
+                <div class="team-img-wrapper">
+                    <img src="https://placehold.co/326x392?text=Will+Smith" class="team-img" alt="Will Smith">
+                </div>
+            </div>
+            <div class="team-info">
+                <h3 class="team-name">Will Smith</h3>
+                <p class="team-role">Product Designer</p>
+                <div class="social-icons">
+                    <a href="#"><i class="bi bi-twitter"></i></a>
+                    <a href="#"><i class="bi bi-instagram"></i></a>
+                    <a href="#"><i class="bi bi-linkedin"></i></a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4 mt-5 pt-5 justify-content-center">
+        <div class="col-md-4">
+            <div class="service-item">
+                <div class="service-icon-wrapper">
+                    <div class="service-icon-inner"><i class="bi bi-truck"></i></div>
+                </div>
+                <h5 class="service-title">FREE AND FAST DELIVERY</h5>
+                <p class="service-desc">Free delivery for all orders over $140</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="service-item">
+                <div class="service-icon-wrapper">
+                    <div class="service-icon-inner"><i class="bi bi-headset"></i></div>
+                </div>
+                <h5 class="service-title">24/7 CUSTOMER SERVICE</h5>
+                <p class="service-desc">Friendly 24/7 customer support</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="service-item">
+                <div class="service-icon-wrapper">
+                    <div class="service-icon-inner"><i class="bi bi-shield-check"></i></div>
+                </div>
+                <h5 class="service-title">MONEY BACK GUARANTEE</h5>
+                <p class="service-desc">We reurn money within 30 days</p>
+            </div>
+        </div>
+    </div>
+
+</div>

@@ -1,0 +1,135 @@
+﻿@using BendenSana.ViewModels
+@model SearchViewModel
+
+@{
+    ViewData["Title"] = "Search Results";
+}
+
+<div class="container mt-5 mb-4">
+    <div class="row justify-content-center text-center">
+        <div class="col-md-8">
+            <h2 class="fw-bold" style="font-family: 'Inter', sans-serif; color: #1F2937;">Your Search Words</h2>
+            <p class="text-muted">
+                We have obtained these results for your search using '@(Model.SearchQuery ?? "all products")'.
+            </p>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <form asp-action="Search" method="get" id="filterForm">
+        <input type="hidden" asp-for="SearchQuery" />
+
+        <div class="row">
+            <div class="col-lg-3 col-md-4 mb-4">
+
+                <div class="mb-4">
+                    <h6 class="fw-bold">Category</h6>
+                    <div class="d-flex flex-column gap-2 mt-2">
+                        @foreach (var cat in Model.AllCategories)
+                        {
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="SelectedCategoryIds" value="@cat.Id"
+                                       id="cat_@cat.Id" @(Model.SelectedCategoryIds.Contains(cat.Id) ? "checked" : "") onchange="this.form.submit()">
+                                <label class="form-check-label" for="cat_@cat.Id">@cat.Name</label>
+                            </div>
+                            @if (cat.Children != null)
+                            {
+                                foreach (var child in cat.Children)
+                                {
+                                    <div class="form-check ms-3">
+                                        <input class="form-check-input" type="checkbox" name="SelectedCategoryIds" value="@child.Id"
+                                               id="cat_@child.Id" @(Model.SelectedCategoryIds.Contains(child.Id) ? "checked" : "") onchange="this.form.submit()">
+                                        <label class="form-check-label text-muted" for="cat_@child.Id">@child.Name</label>
+                                    </div>
+                                }
+                            }
+                        }
+                    </div>
+                </div>
+                <hr />
+
+                <div class="mb-4">
+                    <h6 class="fw-bold mb-2">Gender</h6>
+                    <div class="d-flex flex-column gap-2">
+                        @foreach (var gender in Enum.GetValues(typeof(ProductGender)).Cast<ProductGender>())
+                        {
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="SelectedGenders" value="@gender"
+                                       id="gender_@gender" @(Model.SelectedGenders.Contains(gender) ? "checked" : "") onchange="this.form.submit()">
+                                <label class="form-check-label" for="gender_@gender">@gender</label>
+                            </div>
+                        }
+                    </div>
+                </div>
+                <hr />
+
+                <div class="mb-4">
+                    <h6 class="fw-bold mb-2">Price</h6>
+                    <div class="d-flex gap-2">
+                        <input type="number" asp-for="MinPrice" class="form-control form-control-sm" placeholder="Min" onblur="this.form.submit()">
+                        <input type="number" asp-for="MaxPrice" class="form-control form-control-sm" placeholder="Max" onblur="this.form.submit()">
+                    </div>
+                </div>
+                <hr />
+
+                <div class="mb-4">
+                    <h6 class="fw-bold mb-2">Color</h6>
+                    <div class="d-flex flex-wrap gap-2">
+                        @foreach (var color in Model.AllColors)
+                        {
+                            // HATA BURADAYDI: Artık ID üzerinden kontrol ediyoruz
+                            var isChecked = Model.SelectedColorIds.Contains(color.Id);
+                            var borderStyle = isChecked ? "2px solid #000" : "1px solid #ddd";
+
+                            <label style="cursor:pointer;" title="@color.Name">
+                                <input type="checkbox" name="SelectedColorIds" value="@color.Id" class="d-none"
+                                @(isChecked ? "checked" : "") onchange="this.form.submit()">
+
+                                <div style="width: 32px; height: 32px; border-radius: 50%; background-color: @(color.HexCode ?? "#ccc"); border: @borderStyle;"></div>
+                            </label>
+                        }
+                    </div>
+                </div>
+
+                <a href="/Home/Search" class="btn btn-outline-dark w-100 btn-sm mt-3">Clear Filters</a>
+            </div>
+
+            <div class="col-lg-9 col-md-8">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <span class="fw-bold">Results (@Model.TotalResults)</span>
+                    <select asp-for="SortBy" class="form-select form-select-sm" style="width: auto;" onchange="this.form.submit()">
+                        <option value="newest">Newest</option>
+                        <option value="price_asc">Price: Low to High</option>
+                        <option value="price_desc">Price: High to Low</option>
+                    </select>
+                </div>
+
+                <div class="row g-4">
+                    @if (Model.Products.Count == 0)
+                    {
+                        <div class="col-12 text-center py-5"><h4 class="text-muted">No products found.</h4></div>
+                    }
+
+                    @foreach (var item in Model.Products)
+                    {
+                        var mainImage = item.Images.FirstOrDefault()?.ImageUrl ?? "https://placehold.co/290x432";
+                        <div class="col-lg-4 col-md-6 col-sm-6">
+                            <div class="card h-100 border-0 shadow-sm">
+                                <div class="position-relative" style="height: 320px; overflow:hidden;">
+                                    <a asp-controller="Product" asp-action="Details" asp-route-id="@item.Id">
+                                        <img src="@mainImage" class="w-100 h-100" style="object-fit: cover;">
+                                    </a>
+                                </div>
+                                <div class="card-body px-0">
+                                    <h6 class="card-title fw-bold">@item.Title</h6>
+                                    <div class="fw-bold">$@item.Price.ToString("N0")</div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </form>
+</div>

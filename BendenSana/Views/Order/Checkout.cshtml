@@ -5,154 +5,209 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
+<style>
+    /* Figma Uyumlu Stiller */
+    .breadcrumb-text { font-family: 'Poppins', sans-serif; font-size: 14px; opacity: 0.5; margin-bottom: 40px; }
+    .page-title { font-family: 'Inter', sans-serif; font-weight: 600; font-size: 36px; margin-bottom: 40px; }
+
+    .form-label-custom { font-family: 'Poppins', sans-serif; color: #666; margin-bottom: 8px; font-size: 14px; }
+    .form-input-custom { 
+        width: 100%; background: #F5F5F5; border: none; border-radius: 4px; padding: 12px 16px; font-family: 'Poppins', sans-serif;
+    }
+    .form-input-custom:focus { outline: 1px solid #DB4444; background: white; }
+
+    .checkout-summary { padding: 30px; border-radius: 4px; }
+    .summary-item { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+    .summary-img { width: 50px; height: 50px; object-fit: contain; margin-right: 15px; }
+    .summary-text { font-family: 'Poppins', sans-serif; font-size: 14px; }
+    
+    .btn-place-order {
+        background-color: #DB4444; color: white; border: none; border-radius: 4px;
+        padding: 16px 48px; font-family: 'Poppins', sans-serif; font-weight: 500;
+        width: 100%; margin-top: 20px; transition: 0.3s;
+    }
+    .btn-place-order:hover { background-color: #c93e3e; }
+
+    .payment-option { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+    
+    .saved-address-select {
+        margin-bottom: 20px;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        width: 100%;
+        background-color: #fff;
+    }
+</style>
+
 <div class="container py-5">
-    <h2 class="mb-4 fw-bold">Billing Details</h2>
+    <div class="breadcrumb-text">Account / My Account / Product / View Cart / <span class="text-dark fw-bold">CheckOut</span></div>
+    <h1 class="page-title">Billing Details</h1>
 
     <form asp-action="Checkout" method="post">
         <div class="row">
-            <div class="col-lg-6">
-
-                @if (Model.UserAddresses.Any())
+            
+            <div class="col-lg-6 mb-5">
+                
+                @if (Model.UserAddresses != null && Model.UserAddresses.Any())
                 {
-                        <div class="mb-4 bg-light p-3 rounded border">
-                            <label class="form-label fw-bold">Kayıtlı Adreslerim</label>
-                            <select asp-for="SelectedAddressId" class="form-select" id="addressSelect">
+                    <div class="mb-4 p-3 bg-light rounded border">
+                        <label class="form-label fw-bold mb-2">Kayıtlı Adreslerim</label>
+                        <select asp-for="SelectedAddressId" class="form-select" id="addressSelect">
                             @foreach (var addr in Model.UserAddresses)
                             {
-                                        <option value="@addr.Id" 
-                                                data-address="@addr.AddressLine" 
-                                                data-city="@addr.City" 
-                                                data-zip="@addr.ZipCode">
-                                    @addr.Title (@addr.City)
-                                        </option>
+                                <option value="@addr.Id" 
+                                        data-address="@addr.AddressLine" 
+                                        data-city="@addr.City" 
+                                        data-zip="@addr.ZipCode">
+                                    @addr.Title - @addr.AddressLine, @addr.City
+                                </option>
                             }
-                                <option value="0">Yeni Adres Gir</option>
-                            </select>
-                        </div>
+                            <option value="0">Yeni Adres Gir</option>
+                        </select>
+                    </div>
                 }
 
-                <div class="row g-3 mb-4">
-                    <div class="col-sm-6">
-                        <label class="form-label">Ad</label>
-                        <input asp-for="FirstName" class="form-control bg-light border-0" />
+                <div class="row mb-3">
+                    <div class="col-6">
+                        <label class="form-label-custom">First Name</label>
+                        <input asp-for="FirstName" class="form-input-custom" />
                         <span asp-validation-for="FirstName" class="text-danger small"></span>
                     </div>
-                    <div class="col-sm-6">
-                        <label class="form-label">Soyad</label>
-                        <input asp-for="LastName" class="form-control bg-light border-0" />
+                    <div class="col-6">
+                        <label class="form-label-custom">Last Name</label>
+                        <input asp-for="LastName" class="form-input-custom" />
                         <span asp-validation-for="LastName" class="text-danger small"></span>
-                    </div>
-                    <div class="col-12">
-                        <label class="form-label">Adres</label>
-                        <input asp-for="AddressLine" class="form-control bg-light border-0" id="inputAddress" />
-                        <span asp-validation-for="AddressLine" class="text-danger small"></span>
-                    </div>
-                    <div class="col-sm-6">
-                        <label class="form-label">Şehir</label>
-                        <input asp-for="City" class="form-control bg-light border-0" id="inputCity" />
-                    </div>
-                    <div class="col-sm-6">
-                        <label class="form-label">Posta Kodu</label>
-                        <input asp-for="ZipCode" class="form-control bg-light border-0" id="inputZip" />
-                    </div>
-                    <div class="col-12">
-                        <label class="form-label">Telefon</label>
-                        <input asp-for="PhoneNumber" class="form-control bg-light border-0" />
                     </div>
                 </div>
 
-                <h4 class="mb-3 fw-bold">Ödeme Bilgileri</h4>
-                <div class="p-3 border rounded bg-light mb-4">
+                <div class="mb-3">
+                    <label class="form-label-custom">Street Address</label>
+                    <input asp-for="AddressLine" class="form-input-custom" id="inputAddress" />
+                    <span asp-validation-for="AddressLine" class="text-danger small"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label-custom">Town/City</label>
+                    <input asp-for="City" class="form-input-custom" id="inputCity" />
+                    <span asp-validation-for="City" class="text-danger small"></span>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-6">
+                        <label class="form-label-custom">Phone Number</label>
+                        <input asp-for="PhoneNumber" class="form-input-custom" />
+                    </div>
+                    <div class="col-6">
+                        <label class="form-label-custom">Zip Code</label>
+                        <input asp-for="ZipCode" class="form-input-custom" id="inputZip" />
+                    </div>
+                </div>
+
+                <h4 class="mt-5 mb-3 fw-bold">Payment Details</h4>
+                <div class="p-3 border rounded bg-light">
                     <div class="mb-3">
-                        <label class="form-label">Kart Üzerindeki İsim</label>
-                        <input asp-for="CardHolderName" class="form-control bg-white" placeholder="Ad Soyad" />
+                        <label class="form-label-custom">Card Holder Name</label>
+                        <input asp-for="CardHolderName" class="form-input-custom bg-white" placeholder="Kart üzerindeki isim" />
                         <span asp-validation-for="CardHolderName" class="text-danger small"></span>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Kart Numarası</label>
-                        <input asp-for="CardNumber" class="form-control bg-white" placeholder="0000 0000 0000 0000" />
+                        <label class="form-label-custom">Card Number</label>
+                        <input asp-for="CardNumber" class="form-input-custom bg-white" placeholder="0000 0000 0000 0000" maxlength="19" />
                         <span asp-validation-for="CardNumber" class="text-danger small"></span>
                     </div>
-                    <div class="row g-3">
-                        <div class="col-sm-6">
-                            <label class="form-label">Son Kul. Tarihi</label>
-                            <input asp-for="ExpiryDate" class="form-control bg-white" placeholder="MM/YY" />
+                    <div class="row">
+                        <div class="col-6">
+                            <label class="form-label-custom">Expiry Date</label>
+                            <input asp-for="ExpiryDate" class="form-input-custom bg-white" placeholder="MM/YY" maxlength="5" />
                             <span asp-validation-for="ExpiryDate" class="text-danger small"></span>
                         </div>
-                        <div class="col-sm-6">
-                            <label class="form-label">CVV</label>
-                            <input asp-for="Cvv" class="form-control bg-white" placeholder="123" />
+                        <div class="col-6">
+                            <label class="form-label-custom">CVV</label>
+                            <input asp-for="Cvv" class="form-input-custom bg-white" placeholder="123" maxlength="4" />
                             <span asp-validation-for="Cvv" class="text-danger small"></span>
                         </div>
                     </div>
                 </div>
+
             </div>
 
             <div class="col-lg-5 offset-lg-1">
-                <div class="p-4 border rounded shadow-sm bg-white">
-                    <h4 class="mb-4">Sipariş Özeti</h4>
-
+                <div class="checkout-summary">
+                    
                     @foreach (var item in Model.CartItems)
                     {
-                            <div class="d-flex justify-content-between align-items-center mb-3">
-                                <div class="d-flex align-items-center">
+                        <div class="summary-item">
+                            <div class="d-flex align-items-center">
                                 @if (item.Product.Images != null && item.Product.Images.Any())
                                 {
-                                            <img src="@item.Product.Images.First().ImageUrl" width="50" height="50" class="me-3 rounded object-fit-cover" />
+                                    <img src="@item.Product.Images.First().ImageUrl" class="summary-img" alt="img">
                                 }
-                                    <span>@item.Product.Title (x @item.Quantity)</span>
-                                </div>
-                                <span class="fw-bold">@((item.Product.Price * item.Quantity).ToString("C0"))</span>
+                                else
+                                {
+                                    <div class="summary-img bg-light border d-flex align-items-center justify-content-center">
+                                        <i class="bi bi-image text-muted"></i>
+                                    </div>
+                                }
+                                <span class="summary-text text-truncate" style="max-width: 200px;">@item.Product.Title</span>
                             </div>
+                            <span class="summary-text">@((item.Product.Price * item.Quantity).ToString("C0"))</span>
+                        </div>
                     }
 
-                    <hr />
-                    <div class="d-flex justify-content-between mb-2">
-                        <span>Ara Toplam:</span>
-                        <span>@Model.TotalAmount.ToString("C0")</span>
+                    <hr class="my-4">
+
+                    <div class="summary-item">
+                        <span class="summary-text">Subtotal:</span>
+                        <span class="summary-text">@Model.TotalAmount.ToString("C0")</span>
                     </div>
-                    <div class="d-flex justify-content-between mb-2">
-                        <span>Kargo:</span>
-                        <span class="text-success">Ücretsiz</span>
+                    <div class="summary-item">
+                        <span class="summary-text">Shipping:</span>
+                        <span class="summary-text text-success">Free</span>
                     </div>
-                    <div class="d-flex justify-content-between mb-4 fs-5 fw-bold">
-                        <span>Toplam:</span>
-                        <span class="text-danger">@Model.TotalAmount.ToString("C0")</span>
+                    <div class="summary-item">
+                        <span class="summary-text fw-bold">Total:</span>
+                        <span class="summary-text fw-bold text-danger">@Model.TotalAmount.ToString("C0")</span>
                     </div>
 
-                    <div class="form-check mb-3">
-                        <input class="form-check-input" type="radio" name="paymentMethod" id="creditCard" checked>
-                        <label class="form-check-label" for="creditCard">Kredi Kartı / Banka Kartı</label>
-                    </div>
-                    <div class="form-check mb-4">
-                        <input class="form-check-input" type="radio" name="paymentMethod" id="cod">
-                        <label class="form-check-label" for="cod">Kapıda Ödeme</label>
+                    <div class="mt-4">
+                        <div class="payment-option">
+                            <input type="radio" id="bank" name="paymentMethod" checked>
+                            <label for="bank" class="summary-text">Bank / Credit Card</label>
+                            <div class="ms-auto">
+                                <img src="https://placehold.co/40x25?text=Visa" alt="Visa">
+                                <img src="https://placehold.co/40x25?text=MC" alt="MasterCard">
+                            </div>
+                        </div>
+                        <div class="payment-option">
+                            <input type="radio" id="cod" name="paymentMethod">
+                            <label for="cod" class="summary-text">Cash on delivery</label>
+                        </div>
                     </div>
 
-                    <button type="submit" class="btn btn-danger w-100 py-3 fw-bold">Siparişi Onayla</button>
+                    <button type="submit" class="btn-place-order">Place Order</button>
                 </div>
             </div>
+
         </div>
     </form>
 </div>
 
 @section Scripts {
-        <script>
-            // Adres Seçimi Değişince Formu Doldurma Scripti
-            var selectBox = document.getElementById('addressSelect');
-            if(selectBox){
-                selectBox.addEventListener('change', function() {
-                    var selectedOption = this.options[this.selectedIndex];
-                    if (this.value !== "0") {
-                        document.getElementById('inputAddress').value = selectedOption.getAttribute('data-address');
-                        document.getElementById('inputCity').value = selectedOption.getAttribute('data-city');
-                        document.getElementById('inputZip').value = selectedOption.getAttribute('data-zip');
-                    } else {
-                        document.getElementById('inputAddress').value = "";
-                        document.getElementById('inputCity').value = "";
-                        document.getElementById('inputZip').value = "";
-                    }
-                });
+    <script>
+        document.getElementById('addressSelect')?.addEventListener('change', function() {
+            var selectedOption = this.options[this.selectedIndex];
+            
+            if (this.value !== "0") {
+                document.getElementById('inputAddress').value = selectedOption.getAttribute('data-address');
+                document.getElementById('inputCity').value = selectedOption.getAttribute('data-city');
+                document.getElementById('inputZip').value = selectedOption.getAttribute('data-zip');
+            } else {
+                // "Yeni Adres Gir" seçilirse temizle
+                document.getElementById('inputAddress').value = "";
+                document.getElementById('inputCity').value = "";
+                document.getElementById('inputZip').value = "";
             }
-        </script>
+        });
+    </script>
 }

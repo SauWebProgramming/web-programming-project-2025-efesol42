@@ -27,8 +27,10 @@ namespace BendenSana.Controllers
         {
             var user = await _userManager.GetUserAsync(User);
 
+            // Hedef ürünü getir (Satıcı ve Resimler dahil)
             var targetProduct = await _context.Set<Product>()
                                               .Include(p => p.Seller)
+                                              .Include(p => p.Images)
                                               .FirstOrDefaultAsync(p => p.Id == targetProductId);
 
             if (targetProduct == null) return NotFound("Ürün bulunamadı.");
@@ -39,40 +41,51 @@ namespace BendenSana.Controllers
                 return RedirectToAction("Details", "Product", new { id = targetProductId });
             }
 
-            ViewBag.TargetProductName = targetProduct.Title;
+            // View'da kullanılacak Hedef Ürün verileri
             ViewBag.TargetProductId = targetProductId;
+            ViewBag.TargetProductName = targetProduct.Title;
             ViewBag.SellerName = targetProduct.Seller.UserName;
+            ViewBag.TargetProductImage = targetProduct.Images?.FirstOrDefault()?.ImageUrl;
+            ViewBag.TargetProductPrice = targetProduct.Price;
 
-            // Takas için sunabileceğim kendi ürünlerim
+            // Kullanıcının kendi ürünlerini getir (Çoklu seçim listesi için)
+            // Sadece 'Available' (Müsait) olanları ve resimleriyle birlikte çekiyoruz
             var myProducts = await _context.Set<Product>()
-                                           .Where(p => p.SellerId == user.Id && p.Status == ProductStatus.available) // Sadece müsait ürünler
+                                           .Include(p => p.Images)
+                                           .Where(p => p.SellerId == user.Id && p.Status == ProductStatus.available)
                                            .OrderByDescending(p => p.CreatedAt)
                                            .ToListAsync();
 
-            ViewBag.MyProducts = new SelectList(myProducts, "Id", "Title");
-
-            return View();
+            // Modeli direkt liste olarak gönderiyoruz
+            return View(myProducts);
         }
 
         // ==========================================
         // 2. TAKAS TEKLİFİ GÖNDERME (POST)
         // ==========================================
         [HttpPost]
-        public async Task<IActionResult> Create(int targetProductId, int? offeredProductId, decimal? offeredCash, string message)
+        public async Task<IActionResult> Create(int targetProductId, List<int> offeredProductIds, decimal? offeredCash, string message)
         {
             var user = await _userManager.GetUserAsync(User);
             var targetProduct = await _context.Set<Product>().FindAsync(targetProductId);
 
             if (targetProduct == null) return NotFound();
 
-            if (targetProduct.SellerId == user.Id) return RedirectToAction("Details", "Product", new { id = targetProductId });
-
-            if (offeredProductId == null && (offeredCash == null || offeredCash == 0))
-            {
-                TempData["Error"] = "Lütfen takas için bir ürün ya da üstüne nakit para teklif edin.";
+            // Güvenlik: Kendi ürününe teklif atamaz
+            if (targetProduct.SellerId == user.Id)
                 return RedirectToAction("Details", "Product", new { id = targetProductId });
+
+            // Doğrulama: Hiç ürün seçilmediyse VE para teklif edilmediyse hata ver
+            bool hasProducts = offeredProductIds != null && offeredProductIds.Any();
+            bool hasCash = offeredCash != null && offeredCash > 0;
+
+            if (!hasProducts && !hasCash)
+            {
+                TempData["Error"] = "Lütfen takas için en az bir ürün seçin veya nakit para teklif edin.";
+                return RedirectToAction("Create", new { targetProductId = targetProductId });
             }
 
+            // Ana Teklif Kaydı
             var offer = new TradeOffer
             {
                 OffererId = user.Id,
@@ -83,23 +96,24 @@ namespace BendenSana.Controllers
                 CreatedAt = DateTime.UtcNow,
             };
 
-            // 1. İstenen Ürün (Target)
-            var targetItem = new TradeItem
+            // 1. İstenen Ürünü Ekle (Target)
+            offer.Items.Add(new TradeItem
             {
                 ProductId = targetProductId,
                 ItemType = TradeItemType.requested
-            };
-            offer.Items.Add(targetItem);
+            });
 
-            // 2. Teklif Edilen Ürün (Offered - Varsa)
-            if (offeredProductId.HasValue)
+            // 2. Teklif Edilen Ürünleri Ekle (Offered - Çoklu Seçim)
+            if (hasProducts)
             {
-                var offeredItem = new TradeItem
+                foreach (var prodId in offeredProductIds)
                 {
-                    ProductId = offeredProductId.Value,
-                    ItemType = TradeItemType.offered
-                };
-                offer.Items.Add(offeredItem);
+                    offer.Items.Add(new TradeItem
+                    {
+                        ProductId = prodId,
+                        ItemType = TradeItemType.offered
+                    });
+                }
             }
 
             _context.TradeOffers.Add(offer);
@@ -117,13 +131,12 @@ namespace BendenSana.Controllers
         {
             var userId = _userManager.GetUserId(User);
 
-            // GÜNCELLEME BURADA: Include zincirine Images eklendi
             var trades = await _context.TradeOffers
                 .Include(t => t.Offerer)
                 .Include(t => t.Receiver)
                 .Include(t => t.Items)
-                    .ThenInclude(i => i.Product)       // Ürün detaylarını çek
-                        .ThenInclude(p => p.Images)    // <--- ÖNEMLİ: Ürün resimlerini çek
+                    .ThenInclude(i => i.Product)
+                        .ThenInclude(p => p.Images)
                 .Where(t => t.OffererId == userId || t.ReceiverId == userId)
                 .OrderByDescending(t => t.CreatedAt)
                 .ToListAsync();

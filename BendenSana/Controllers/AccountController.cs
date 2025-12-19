@@ -147,5 +147,54 @@ namespace BendenSana.Controllers
             
             return RedirectToAction("EditProfile");
         }
+
+        [HttpGet]
+        public IActionResult Register()
+        {
+            if (User.Identity.IsAuthenticated)
+            {
+                return RedirectToAction("Index", "Home");
+            }
+            return View();
+        }
+
+        // 4. KAYIT OL İŞLEMİ - POST
+        [HttpPost]
+        public async Task<IActionResult> Register(RegisterViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            // Email mi Telefon mu kontrolü (Basit bir kontrol)
+            bool isEmail = model.EmailOrPhone.Contains("@");
+
+            var user = new ApplicationUser
+            {
+                UserName = isEmail ? model.EmailOrPhone : model.EmailOrPhone, // Username benzersiz olmalı
+                Email = isEmail ? model.EmailOrPhone : null,
+                PhoneNumber = isEmail ? null : model.EmailOrPhone,
+                FirstName = model.Name, // Tasarımda tek satır isim var
+                LastName = "", // İstersen Name'i boşluktan bölüp doldurabilirsin
+                EmailConfirmed = true // Demo için direkt onaylı
+            };
+
+            var result = await _userManager.CreateAsync(user, model.Password);
+
+            if (result.Succeeded)
+            {
+                // Kayıt başarılıysa otomatik giriş yap
+                await _signInManager.SignInAsync(user, isPersistent: false);
+                return RedirectToAction("Index", "Home");
+            }
+
+            foreach (var error in result.Errors)
+            {
+                ModelState.AddModelError("", error.Description);
+            }
+
+            return View(model);
+        }
     }
 }

@@ -1,7 +1,7 @@
 ﻿using BendenSana.Models;
-using Microsoft.AspNetCore.Authorization; 
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+// System.IO kütüphanesini eklediğinden emin ol
 
 namespace BendenSana.Controllers
 {
@@ -9,7 +9,7 @@ namespace BendenSana.Controllers
     public class CategoryController : Controller
     {
         private readonly AppDbContext _context;
-        private readonly IWebHostEnvironment _webHostEnvironment; 
+        private readonly IWebHostEnvironment _webHostEnvironment;
 
         public CategoryController(AppDbContext context, IWebHostEnvironment webHostEnvironment)
         {
@@ -20,13 +20,11 @@ namespace BendenSana.Controllers
         // 1. KATEGORİ LİSTESİ 
         public async Task<IActionResult> Index()
         {
-            // ÖNEMLİ: .Include(c => c.Children) eklemelisin!
-            // Sadece ParentId'si null olanları (Ana Kategorileri) çekiyoruz.
             var categories = await _context.Categories
-                                           .Include(c => c.Children) // Alt kategorileri de yükle
-                                           .Where(c => c.ParentId == null) // Sadece en üst seviye kategorileri getir
+                                           .Include(c => c.Children)
+                                           .Where(c => c.ParentId == null)
+                                           .AsNoTracking() // Sadece okuma yaptığımız için performans artırır
                                            .ToListAsync();
-
             return View(categories);
         }
 
@@ -34,94 +32,140 @@ namespace BendenSana.Controllers
         [HttpGet]
         public IActionResult Create()
         {
+            // Tüm kategorileri çekip ViewBag'e atıyoruz ki dropdown'da gösterebilelim
+            ViewBag.Parents = new Microsoft.AspNetCore.Mvc.Rendering.SelectList(_context.Categories.Where(c => c.ParentId == null).ToList(), "Id", "Name");
             return View();
         }
 
         // 3. YENİ KATEGORİ KAYDET (POST)
         [HttpPost]
-        public async Task<IActionResult> Create(global::Category category, IFormFile? imageFile)
+        [ValidateAntiForgeryToken] // Güvenlik önlemi (CSRF saldırılarına karşı)
+        public async Task<IActionResult> Create(Category category, IFormFile? imageFile)
         {
-            if (imageFile != null)
+            if (ModelState.IsValid)
             {
-                
-                string uploadsFolder = Path.Combine(_webHostEnvironment.WebRootPath, "category_images");
-
-                
-                if (!Directory.Exists(uploadsFolder))
+                if (imageFile != null)
                 {
-                    Directory.CreateDirectory(uploadsFolder);
+                    // Resim yükleme işlemini metoda taşıdık
+                    category.ImageUrl = await UploadImageAsync(imageFile);
                 }
 
-
-                string fileName = Guid.NewGuid().ToString() + "_" + imageFile.FileName;
-                string filePath = Path.Combine(uploadsFolder, fileName);
-
-               
-                using (var fileStream = new FileStream(filePath, FileMode.Create))
-                {
-                    await imageFile.CopyToAsync(fileStream);
-                }
-
-             
-                category.ImageUrl = "/category_images/" + fileName;
+                _context.Categories.Add(category);
+                await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(Index));
             }
-
-            _context.Set<global::Category>().Add(category);
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
-        }
-
-        // DÜZENLEME SAYFASI (GET)
-        [HttpGet]
-        public async Task<IActionResult> Edit(int id)
-        {
-            var category = await _context.Set<global::Category>().FindAsync(id);
-            if (category == null) return NotFound();
             return View(category);
         }
 
-        // GÜNCELLEME İŞLEMİ (POST)
+        // 4. DÜZENLEME SAYFASI (GET)
+        [HttpGet]
+        public async Task<IActionResult> Edit(int id)
+        {
+            var category = await _context.Categories.FindAsync(id);
+            if (category == null) return NotFound();
+            // Tüm kategorileri çekip ViewBag'e atıyoruz ki dropdown'da gösterebilelim
+            ViewBag.Parents = new Microsoft.AspNetCore.Mvc.Rendering.SelectList(_context.Categories.Where(c => c.ParentId == null).ToList(), "Id", "Name");
+            return View(category);
+        }
+
+        // 5. GÜNCELLEME İŞLEMİ (POST)
         [HttpPost]
-        public async Task<IActionResult> Edit(int id, global::Category category, IFormFile? imageFile)
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(int id, Category category, IFormFile? imageFile)
         {
             if (id != category.Id) return NotFound();
 
-            if (imageFile != null)
+            if (ModelState.IsValid)
             {
-                
-                string uploadsFolder = Path.Combine(_webHostEnvironment.WebRootPath, "category_images");
-                if (!Directory.Exists(uploadsFolder))
+                try
                 {
-                    Directory.CreateDirectory(uploadsFolder);
+                    // Güncellenecek veriyi önce veritabanından çekiyoruz (Takip edilen entity)
+                    var existingCategory = await _context.Categories.FindAsync(id);
+
+                    if (existingCategory == null) return NotFound();
+
+                    // Manuel property eşleştirmesi (Veri kaybını önlemek için)
+                    existingCategory.Name = category.Name;
+                    existingCategory.ParentId = category.ParentId;
+                   
+                    // Diğer alanları buraya ekle...
+
+                    if (imageFile != null)
+                    {
+                        // 1. Eski resmi sunucudan sil
+                        DeleteImage(existingCategory.ImageUrl);
+
+                        // 2. Yeni resmi yükle
+                        existingCategory.ImageUrl = await UploadImageAsync(imageFile);
+                    }
+                    // Not: Resim yüklenmediyse existingCategory.ImageUrl değişmez, eski hali korunur.
+
+                    _context.Update(existingCategory);
+                    await _context.SaveChangesAsync();
                 }
-
-                string fileName = Guid.NewGuid().ToString() + "_" + imageFile.FileName;
-                string filePath = Path.Combine(uploadsFolder, fileName);
-
-                using (var fileStream = new FileStream(filePath, FileMode.Create))
+                catch (DbUpdateConcurrencyException)
                 {
-                    await imageFile.CopyToAsync(fileStream);
+                    if (!_context.Categories.Any(e => e.Id == category.Id))
+                        return NotFound();
+                    else
+                        throw;
                 }
-
-                category.ImageUrl = "/category_images/" + fileName;
+                return RedirectToAction(nameof(Index));
             }
-          
-
-            _context.Update(category);
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+            return View(category);
         }
 
-        // SİLME İŞLEMİ
+        // 6. SİLME İŞLEMİ
         public async Task<IActionResult> Delete(int id)
         {
-            var category = await _context.Set<global::Category>().FindAsync(id);
+            var category = await _context.Categories.FindAsync(id);
             if (category != null)
             {
-                _context.Set<global::Category>().Remove(category);
+                // Kategoriyi silmeden önce resmini de klasörden siliyoruz
+                DeleteImage(category.ImageUrl);
+
+                _context.Categories.Remove(category);
                 await _context.SaveChangesAsync();
             }
             return RedirectToAction(nameof(Index));
+        }
+
+        // --- YARDIMCI METOTLAR (Kod tekrarını önlemek için) ---
+
+        // Resim Yükleme Metodu
+        private async Task<string> UploadImageAsync(IFormFile imageFile)
+        {
+            string uploadsFolder = Path.Combine(_webHostEnvironment.WebRootPath, "category_images");
+
+            if (!Directory.Exists(uploadsFolder))
+                Directory.CreateDirectory(uploadsFolder);
+
+            string uniqueFileName = Guid.NewGuid().ToString() + "_" + imageFile.FileName;
+            string filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+            using (var fileStream = new FileStream(filePath, FileMode.Create))
+            {
+                await imageFile.CopyToAsync(fileStream);
+            }
+
+            return "/category_images/" + uniqueFileName;
+        }
+
+        // Resim Silme Metodu
+        private void DeleteImage(string? imageUrl)
+        {
+            if (string.IsNullOrEmpty(imageUrl)) return;
+
+            // URL veritabanında "/category_images/abc.jpg" şeklinde kayıtlı.
+            // Bunu fiziksel yola (C:\Sites\wwwroot\category_images\abc.jpg) çevirmemiz lazım.
+
+            // Başındaki slash'ı kaldırıp wwwroot yoluna ekliyoruz
+            var imagePath = Path.Combine(_webHostEnvironment.WebRootPath, imageUrl.TrimStart('/'));
+
+            if (System.IO.File.Exists(imagePath))
+            {
+                System.IO.File.Delete(imagePath);
+            }
         }
     }
 }
