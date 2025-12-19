@@ -25,7 +25,6 @@ namespace BendenSana.Controllers
             _webHostEnvironment = webHostEnvironment;
         }
 
-
         public async Task<IActionResult> Index(string search, int? categoryId)
         {
             var productsQuery = _context.Products
@@ -46,6 +45,22 @@ namespace BendenSana.Controllers
             var products = await productsQuery.ToListAsync();
             return View(products);
         }
+        [Authorize]
+        [HttpGet]
+        public async Task<IActionResult> MyProducts()
+        {
+            var user = await _userManager.GetUserAsync(User);
+
+            if (user == null) return RedirectToAction("Login", "Account");
+            var myProducts = await _context.Products
+                .Include(p => p.Category)
+                .Include(p => p.Images)
+                .Where(p=>p.SellerId==user.Id)
+                .OrderByDescending(p=>p.CreatedAt)
+                .ToListAsync();
+            return View(myProducts);
+           
+        }
 
         public async Task<IActionResult> Details(int id)
         {
@@ -53,13 +68,12 @@ namespace BendenSana.Controllers
                 .Include(p => p.Category)
                 .Include(p => p.Images)
                 .Include(p => p.Seller)
-                .Include(p => p.Reviews)        
-                    .ThenInclude(r => r.User)   
+                .Include(p => p.Reviews)
+                    .ThenInclude(r => r.User)
                 .FirstOrDefaultAsync(p => p.Id == id);
 
             if (product == null) return NotFound();
 
-            
             if (User.Identity.IsAuthenticated)
             {
                 var userId = _userManager.GetUserId(User);
@@ -73,7 +87,6 @@ namespace BendenSana.Controllers
             return View(product);
         }
 
-       
         [HttpPost]
         [Authorize]
         public async Task<IActionResult> AddReview(int productId, int? rating, string? comment)
@@ -83,14 +96,12 @@ namespace BendenSana.Controllers
 
             if (product == null) return NotFound();
 
-        
             if (product.SellerId == user.Id)
             {
                 TempData["Error"] = "Kendi ürününüze yorum yapamazsınız.";
                 return RedirectToAction("Details", new { id = productId });
             }
 
-    
             if (rating == null && string.IsNullOrWhiteSpace(comment))
             {
                 TempData["Error"] = "Lütfen puan verin veya yorum yazın.";
@@ -113,7 +124,6 @@ namespace BendenSana.Controllers
             return RedirectToAction("Details", new { id = productId });
         }
 
-       
         [Authorize]
         [HttpGet]
         public IActionResult Report(int id)
@@ -122,7 +132,6 @@ namespace BendenSana.Controllers
             return View();
         }
 
-       
         [Authorize]
         [HttpPost]
         public async Task<IActionResult> Report(int productId, string reason, string description)
@@ -146,7 +155,6 @@ namespace BendenSana.Controllers
             return RedirectToAction("Details", new { id = productId });
         }
 
-        
         [Authorize]
         [HttpGet]
         public IActionResult Create()
@@ -175,13 +183,12 @@ namespace BendenSana.Controllers
                 CategoryId = model.CategoryId,
                 SellerId = user.Id,
                 CreatedAt = DateTime.UtcNow,
-                Status = ProductStatus.available 
+                Status = ProductStatus.available // Enum kullanımına dikkat
             };
 
             _context.Products.Add(product);
             await _context.SaveChangesAsync();
 
-          
             if (model.Photos != null && model.Photos.Count > 0)
             {
                 string uploadFolder = Path.Combine(_webHostEnvironment.WebRootPath, "images/products");
@@ -214,12 +221,16 @@ namespace BendenSana.Controllers
             return RedirectToAction("Index");
         }
 
-   
+        // 👇 GÜNCELLENEN KISIM: EDIT (GET) 👇
         [Authorize]
         [HttpGet]
         public async Task<IActionResult> Edit(int id)
         {
-            var product = await _context.Products.FindAsync(id);
+            // Resimleri de (.Include) çekiyoruz
+            var product = await _context.Products
+                                        .Include(p => p.Images)
+                                        .FirstOrDefaultAsync(p => p.Id == id);
+
             if (product == null) return NotFound();
 
             var user = await _userManager.GetUserAsync(User);
@@ -231,17 +242,26 @@ namespace BendenSana.Controllers
                 Title = product.Title,
                 Description = product.Description,
                 Price = product.Price,
-                CategoryId = product.CategoryId
+                CategoryId = product.CategoryId,
+                // Veritabanındaki resim URL'lerini ViewModel'e aktarıyoruz
+                ExistingImageUrls = product.Images.Select(i => i.ImageUrl).ToList()
             };
 
             ViewBag.Categories = new SelectList(_context.Categories, "Id", "Name", product.CategoryId);
-            return View(model);
+            return View(model); // View adı Edit veya Update olabilir, dosya ismine dikkat et.
         }
 
         [Authorize]
         [HttpPost]
         public async Task<IActionResult> Edit(ProductCreateViewModel model)
         {
+            // Model valid değilse kategorileri tekrar yükle ve dön
+            if (!ModelState.IsValid)
+            {
+                ViewBag.Categories = new SelectList(_context.Categories, "Id", "Name", model.CategoryId);
+                return View(model);
+            }
+
             var product = await _context.Products.FindAsync(model.Id);
             if (product == null) return NotFound();
 
@@ -285,7 +305,6 @@ namespace BendenSana.Controllers
             return RedirectToAction("Details", new { id = product.Id });
         }
 
-        
         [Authorize]
         [HttpPost]
         public async Task<IActionResult> Delete(int id)

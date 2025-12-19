@@ -2,147 +2,331 @@
 
 @{
     ViewData["Title"] = "Ana Sayfa";
+    Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<div class="p-5 mb-4 bg-light rounded-3 shadow-sm" style="background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);">
-    <div class="container-fluid py-5 text-center">
-        <h1 class="display-5 fw-bold text-dark mb-3">Benden Sana, Senden Bana!</h1>
-        <p class="fs-4 text-muted mb-4">İhtiyacın olmayanı sat, hayalindekini takasla. <br>Güvenli alışverişin ve takasın yeni adresi.</p>
+<link href="https://fonts.googleapis.com/css2?family=Paytone+One&family=Poppins:wght@400;500;600&family=Inter:wght@400;600;700&family=Open+Sans:wght@400;600&family=Lato:wght@400;700&display=swap" rel="stylesheet">
 
-        <div class="row justify-content-center mb-4">
-            <div class="col-md-8 col-lg-6">
-                <form asp-controller="Product" asp-action="Index" method="get" class="d-flex bg-white p-1 rounded-pill shadow-sm border">
-                    <input type="text" name="search" class="form-control border-0 rounded-pill px-4" placeholder="Ne arıyorsun? (Örn: PS5, Bisiklet...)" aria-label="Search">
-                    <button class="btn btn-primary rounded-pill px-4 fw-bold" type="submit">
-                        <i class="bi bi-search"></i> Ara
-                    </button>
+<style>
+    /* Hero ve Genel Ayarlar */
+    body {
+        font-family: 'Poppins', sans-serif;
+        overflow-x: hidden;
+    }
+
+    /* Hero Section */
+    .hero-section {
+        position: relative;
+        min-height: 600px;
+        background: white;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        padding-top: 40px;
+        padding-bottom: 40px;
+    }
+
+    .hero-blob {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 500px;
+        height: 500px;
+        background: radial-gradient(circle, #FF6446 0%, rgba(255, 100, 70, 0) 70%);
+        filter: blur(80px);
+        z-index: 0;
+        opacity: 0.5;
+    }
+
+    .hero-title {
+        font-family: 'Paytone One', sans-serif;
+        color: #0B0D0F;
+        font-size: 3.5rem;
+        line-height: 1.2;
+        margin-bottom: 20px;
+    }
+
+    .hero-text {
+        color: #404040;
+        font-size: 18px;
+        font-family: 'Inter', sans-serif;
+        line-height: 1.6;
+        margin-bottom: 40px;
+    }
+
+    /* Floating Images Animation */
+    .floating-img {
+        border-radius: 10px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        transition: transform 0.3s ease;
+    }
+
+        .floating-img:hover {
+            transform: scale(1.05);
+        }
+
+    /* Kategori Kartları */
+    .section-label {
+        color: #DB4444;
+        font-weight: 600;
+        font-size: 16px;
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+        .section-label::before {
+            content: "";
+            display: inline-block;
+            width: 20px;
+            height: 40px;
+            background-color: #DB4444;
+            border-radius: 4px;
+        }
+
+    .category-card {
+        width: 170px;
+        height: 145px;
+        border: 1px solid rgba(0,0,0,0.1);
+        border-radius: 4px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+        color: black;
+        gap: 15px;
+        transition: all 0.3s;
+        background: white;
+    }
+
+        .category-card:hover {
+            background-color: #DB4444;
+            color: white;
+            border-color: #DB4444;
+        }
+
+    /* Ürün Kartları (Overlay Style) */
+    .product-showcase-card {
+        height: 500px;
+        border-radius: 8px;
+        overflow: hidden;
+        position: relative;
+        background: black; /* Resim yüklenmezse arka plan */
+    }
+
+        .product-showcase-card img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s;
+        }
+
+        .product-showcase-card:hover img {
+            transform: scale(1.05);
+        }
+
+    .card-overlay {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(180deg, rgba(24, 59, 86, 0) 0%, rgba(21, 37, 50, 0.8) 100%);
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+        padding: 30px;
+    }
+
+    /* Hakkımızda Bölümü */
+    .about-container {
+        position: relative;
+        padding: 40px;
+        background: white;
+        border: 1px solid black;
+        z-index: 2;
+    }
+
+    .about-bg-layer {
+        position: absolute;
+        border: 1px solid black;
+        z-index: 1;
+    }
+</style>
+
+<div class="container-fluid hero-section mb-5 position-relative">
+    <div class="hero-blob"></div>
+
+    <div class="container position-relative z-2">
+        <div class="row align-items-center">
+
+            <div class="col-lg-3 d-none d-lg-flex flex-column gap-4 align-items-end">
+                <img src="https://placehold.co/230x210" class="floating-img" alt="Item 1">
+                <img src="https://placehold.co/230x150" class="floating-img" alt="Item 2">
+            </div>
+
+            <div class="col-lg-6 text-center">
+                <h1 class="hero-title">IKINCI EL <br> SATIS PLATFORMU</h1>
+                <p class="hero-text px-lg-4">
+                    Benden Sana: Kullanmadığın ürünleri yeni sahipleriyle buluşturan güvenli ve kolay ikinci el platformu. İhtiyacın olanı keşfet, fazlalıklarını değerinde paylaş.
+                </p>
+
+                <form asp-controller="Product" asp-action="Index" method="get" class="mx-auto d-flex align-items-center bg-light rounded px-3 py-2 shadow-sm" style="max-width: 450px;">
+                    <input type="text" name="search" class="form-control border-0 bg-transparent shadow-none" placeholder="Ne Arıyorsun Bu Gün?">
+                    <button type="submit" class="btn border-0"><i class="bi bi-search fs-5"></i></button>
                 </form>
             </div>
-        </div>
-        <div class="mt-4">
-            @if (User.Identity.IsAuthenticated)
-            {
-                <a asp-controller="Product" asp-action="Create" class="btn btn-outline-dark btn-lg px-4">
-                    <i class="bi bi-camera"></i> Hemen Sat / İlan Ver
-                </a>
-            }
-            else
-            {
-                <a asp-controller="Account" asp-action="Register" class="btn btn-dark btn-lg px-4">
-                    <i class="bi bi-person-plus"></i> Aramıza Katıl
-                </a>
-            }
+
+            <div class="col-lg-3 d-none d-lg-flex flex-column gap-4 align-items-start">
+                <img src="https://placehold.co/230x210" class="floating-img" alt="Item 3">
+                <img src="https://placehold.co/230x150" class="floating-img" alt="Item 4">
+            </div>
         </div>
     </div>
 </div>
 
-<div class="container">
+<div class="container mb-5 mt-5">
+    <div class="section-label">Kategorilerimiz</div>
+    <h2 class="fw-bold mb-5" style="font-family: 'Inter', sans-serif;">Kategorilerle Arama Yapın</h2>
 
-    <div class="row mb-5 text-center">
-        <div class="col-12 mb-3">
-            <h3 class="fw-bold text-secondary">Popüler Kategoriler</h3>
-        </div>
-        <div class="col-md-3 col-6 mb-3">
-            <a asp-controller="Product" asp-action="Index" asp-route-categoryId="1" class="card border-0 shadow-sm text-decoration-none hover-up h-100">
-                <div class="card-body">
-                    <i class="bi bi-laptop fs-1 text-primary"></i>
-                    <h5 class="mt-2 text-dark">Elektronik</h5>
-                </div>
-            </a>
-        </div>
-        <div class="col-md-3 col-6 mb-3">
-            <a asp-controller="Product" asp-action="Index" asp-route-categoryId="2" class="card border-0 shadow-sm text-decoration-none hover-up h-100">
-                <div class="card-body">
-                    <i class="bi bi-controller fs-1 text-danger"></i>
-                    <h5 class="mt-2 text-dark">Hobi & Oyun</h5>
-                </div>
-            </a>
-        </div>
-        <div class="col-md-3 col-6 mb-3">
-            <a asp-controller="Product" asp-action="Index" asp-route-categoryId="3" class="card border-0 shadow-sm text-decoration-none hover-up h-100">
-                <div class="card-body">
-                    <i class="bi bi-book fs-1 text-success"></i>
-                    <h5 class="mt-2 text-dark">Kitap & Dergi</h5>
-                </div>
-            </a>
-        </div>
-        <div class="col-md-3 col-6 mb-3">
-            <a asp-controller="Product" asp-action="Index" asp-route-categoryId="4" class="card border-0 shadow-sm text-decoration-none hover-up h-100">
-                <div class="card-body">
-                    <i class="bi bi-bicycle fs-1 text-warning"></i>
-                    <h5 class="mt-2 text-dark">Spor & Outdoor</h5>
-                </div>
-            </a>
-        </div>
+    <div class="d-flex flex-wrap justify-content-center gap-4">
+        <a asp-controller="Product" asp-action="Index" asp-route-search="Phones" class="category-card">
+            <i class="bi bi-phone fs-2"></i>
+            <span class="fw-medium">Phones</span>
+        </a>
+        <a asp-controller="Product" asp-action="Index" asp-route-search="Computers" class="category-card">
+            <i class="bi bi-laptop fs-2"></i>
+            <span class="fw-medium">Computers</span>
+        </a>
+        <a asp-controller="Product" asp-action="Index" asp-route-search="SmartWatch" class="category-card">
+            <i class="bi bi-watch fs-2"></i>
+            <span class="fw-medium">SmartWatch</span>
+        </a>
+        <a asp-controller="Product" asp-action="Index" asp-route-search="Camera" class="category-card">
+            <i class="bi bi-camera fs-2"></i>
+            <span class="fw-medium">Camera</span>
+        </a>
+        <a asp-controller="Product" asp-action="Index" asp-route-search="HeadPhones" class="category-card">
+            <i class="bi bi-headphones fs-2"></i>
+            <span class="fw-medium">HeadPhones</span>
+        </a>
+        <a asp-controller="Product" asp-action="Index" asp-route-search="Gaming" class="category-card">
+            <i class="bi bi-controller fs-2"></i>
+            <span class="fw-medium">Gaming</span>
+        </a>
+    </div>
+</div>
+
+<div class="container mb-5" style="margin-top: 80px;">
+    <div class="section-label">Ürünler</div>
+    <div class="d-flex justify-content-between align-items-end mb-4">
+        <h2 class="fw-bold" style="font-family: 'Inter', sans-serif;">Satışa Çıkarılan Son Ürünler</h2>
+        <a asp-controller="Product" asp-action="Index" class="btn btn-dark px-4 py-2">Hepsine Bak</a>
     </div>
 
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h3 class="fw-bold"><i class="bi bi-stars text-warning"></i> Vitrin</h3>
-        <a asp-controller="Product" asp-action="Index" class="text-decoration-none fw-bold">Tümünü Gör <i class="bi bi-arrow-right"></i></a>
-    </div>
-
-    @if (!Model.Any())
-    {
-        <div class="alert alert-light text-center py-5 border">
-            <p class="mb-0 text-muted">Henüz vitrine eklenecek ürün yok. İlk ilanı sen ver!</p>
-        </div>
-    }
-    else
-    {
-        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-4 g-4 mb-5">
-            @foreach (var item in Model)
+    <div class="row g-4">
+        @if (Model != null && Model.Any())
+        {
+            // İlk 3 veya 4 ürünü vitrinde gösteriyoruz
+            @foreach (var item in Model.Take(3))
             {
-                <div class="col">
-                    <div class="card h-100 border-0 shadow-sm product-card">
-                        <div class="position-relative overflow-hidden rounded-top" style="height: 200px;">
+                <div class="col-md-4">
+                    <a asp-controller="Product" asp-action="Details" asp-route-id="@item.Id" class="text-decoration-none">
+                        <div class="product-showcase-card shadow-sm">
                             @if (item.Images != null && item.Images.Any())
                             {
-                                <img src="@item.Images.First().ImageUrl" class="card-img-top w-100 h-100" style="object-fit: cover;" alt="@item.Title">
+                                <img src="@item.Images.First().ImageUrl" alt="@item.Title">
                             }
                             else
                             {
-                                <div class="bg-light w-100 h-100 d-flex align-items-center justify-content-center text-muted">
-                                    <i class="bi bi-image fs-1"></i>
-                                </div>
+                                <img src="https://placehold.co/600x800?text=No+Image" alt="No Image">
                             }
-                            <span class="position-absolute bottom-0 start-0 bg-dark text-white px-2 py-1 m-2 rounded small fw-bold shadow">
-                                @item.Price.ToString("C0")
-                            </span>
-                        </div>
 
-                        <div class="card-body">
-                            <h6 class="card-title text-truncate">
-                                <a asp-controller="Product" asp-action="Details" asp-route-id="@item.Id" class="text-decoration-none text-dark fw-bold stretched-link">
-                                    @item.Title
-                                </a>
-                            </h6>
-                            <small class="text-muted d-block mb-2">
-                                <i class="bi bi-person"></i> @(item.Seller?.UserName ?? "Satıcı")
-                            </small>
-                            <small class="text-muted">
-                                <i class="bi bi-clock"></i> @item.CreatedAt.ToString("dd.MM.yyyy")
-                            </small>
+                            <div class="card-overlay text-white">
+                                <h3 class="fw-bold mb-1">@item.Title</h3>
+                                <p class="opacity-75 mb-3">@item.Price.ToString("C0")</p>
+
+                                <div class="d-flex align-items-center gap-2">
+                                    <img src="https://placehold.co/40x40" class="rounded-circle border border-white" alt="User">
+                                    <div>
+                                        <div class="small fw-bold">@(item.Seller?.UserName ?? "Satıcı")</div>
+                                        <div class="small text-success" style="font-size: 10px;">Güvenilir Kullanıcı</div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                    </div>
+                    </a>
                 </div>
             }
-        </div>
-    }
+        }
+        else
+        {
+            <div class="col-12 text-center py-5 bg-light rounded">
+                <p class="text-muted mb-0">Henüz vitrine eklenen ürün yok. İlk ilanı sen ver!</p>
+                <a asp-controller="Product" asp-action="Create" class="btn btn-outline-dark mt-3">İlan Ver</a>
+            </div>
+        }
+    </div>
 </div>
 
-<style>
-    .hover-up:hover {
-        transform: translateY(-5px);
-        transition: 0.3s;
-        background-color: #fff;
-    }
+<div class="container mb-5" style="margin-top: 100px;">
+    <div class="row align-items-center g-5">
+        <div class="col-lg-5">
+            <h2 class="display-6 fw-bold mb-4" style="font-family: 'Lato', sans-serif;">Benden Sana ile Akıllı ve Güvenli İkinci El Alışveriş</h2>
+            <a asp-controller="Home" asp-action="About" class="btn btn-dark rounded-0 px-4 py-3 fw-bold">Daha Fazla Bilgi Edin</a>
+        </div>
 
-    .product-card {
-        transition: transform 0.2s, box-shadow 0.2s;
-    }
+        <div class="col-lg-6 offset-lg-1 position-relative" style="min-height: 400px;">
+            <div class="about-bg-layer" style="top: 0; left: 20px; width: 100%; height: 100%;"></div>
+            <div class="about-bg-layer" style="top: -20px; left: 40px; width: 100%; height: 100%;"></div>
 
-        .product-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 .5rem 1rem rgba(0,0,0,.15) !important;
+            <div class="about-container h-100 d-flex flex-column justify-content-center">
+                <div class="display-1 text-secondary opacity-25" style="line-height: 0;">“</div>
+                <p class="fs-5 mt-4" style="font-family: 'Open Sans', sans-serif; color: #190C00;">
+                    Benden Sana, ikinci el ürünlerin güvenle paylaşıldığı modern bir pazar alanıdır. Amacımız, kaliteli ürünleri uygun fiyatlarla buluşturmak, topluluk odaklı ve hızlı bir alışveriş deneyimi oluşturmaktır.
+                </p>
+                <hr class="opacity-25 my-4">
+                <div>
+                    <strong class="d-block fs-5" style="font-family: 'Lato', sans-serif;">Benden Sana Ekibi</strong>
+                    <span class="text-muted small">Kurucular & Platform Geliştiricileri</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container mb-5" style="margin-top: 100px;">
+    <div class="section-label">Satıcılar</div>
+    <h2 class="fw-bold mb-5" style="font-family: 'Inter', sans-serif;">En İyi Satıcılarımız</h2>
+
+    <div class="d-flex justify-content-center flex-wrap gap-5">
+        @for (int i = 0; i < 5; i++)
+        {
+            <div class="text-center">
+                <div style="width: 100px; height: 100px; background: #C1C1C1; border-radius: 50%; margin: 0 auto 15px auto;"></div>
+                <h6 class="fw-bold mb-1">User Name</h6>
+                <div class="text-warning small">
+                    <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star"></i>
+                </div>
+            </div>
         }
-</style>
+    </div>
+</div>
+
+<div class="container py-5 text-center bg-white" style="margin-top: 60px;">
+    <h3 class="fw-bold mb-3">Our Trusted Partners</h3>
+    <p class="text-muted mb-5 mx-auto" style="max-width: 700px;">
+        We just got featured in the following magazines and it has been the most incredible journey. We work with the best fashion magazines across the world
+    </p>
+
+    <div class="d-flex justify-content-center align-items-center flex-wrap gap-5 opacity-50 grayscale">
+        <h4 class="fw-bold text-secondary m-0">Google</h4>
+        <h4 class="fw-bold text-secondary m-0">dribbble</h4>
+        <h4 class="fw-bold text-secondary m-0">amazon</h4>
+        <h4 class="fw-bold text-secondary m-0">LinkedIn</h4>
+        <h4 class="fw-bold text-secondary m-0">Microsoft</h4>
+    </div>
+</div>

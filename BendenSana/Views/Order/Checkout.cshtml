@@ -1,118 +1,158 @@
 ﻿@model BendenSana.ViewModels.CheckoutViewModel
 
 @{
-    ViewData["Title"] = "Ödeme ve Onay";
+    ViewData["Title"] = "Checkout";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
 <div class="container py-5">
+    <h2 class="mb-4 fw-bold">Billing Details</h2>
+
     <form asp-action="Checkout" method="post">
         <div class="row">
-
-            <div class="col-md-8">
-                <h4 class="mb-4 fw-bold">Teslimat Adresi</h4>
+            <div class="col-lg-6">
 
                 @if (Model.UserAddresses.Any())
                 {
-                    <div class="row">
-                        @foreach (var address in Model.UserAddresses)
-                        {
-                            <div class="col-md-6 mb-3">
-                                <div class="card h-100 border-2 shadow-sm address-card">
-                                    <div class="card-body">
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="radio" name="SelectedAddressId" id="addr_@address.Id" value="@address.Id" required checked>
-                                            <label class="form-check-label fw-bold d-block mb-1" for="addr_@address.Id">
-                                                @(address.Title ?? "Adresim")
-                                            </label>
-
-                                            <small class="text-muted d-block">@address.AddressLine</small>
-
-                                            <small class="text-muted">@address.City / @address.Country</small>
-
-                                            @if (!string.IsNullOrEmpty(address.ZipCode))
-                                            {
-                                                <small class="text-muted">(@address.ZipCode)</small>
-                                            }
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        }
-                    </div>
-                }
-                else
-                {
-                    <div class="alert alert-warning">
-                        <i class="bi bi-exclamation-circle"></i> Kayıtlı adresiniz bulunamadı. Lütfen önce adres ekleyin.
-                    </div>
-                }
-
-                <a asp-controller="Address" asp-action="Create" asp-route-returnUrl="/Order/Checkout" class="btn btn-outline-primary mt-2">
-                    <i class="bi bi-plus-lg"></i> Yeni Adres Ekle
-                </a>
-
-                <hr class="my-4" />
-
-                <h4 class="mb-3 fw-bold">Kart Bilgileri</h4>
-                <div class="row g-3">
-                    <div class="col-md-6">
-                        <label class="form-label">Kart Üzerindeki İsim</label>
-                        <input asp-for="CardName" class="form-control" placeholder="Ad Soyad" required />
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label">Kart Numarası</label>
-                        <input asp-for="CardNumber" class="form-control" placeholder="0000 0000 0000 0000" required />
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label">Son Kullanma (AA/YY)</label>
-                        <input asp-for="ExpirationDate" class="form-control" placeholder="MM/YY" required />
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label">CVV</label>
-                        <input asp-for="Cvv" class="form-control" placeholder="123" required />
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-md-4">
-                <div class="card bg-light border-0 rounded-3 shadow-sm">
-                    <div class="card-body p-4">
-                        <h5 class="fw-bold mb-3">Sipariş Özeti</h5>
-
-                        <div class="mb-3" style="max-height: 200px; overflow-y: auto;">
-                            @foreach (var item in Model.CartItems)
+                        <div class="mb-4 bg-light p-3 rounded border">
+                            <label class="form-label fw-bold">Kayıtlı Adreslerim</label>
+                            <select asp-for="SelectedAddressId" class="form-select" id="addressSelect">
+                            @foreach (var addr in Model.UserAddresses)
                             {
-                                <div class="d-flex justify-content-between mb-2 small">
-                                    <span>@item.Product.Title (x@item.Quantity)</span>
-                                    <span class="fw-semibold">@((item.Product.Price * item.Quantity).ToString("C"))</span>
-                                </div>
+                                        <option value="@addr.Id" 
+                                                data-address="@addr.AddressLine" 
+                                                data-city="@addr.City" 
+                                                data-zip="@addr.ZipCode">
+                                    @addr.Title (@addr.City)
+                                        </option>
                             }
+                                <option value="0">Yeni Adres Gir</option>
+                            </select>
                         </div>
+                }
 
-                        <hr />
+                <div class="row g-3 mb-4">
+                    <div class="col-sm-6">
+                        <label class="form-label">Ad</label>
+                        <input asp-for="FirstName" class="form-control bg-light border-0" />
+                        <span asp-validation-for="FirstName" class="text-danger small"></span>
+                    </div>
+                    <div class="col-sm-6">
+                        <label class="form-label">Soyad</label>
+                        <input asp-for="LastName" class="form-control bg-light border-0" />
+                        <span asp-validation-for="LastName" class="text-danger small"></span>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label">Adres</label>
+                        <input asp-for="AddressLine" class="form-control bg-light border-0" id="inputAddress" />
+                        <span asp-validation-for="AddressLine" class="text-danger small"></span>
+                    </div>
+                    <div class="col-sm-6">
+                        <label class="form-label">Şehir</label>
+                        <input asp-for="City" class="form-control bg-light border-0" id="inputCity" />
+                    </div>
+                    <div class="col-sm-6">
+                        <label class="form-label">Posta Kodu</label>
+                        <input asp-for="ZipCode" class="form-control bg-light border-0" id="inputZip" />
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label">Telefon</label>
+                        <input asp-for="PhoneNumber" class="form-control bg-light border-0" />
+                    </div>
+                </div>
 
-                        <div class="d-flex justify-content-between mb-2">
-                            <span class="text-muted">Ara Toplam</span>
-                            <span class="fw-bold">@Model.TotalAmount.ToString("C")</span>
+                <h4 class="mb-3 fw-bold">Ödeme Bilgileri</h4>
+                <div class="p-3 border rounded bg-light mb-4">
+                    <div class="mb-3">
+                        <label class="form-label">Kart Üzerindeki İsim</label>
+                        <input asp-for="CardHolderName" class="form-control bg-white" placeholder="Ad Soyad" />
+                        <span asp-validation-for="CardHolderName" class="text-danger small"></span>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Kart Numarası</label>
+                        <input asp-for="CardNumber" class="form-control bg-white" placeholder="0000 0000 0000 0000" />
+                        <span asp-validation-for="CardNumber" class="text-danger small"></span>
+                    </div>
+                    <div class="row g-3">
+                        <div class="col-sm-6">
+                            <label class="form-label">Son Kul. Tarihi</label>
+                            <input asp-for="ExpiryDate" class="form-control bg-white" placeholder="MM/YY" />
+                            <span asp-validation-for="ExpiryDate" class="text-danger small"></span>
                         </div>
-                        <div class="d-flex justify-content-between mb-4">
-                            <span class="text-muted">Kargo</span>
-                            <span class="text-success fw-bold">Bedava</span>
+                        <div class="col-sm-6">
+                            <label class="form-label">CVV</label>
+                            <input asp-for="Cvv" class="form-control bg-white" placeholder="123" />
+                            <span asp-validation-for="Cvv" class="text-danger small"></span>
                         </div>
-
-                        <div class="d-flex justify-content-between align-items-center mb-4 pt-2 border-top">
-                            <span class="h5 fw-bold mb-0">Toplam</span>
-                            <span class="h4 fw-bold text-primary mb-0">@Model.TotalAmount.ToString("C")</span>
-                        </div>
-
-                        <button type="submit" class="btn btn-success w-100 py-3 fw-bold shadow-sm" @(Model.UserAddresses.Any() ? "" : "disabled")>
-                            Siparişi Tamamla <i class="bi bi-arrow-right-short"></i>
-                        </button>
                     </div>
                 </div>
             </div>
 
+            <div class="col-lg-5 offset-lg-1">
+                <div class="p-4 border rounded shadow-sm bg-white">
+                    <h4 class="mb-4">Sipariş Özeti</h4>
+
+                    @foreach (var item in Model.CartItems)
+                    {
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <div class="d-flex align-items-center">
+                                @if (item.Product.Images != null && item.Product.Images.Any())
+                                {
+                                            <img src="@item.Product.Images.First().ImageUrl" width="50" height="50" class="me-3 rounded object-fit-cover" />
+                                }
+                                    <span>@item.Product.Title (x @item.Quantity)</span>
+                                </div>
+                                <span class="fw-bold">@((item.Product.Price * item.Quantity).ToString("C0"))</span>
+                            </div>
+                    }
+
+                    <hr />
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Ara Toplam:</span>
+                        <span>@Model.TotalAmount.ToString("C0")</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Kargo:</span>
+                        <span class="text-success">Ücretsiz</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-4 fs-5 fw-bold">
+                        <span>Toplam:</span>
+                        <span class="text-danger">@Model.TotalAmount.ToString("C0")</span>
+                    </div>
+
+                    <div class="form-check mb-3">
+                        <input class="form-check-input" type="radio" name="paymentMethod" id="creditCard" checked>
+                        <label class="form-check-label" for="creditCard">Kredi Kartı / Banka Kartı</label>
+                    </div>
+                    <div class="form-check mb-4">
+                        <input class="form-check-input" type="radio" name="paymentMethod" id="cod">
+                        <label class="form-check-label" for="cod">Kapıda Ödeme</label>
+                    </div>
+
+                    <button type="submit" class="btn btn-danger w-100 py-3 fw-bold">Siparişi Onayla</button>
+                </div>
+            </div>
         </div>
     </form>
 </div>
+
+@section Scripts {
+        <script>
+            // Adres Seçimi Değişince Formu Doldurma Scripti
+            var selectBox = document.getElementById('addressSelect');
+            if(selectBox){
+                selectBox.addEventListener('change', function() {
+                    var selectedOption = this.options[this.selectedIndex];
+                    if (this.value !== "0") {
+                        document.getElementById('inputAddress').value = selectedOption.getAttribute('data-address');
+                        document.getElementById('inputCity').value = selectedOption.getAttribute('data-city');
+                        document.getElementById('inputZip').value = selectedOption.getAttribute('data-zip');
+                    } else {
+                        document.getElementById('inputAddress').value = "";
+                        document.getElementById('inputCity').value = "";
+                        document.getElementById('inputZip').value = "";
+                    }
+                });
+            }
+        </script>
+}

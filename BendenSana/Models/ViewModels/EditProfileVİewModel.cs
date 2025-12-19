@@ -4,17 +4,21 @@ namespace BendenSana.ViewModels
 {
     public class EditProfileViewModel
     {
+        [Required(ErrorMessage = "Ad alanı zorunludur.")]
         [Display(Name = "Ad")]
-        public string FirstName { get; set; }
+        public string FirstName { get; set; } = default!;
 
+        [Required(ErrorMessage = "Soyad alanı zorunludur.")]
         [Display(Name = "Soyad")]
-        public string LastName { get; set; }
+        public string LastName { get; set; } = default!;
 
         [Display(Name = "E-Posta")]
-        public string Email { get; set; } // Sadece göstermek için, değiştirmeyeceğiz
+        public string? Email { get; set; } // Readonly olacak
 
-        // --- Şifre Değiştirme Alanları (Opsiyonel) ---
+        [Display(Name = "Adres")]
+        public string? Address { get; set; } // ApplicationUser'daki Address alanı
 
+        // --- Şifre Değiştirme ---
         [DataType(DataType.Password)]
         [Display(Name = "Mevcut Şifre")]
         public string? CurrentPassword { get; set; }
@@ -25,7 +29,7 @@ namespace BendenSana.ViewModels
 
         [DataType(DataType.Password)]
         [Display(Name = "Yeni Şifre (Tekrar)")]
-        [Compare("NewPassword", ErrorMessage = "Şifreler birbiriyle uyuşmuyor.")]
+        [Compare("NewPassword", ErrorMessage = "Şifreler uyuşmuyor.")]
         public string? ConfirmNewPassword { get; set; }
     }
 }

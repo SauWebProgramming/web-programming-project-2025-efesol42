@@ -1,104 +1,326 @@
 ﻿@model IEnumerable<global::CartItem>
 
 @{
-    ViewData["Title"] = "Sepetim";
+    ViewData["Title"] = "Cart";
+    Layout = "~/Views/Shared/_Layout.cshtml";
     decimal totalCartPrice = 0;
 }
 
-<div class="container mt-5">
-    <div class="d-flex align-items-center mb-4">
-        <i class="bi bi-cart3 fs-1 me-3 text-primary"></i>
-        <h2 class="mb-0">Alışveriş Sepetim</h2>
-    </div>
+<style>
+    /* Figma'ya Uyumlu Stiller */
+
+    /* Tablo Başlıkları */
+    .cart-header {
+        background: white;
+        box-shadow: 0px 1px 13px rgba(0, 0, 0, 0.05);
+        border-radius: 4px;
+        padding: 24px 40px;
+        display: flex;
+        align-items: center;
+        margin-bottom: 40px;
+        font-family: 'Poppins', sans-serif;
+        font-weight: 400;
+        font-size: 16px;
+    }
+
+    .header-product {
+        width: 40%;
+    }
+
+    .header-price {
+        width: 20%;
+    }
+
+    .header-quantity {
+        width: 20%;
+    }
+
+    .header-subtotal {
+        width: 20%;
+        text-align: right;
+    }
+
+    /* Ürün Satırı */
+    .cart-item {
+        background: white;
+        box-shadow: 0px 1px 13px rgba(0, 0, 0, 0.05);
+        border-radius: 4px;
+        padding: 24px 40px;
+        display: flex;
+        align-items: center;
+        margin-bottom: 24px;
+        font-family: 'Poppins', sans-serif;
+    }
+
+    .item-img {
+        width: 54px;
+        height: 54px;
+        object-fit: contain;
+        margin-right: 20px;
+    }
+
+    .item-name {
+        font-size: 16px;
+        color: #000;
+    }
+
+    .item-price {
+        font-size: 16px;
+        color: #000;
+    }
+
+    /* Miktar Kutusu */
+    .quantity-box {
+        width: 72px;
+        height: 44px;
+        border: 1.5px solid rgba(0,0,0,0.4);
+        border-radius: 4px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 12px;
+    }
+
+    .quantity-input {
+        width: 30px;
+        border: none;
+        text-align: center;
+        font-family: 'Poppins', sans-serif;
+        font-size: 16px;
+        -moz-appearance: textfield;
+        background: transparent;
+    }
+
+        .quantity-input::-webkit-outer-spin-button,
+        .quantity-input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+    .quantity-controls {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+    }
+
+    .qty-btn {
+        cursor: pointer;
+        line-height: 0.8;
+        font-size: 10px;
+    }
+
+    .btn-cart-action {
+        border: 1px solid rgba(0,0,0,0.5);
+        border-radius: 4px;
+        background: white;
+        color: black;
+        padding: 16px 48px;
+        font-family: 'Poppins', sans-serif;
+        font-weight: 500;
+        font-size: 16px;
+        text-decoration: none;
+        display: inline-block;
+        transition: all 0.3s;
+    }
+
+        .btn-cart-action:hover {
+            background: #f5f5f5;
+            color: black;
+        }
+
+    /* Kupon ve Toplam Alanı */
+    .coupon-input {
+        width: 300px;
+        height: 56px;
+        border: 1px solid #000;
+        border-radius: 4px;
+        padding: 0 24px;
+        font-family: 'Poppins', sans-serif;
+        font-size: 16px;
+    }
+
+    .btn-coupon {
+        background: #DB4444;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        padding: 16px 48px;
+        font-family: 'Poppins', sans-serif;
+        font-weight: 500;
+        font-size: 16px;
+        height: 56px;
+    }
+
+    .cart-total-box {
+        border: 1.5px solid #000;
+        border-radius: 4px;
+        padding: 32px 24px;
+        width: 100%; /* Mobil uyum için 100% yaptım, container içinde hizalanır */
+        max-width: 470px;
+        margin-left: auto;
+    }
+
+    .total-title {
+        font-size: 20px;
+        font-weight: 500;
+        margin-bottom: 24px;
+    }
+
+    .total-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 16px 0;
+        border-bottom: 1px solid rgba(0,0,0,0.4);
+        font-family: 'Poppins', sans-serif;
+        font-size: 16px;
+    }
+
+        .total-row:last-of-type {
+            border-bottom: none;
+        }
+
+    .btn-checkout {
+        background: #DB4444;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        padding: 16px 48px;
+        font-family: 'Poppins', sans-serif;
+        font-weight: 500;
+        font-size: 16px;
+        display: block;
+        text-align: center;
+        text-decoration: none;
+        margin: 16px auto 0;
+        width: fit-content;
+    }
+
+        .btn-checkout:hover {
+            background-color: #c93e3e;
+            color: white;
+        }
+
+    .remove-btn {
+        background: #DB4444;
+        color: white;
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        position: absolute;
+        left: 20px; /* Mobilde veya dar ekranda üstüne binmemesi için */
+        cursor: pointer;
+        opacity: 0;
+        transition: opacity 0.2s;
+        text-decoration: none;
+        z-index: 10;
+    }
+
+    .cart-item:hover .remove-btn {
+        opacity: 1;
+    }
+</style>
+
+<div class="container py-5">
 
     @if (Model == null || !Model.Any())
     {
-        <div class="alert alert-warning shadow-sm">
-            <h4 class="alert-heading"><i class="bi bi-exclamation-circle"></i> Sepetiniz Boş!</h4>
-            <p>Sepetinizde henüz ürün bulunmamaktadır. Hemen alışverişe başlayıp fırsatları yakalayabilirsiniz.</p>
-            <hr>
-            <a href="/Product" class="btn btn-warning text-dark fw-bold">
-                <i class="bi bi-arrow-left"></i> Alışverişe Başla
-            </a>
+        <div class="alert alert-light text-center py-5 border">
+            <h4 class="mb-3">Sepetiniz Boş!</h4>
+            <p class="text-muted mb-4">Sepetinizde henüz ürün bulunmamaktadır.</p>
+            <a href="/Product" class="btn btn-outline-dark px-4 py-2">Alışverişe Başla</a>
         </div>
     }
     else
     {
-        <div class="card shadow-sm">
-            <div class="card-body p-0">
-                <table class="table table-hover table-striped mb-0">
-                    <thead class="bg-light">
-                        <tr>
-                            <th style="width: 40%">Ürün</th>
-                            <th style="width: 15%">Birim Fiyat</th>
-                            <th style="width: 15%">Adet</th>
-                            <th style="width: 15%">Toplam</th>
-                            <th style="width: 15%">İşlem</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var item in Model)
-                        {
-                            
-                            if (item.Product != null)
-                            {
-                                var lineTotal = item.Product.Price * item.Quantity;
-                                totalCartPrice += lineTotal;
-                                <tr>
-                                    <td class="align-middle">
-                                        <div class="d-flex align-items-center">
-                                            @if (item.Product.Images != null && item.Product.Images.Any())
-                                            {
-                                                <img src="@item.Product.Images.First().ImageUrl"
-                                                     alt="@item.Product.Title"
-                                                     class="rounded border me-3"
-                                                     width="60" height="60" style="object-fit: cover;" />
-                                            }
-                                            else
-                                            {
-                                                <div class="bg-secondary text-white d-flex align-items-center justify-content-center rounded me-3"
-                                                     style="width: 60px; height: 60px;">
-                                                    <i class="bi bi-camera-fill"></i>
-                                                </div>
-                                            }
+        <div class="cart-header d-none d-md-flex">
+            <div class="header-product">Product</div>
+            <div class="header-price">Price</div>
+            <div class="header-quantity">Quantity</div>
+            <div class="header-subtotal">Subtotal</div>
+        </div>
 
-                                            <div>
-                                                <h6 class="mb-0">@item.Product.Title</h6>
-                                                <small class="text-muted">Kod: #@item.Product.Id</small>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td class="align-middle">@item.Product.Price.ToString("C2")</td>
-                                    <td class="align-middle">
-                                        <span class="badge bg-white text-dark border border-secondary px-3 py-2">
-                                            @item.Quantity Adet
-                                        </span>
-                                    </td>
-                                    <td class="align-middle fw-bold text-primary">@lineTotal.ToString("C2")</td>
-                                    <td class="align-middle">
-                                        <a asp-action="RemoveFromCart" asp-route-id="@item.Id" class="btn btn-outline-danger btn-sm" title="Sepetten Çıkar">
-                                            <i class="bi bi-trash"></i> Sil
-                                        </a>
-                                    </td>
-                                </tr>
-                            }
+        @foreach (var item in Model)
+        {
+            if (item.Product != null)
+            {
+                var lineTotal = item.Product.Price * item.Quantity;
+                totalCartPrice += lineTotal;
+
+                <div class="cart-item position-relative">
+                    <a asp-action="RemoveFromCart" asp-route-id="@item.Id" class="remove-btn" title="Remove">
+                        <i class="bi bi-x"></i>
+                    </a>
+
+                    <div class="header-product d-flex align-items-center ps-4">
+                        @if (item.Product.Images != null && item.Product.Images.Any())
+                        {
+                            <img src="@item.Product.Images.First().ImageUrl" class="item-img" alt="@item.Product.Title">
                         }
-                    </tbody>
-                </table>
+                        else
+                        {
+                            <div class="item-img bg-light d-flex align-items-center justify-content-center text-muted border">
+                                <i class="bi bi-image"></i>
+                            </div>
+                        }
+                        <span class="item-name">@item.Product.Title</span>
+                    </div>
+
+                    <div class="header-price item-price">@item.Product.Price.ToString("C0")</div>
+
+                    <div class="header-quantity">
+                        <div class="quantity-box">
+                            <input type="number" id="qty-@item.Id" value="@item.Quantity" class="quantity-input" min="1" readonly>
+
+                            <div class="quantity-controls">
+                                <i class="bi bi-chevron-up qty-btn" onclick="updateCartItem(@item.Id, 1)"></i>
+
+                                <i class="bi bi-chevron-down qty-btn" onclick="updateCartItem(@item.Id, -1)"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="header-subtotal item-price">@lineTotal.ToString("C0")</div>
+                </div>
+            }
+        }
+
+        <div class="d-flex justify-content-between align-items-center mb-5 flex-wrap gap-3">
+            <a href="/Product" class="btn-cart-action">Return To Shop</a>
+            <a href="#" class="btn-cart-action">Update Cart</a>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-6 mb-5 mb-lg-0">
+                <div class="d-flex gap-3 flex-wrap">
+                    <input type="text" class="coupon-input" placeholder="Coupon Code">
+                    <button class="btn-coupon">Apply Coupon</button>
+                </div>
             </div>
-            <div class="card-footer bg-white p-4">
-                <div class="row align-items-center">
-                    <div class="col-md-6">
-                        <a href="/Product" class="btn btn-outline-secondary">
-                            <i class="bi bi-arrow-left"></i> Alışverişe Devam Et
-                        </a>
+
+            <div class="col-lg-6">
+                <div class="cart-total-box">
+                    <div class="total-title">Cart Total</div>
+
+                    <div class="total-row">
+                        <span>Subtotal:</span>
+                        <span>@totalCartPrice.ToString("C0")</span>
                     </div>
-                    <div class="col-md-6 text-end">
-                        <h4 class="mb-3">Genel Toplam: <span class="text-success fw-bold">@totalCartPrice.ToString("C2")</span></h4>
-                        <a asp-controller="Order" asp-action="Checkout" class="btn btn-success btn-lg w-100">
-                            Siparişi Tamamla <i class="bi bi-arrow-right"></i>
-                        </a>
+                    <div class="total-row">
+                        <span>Shipping:</span>
+                        <span>Free</span>
                     </div>
+                    <div class="total-row">
+                        <span>Total:</span>
+                        <span>@totalCartPrice.ToString("C0")</span>
+                    </div>
+
+                    <a asp-controller="Order" asp-action="Checkout" class="btn-checkout">
+                        Procees to checkout
+                    </a>
                 </div>
             </div>
         </div>

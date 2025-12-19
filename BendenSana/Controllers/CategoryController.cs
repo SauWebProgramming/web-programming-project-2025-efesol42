@@ -20,7 +20,13 @@ namespace BendenSana.Controllers
         // 1. KATEGORİ LİSTESİ 
         public async Task<IActionResult> Index()
         {
-            var categories = await _context.Set<global::Category>().ToListAsync();
+            // ÖNEMLİ: .Include(c => c.Children) eklemelisin!
+            // Sadece ParentId'si null olanları (Ana Kategorileri) çekiyoruz.
+            var categories = await _context.Categories
+                                           .Include(c => c.Children) // Alt kategorileri de yükle
+                                           .Where(c => c.ParentId == null) // Sadece en üst seviye kategorileri getir
+                                           .ToListAsync();
+
             return View(categories);
         }
 

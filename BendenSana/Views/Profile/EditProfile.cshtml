@@ -1,0 +1,214 @@
+﻿@model BendenSana.ViewModels.EditProfileViewModel
+
+@{
+    ViewData["Title"] = "Your Profile";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    /* Figma'ya Uyumlu Genel Stiller */
+    .breadcrumb-text {
+        font-family: 'Poppins', sans-serif;
+        font-size: 14px;
+        color: #000;
+        opacity: 0.5;
+    }
+
+        .breadcrumb-text span {
+            opacity: 1;
+            font-weight: 500;
+        }
+
+    /* Sol Menü (Sidebar) */
+    .account-sidebar-title {
+        font-family: 'Poppins', sans-serif;
+        font-size: 16px;
+        font-weight: 600; /* Bold */
+        color: #000;
+        margin-bottom: 16px;
+    }
+
+    .account-sidebar-link {
+        font-family: 'Poppins', sans-serif;
+        font-size: 16px;
+        color: #000;
+        opacity: 0.5; /* Pasif linkler soluk */
+        text-decoration: none;
+        display: block;
+        margin-bottom: 12px;
+        margin-left: 35px; /* Başlığa göre biraz içeride */
+        transition: all 0.3s;
+    }
+
+        .account-sidebar-link:hover {
+            opacity: 1;
+            color: #DB4444;
+        }
+
+        .account-sidebar-link.active {
+            color: #DB4444; /* Aktif sayfa kırmızı */
+            opacity: 1;
+            font-weight: 500;
+        }
+
+    /* Sağ Taraf (Form Alanı) */
+    .profile-card {
+        background: white;
+        border-radius: 4px;
+        box-shadow: 0 1px 15px rgba(0,0,0,0.05); /* Hafif gölge */
+        padding: 40px 80px;
+    }
+
+    .form-section-title {
+        color: #DB4444;
+        font-family: 'Poppins', sans-serif;
+        font-weight: 500;
+        font-size: 20px;
+        margin-bottom: 24px;
+    }
+
+    .form-label-custom {
+        font-family: 'Poppins', sans-serif;
+        font-size: 16px;
+        color: #000;
+        margin-bottom: 8px;
+        display: block;
+    }
+
+    .form-input-custom {
+        width: 100%;
+        background-color: #F5F5F5;
+        border: none;
+        border-radius: 4px;
+        padding: 13px 16px;
+        color: #000;
+        font-family: 'Poppins', sans-serif;
+        font-size: 14px;
+    }
+
+        .form-input-custom:focus {
+            outline: 1px solid #DB4444;
+            background-color: #fff;
+        }
+
+        .form-input-custom[readonly] {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+
+    .btn-save {
+        background-color: #DB4444;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        padding: 16px 48px;
+        font-family: 'Poppins', sans-serif;
+        font-weight: 500;
+        font-size: 16px;
+        cursor: pointer;
+        transition: background 0.3s;
+    }
+
+        .btn-save:hover {
+            background-color: #c93e3e;
+        }
+
+    .btn-cancel {
+        background: transparent;
+        border: none;
+        color: #000;
+        font-family: 'Poppins', sans-serif;
+        font-size: 16px;
+        margin-right: 24px;
+        cursor: pointer;
+        text-decoration: none;
+    }
+</style>
+
+<div class="container py-5">
+
+    <div class="d-flex justify-content-between align-items-center mb-5">
+        <div class="breadcrumb-text">
+            Home / <span>My Account</span>
+        </div>
+        <div class="breadcrumb-text">
+            Welcome! <span style="color: #DB4444;">@Model.FirstName @Model.LastName</span>
+        </div>
+    </div>
+
+    <div class="row">
+
+        <div class="col-lg-3 mb-5 mb-lg-0">
+            <div class="mb-4">
+                <div class="account-sidebar-title">Manage My Account</div>
+
+                <a href="@Url.Action("EditProfile", "Profile")" class="account-sidebar-link active">My Profile</a>
+                <a href="@Url.Action("Index","Address")" class="account-sidebar-link">Address Book</a>
+                <a href="@Url.Action("Index","Payment")" class="account-sidebar-link">My Payment Options</a>
+            </div>
+
+            <div>
+                <div class="account-sidebar-title">My Orders</div>
+
+                <a href="@Url.Action("Index", "Order")" class="account-sidebar-link">Siparişlerim</a>
+                <a href="@Url.Action("MyProducts", "Product")" class="account-sidebar-link">Takas Ürünlerim</a>
+                <a href="@Url.Action("Index", "Trade")" class="account-sidebar-link">Takas Tekliflerim</a>
+            </div>
+        </div>
+
+        <div class="col-lg-9">
+            <div class="profile-card">
+                <form asp-controller="Profile" asp-action="EditProfile" method="post">
+
+                    <h3 class="form-section-title">Edit Your Profile</h3>
+
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <label asp-for="FirstName" class="form-label-custom">First Name</label>
+                            <input asp-for="FirstName" class="form-input-custom" placeholder="Adınız" />
+                            <span asp-validation-for="FirstName" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6 mt-3 mt-md-0">
+                            <label asp-for="LastName" class="form-label-custom">Last Name</label>
+                            <input asp-for="LastName" class="form-input-custom" placeholder="Soyadınız" />
+                            <span asp-validation-for="LastName" class="text-danger small"></span>
+                        </div>
+                    </div>
+
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <label asp-for="Email" class="form-label-custom">Email</label>
+                            <input asp-for="Email" class="form-input-custom" readonly />
+                        </div>
+                        <div class="col-md-6 mt-3 mt-md-0">
+                            <label asp-for="Address" class="form-label-custom">Address</label>
+                            <input asp-for="Address" class="form-input-custom" placeholder="Adresiniz" />
+                        </div>
+                    </div>
+
+                    <div class="mt-2">
+                        <label class="form-label-custom mb-3">Password Changes</label>
+
+                        <div class="d-flex flex-column gap-3">
+                            <input asp-for="CurrentPassword" class="form-input-custom" placeholder="Current Password" />
+                            <span asp-validation-for="CurrentPassword" class="text-danger small"></span>
+
+                            <input asp-for="NewPassword" class="form-input-custom" placeholder="New Password" />
+                            <span asp-validation-for="NewPassword" class="text-danger small"></span>
+
+                            <input asp-for="ConfirmNewPassword" class="form-input-custom" placeholder="Confirm New Password" />
+                            <span asp-validation-for="ConfirmNewPassword" class="text-danger small"></span>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-end align-items-center mt-4">
+                        <a asp-controller="Home" asp-action="Index" class="btn-cancel">Cancel</a>
+                        <button type="submit" class="btn-save">Save Changes</button>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+
+    </div>
+</div>

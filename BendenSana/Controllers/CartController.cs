@@ -118,5 +118,23 @@ namespace BendenSana.Controllers
             
             return RedirectToAction("Index");
         }
+
+        [HttpPost]
+        public async Task<IActionResult> UpdateQuantity(int id, int quantity)
+        {
+            var cartItem = await _context.CartItems.FindAsync(id);
+            if (cartItem != null)
+            {
+                // Miktar en az 1 olabilir
+                if (quantity < 1) quantity = 1;
+
+                // Miktar en fazla 10 olabilir (Opsiyonel sınır)
+                if (quantity > 10) quantity = 10;
+
+                cartItem.Quantity = quantity;
+                await _context.SaveChangesAsync();
+            }
+            return RedirectToAction("Index");
+        }
     }
 }

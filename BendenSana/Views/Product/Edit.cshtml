@@ -1,70 +1,164 @@
 ﻿@model BendenSana.ViewModels.ProductCreateViewModel
 
 @{
-    ViewData["Title"] = "Ürünü Düzenle";
-    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Update Product";
+    Layout = "~/Views/Shared/_LayoutSeller.cshtml";
 }
 
-<div class="container py-5">
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card shadow-sm border-0">
-                <div class="card-header bg-warning text-dark py-3">
-                    <h4 class="mb-0 fw-bold"><i class="bi bi-pencil-square"></i> Ürünü Düzenle</h4>
-                </div>
-                <div class="card-body p-4">
+<style>
+    /* Figma'ya uygun form stilleri */
+    .edit-card {
+        background: white;
+        border-radius: 12px;
+        padding: 30px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.02);
+        margin-bottom: 20px;
+    }
 
-                    <form asp-action="Edit" enctype="multipart/form-data" method="post">
+    .page-title {
+        font-size: 28px;
+        font-weight: 700;
+        margin-bottom: 20px;
+    }
 
-                        <input type="hidden" asp-for="Id" />
+    .form-label {
+        font-weight: 500;
+        color: #666;
+        font-size: 14px;
+    }
 
-                        <div class="mb-3">
-                            <label asp-for="Title" class="form-label fw-bold"></label>
-                            <input asp-for="Title" class="form-control" />
-                            <span asp-validation-for="Title" class="text-danger"></span>
+    .form-control {
+        padding: 12px;
+        border-radius: 8px;
+        border: 1px solid #ddd;
+    }
+
+    .btn-purple {
+        background-color: #6366F1;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        padding: 10px 20px;
+        font-weight: 600;
+    }
+
+        .btn-purple:hover {
+            background-color: #4f46e5;
+            color: white;
+        }
+
+    .upload-area {
+        border: 2px dashed #ddd;
+        border-radius: 8px;
+        height: 250px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        background: #f9fafb;
+        cursor: pointer;
+        position: relative;
+    }
+</style>
+
+<div class="container-fluid">
+    <div class="d-flex align-items-center gap-3 mb-4">
+        <div style="width: 6px; height: 30px; background: #DB4444; border-radius: 4px;"></div>
+        <span class="text-danger fw-bold">Featured</span>
+    </div>
+    <h1 class="page-title">Update Product</h1>
+
+    <form asp-action="Edit" method="post" enctype="multipart/form-data">
+        <input type="hidden" asp-for="Id" />
+
+        <div class="row">
+            <div class="col-lg-12">
+
+                <div class="edit-card">
+                    <div class="row">
+                        <div class="col-md-3"><h5 class="fw-bold">Basic details</h5></div>
+                        <div class="col-md-9">
+                            <div class="mb-3">
+                                <label asp-for="Title" class="form-label">Product Name</label>
+                                <input asp-for="Title" class="form-control" placeholder="Product Name" />
+                                <span asp-validation-for="Title" class="text-danger small"></span>
+                            </div>
+                            <div class="mb-3">
+                                <label asp-for="Description" class="form-label">Description</label>
+                                <textarea asp-for="Description" class="form-control" rows="5" placeholder="Description"></textarea>
+                                <span asp-validation-for="Description" class="text-danger small"></span>
+                            </div>
                         </div>
+                    </div>
+                </div>
 
-                        <div class="row mb-3">
-                            <div class="col-md-6">
-                                <label asp-for="Price" class="form-label fw-bold"></label>
-                                <div class="input-group">
-                                    <input asp-for="Price" class="form-control" type="number" step="0.01" />
-                                    <span class="input-group-text">₺</span>
+                <div class="edit-card">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <h5 class="fw-bold">Images</h5>
+                            <p class="text-muted small">Images will appear in the store front.</p>
+                        </div>
+                        <div class="col-md-9">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <div class="position-relative">
+                                        <button type="button" class="btn-purple w-100 mb-2">Upload New Image</button>
+                                        <input asp-for="Photos" type="file" multiple class="position-absolute top-0 start-0 w-100 h-100 opacity-0" style="cursor: pointer;" accept="image/*" />
+                                    </div>
+                                    <button type="button" class="btn btn-light w-100 border text-purple">Delete Images</button>
                                 </div>
-                                <span asp-validation-for="Price" class="text-danger"></span>
+                                <div class="col-md-6">
+                                    <div class="upload-area">
+                                        @if (Model.ExistingImageUrls != null && Model.ExistingImageUrls.Any())
+                                        {
+                                            <img src="@Model.ExistingImageUrls.First()" style="max-height: 100%; max-width: 100%; object-fit: contain;" />
+                                        }
+                                        else
+                                        {
+                                            <i class="bi bi-cloud-upload fs-1 text-muted"></i>
+                                            <span class="text-muted mt-2">Click or drag images here</span>
+                                        }
+                                    </div>
+                                </div>
                             </div>
-                            <div class="col-md-6">
-                                <label asp-for="CategoryId" class="form-label fw-bold"></label>
-                                <select asp-for="CategoryId" class="form-select" asp-items="ViewBag.Categories">
-                                    <option value="">-- Kategori Seçiniz --</option>
-                                </select>
-                                <span asp-validation-for="CategoryId" class="text-danger"></span>
-                            </div>
                         </div>
-
-                        <div class="mb-3">
-                            <label asp-for="Description" class="form-label fw-bold"></label>
-                            <textarea asp-for="Description" class="form-control" rows="5"></textarea>
-                            <span asp-validation-for="Description" class="text-danger"></span>
-                        </div>
-
-                        <div class="mb-4">
-                            <label asp-for="Photos" class="form-label fw-bold">Yeni Fotoğraf Ekle (Opsiyonel)</label>
-                            <input asp-for="Photos" class="form-control" type="file" multiple accept="image/*" />
-                            <small class="text-muted">Mevcut fotoğraflara ek olarak yüklenir.</small>
-                        </div>
-
-                        <div class="d-grid gap-2">
-                            <button type="submit" class="btn btn-warning btn-lg text-dark fw-bold">
-                                <i class="bi bi-save"></i> Değişiklikleri Kaydet
-                            </button>
-                            <a asp-action="Index" class="btn btn-light border">İptal</a>
-                        </div>
-
-                    </form>
-
+                    </div>
                 </div>
+
+                <div class="edit-card">
+                    <div class="row">
+                        <div class="col-md-3"><h5 class="fw-bold">Pricing</h5></div>
+                        <div class="col-md-9">
+                            <label asp-for="Price" class="form-label">Price</label>
+                            <input asp-for="Price" type="number" class="form-control" step="0.01" />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="edit-card">
+                    <div class="row">
+                        <div class="col-md-3"><h5 class="fw-bold">Category</h5></div>
+                        <div class="col-md-9">
+                            <div class="mb-3">
+                                <label asp-for="CategoryId" class="form-label">Category</label>
+                                <select asp-for="CategoryId" class="form-control" asp-items="ViewBag.Categories">
+                                    <option value="">Select Category</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Sub Category</label>
+                                <select class="form-control" disabled><option>Select Sub Category</option></select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-end gap-3 mb-5">
+                    <a asp-action="Index" class="btn btn-light border px-4">Cancel</a>
+                    <button type="submit" class="btn-purple px-5">Update</button>
+                </div>
+
             </div>
         </div>
-    </div>
+    </form>
 </div>

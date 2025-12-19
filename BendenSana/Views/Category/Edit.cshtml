@@ -1,79 +1,226 @@
-﻿@model global::Category
+﻿@model Category
 
 @{
-    ViewData["Title"] = "Edit Category";
+    Layout = null;
+    // Sayfa Edit modunda mı yoksa Create modunda mı kontrolü
+    bool isEdit = Model != null && Model.Id > 0;
+    string pageTitle = isEdit ? "Edit Category" : "Add New Category";
+    string formAction = isEdit ? "Edit" : "Create";
+    string buttonText = isEdit ? "Save Changes" : "Create Category";
 }
 
-<div class="container mt-5">
-    <div class="d-flex align-items-center gap-3 mb-4">
-        <a asp-action="Index" class="btn btn-danger btn-sm rounded text-white">
-            <i class="bi bi-arrow-left"></i>
-        </a>
-        <h1 class="fw-bold mb-0">Edit Category</h1>
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>@pageTitle</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Plus+Jakarta+Sans:wght@700&family=Poppins:wght@600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+            background-color: #F8F9FA;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        input:focus, button:focus {
+            outline: none;
+        }
+
+        /* Form elemanları için genel stiller */
+        .form-card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0px 0px 0px 0.5px rgba(0,0,0,0.03);
+            padding: 32px;
+            margin-bottom: 24px;
+        }
+
+        .form-label {
+            display: block;
+            color: #6C737F;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+
+        .form-input {
+            width: 100%;
+            height: 55px;
+            border: 1px solid #E5E7EB;
+            border-radius: 8px;
+            padding: 0 16px;
+            font-size: 14px;
+            color: #111927;
+            box-sizing: border-box;
+        }
+
+        .badge-chip {
+            background: #F5F5F5;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 13px;
+            color: #454545;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-right: 8px;
+            margin-bottom: 8px;
+        }
+
+        /* Sidebar ve Header sabit kalacak */
+        .sidebar {
+            width: 240px;
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            background: black;
+            z-index: 100;
+        }
+
+        .main-content {
+            margin-left: 240px;
+            padding: 32px 56px;
+            min-height: 100vh;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+        <div style="height: 64px; padding: 32px 32px 16px 32px; display: flex; justify-content: space-between; align-items: center;">
+            <div style="color: white; font-size: 20px; font-weight: bold;">Brand.</div>
+            <a href="@Url.Action("Index")" style="width: 40px; height: 40px; background: #DB4444; border-radius: 8px; display: flex; justify-content: center; align-items: center;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M15 18l-6-6 6-6" /></svg>
+            </a>
+        </div>
+        <div style="padding: 16px 32px; display: flex; flex-direction: column; gap: 8px;">
+            <div style="height: 48px; padding: 0 12px; border-radius: 8px; display: flex; align-items: center; color: white; font-size: 14px; text-transform: uppercase;">Dashboard</div>
+            <div style="height: 48px; padding: 0 12px; border-radius: 8px; display: flex; align-items: center; color: white; font-size: 14px; text-transform: uppercase;">Costumers</div>
+            <div style="height: 48px; padding: 0 12px; background: #343A40; border-radius: 8px; display: flex; align-items: center; color: white; font-size: 14px; text-transform: uppercase;">site’s Categories</div>
+            <div style="height: 48px; padding: 0 12px; border-radius: 8px; display: flex; align-items: center; color: white; font-size: 14px; text-transform: uppercase;">sikayet edilen urunler</div>
+        </div>
     </div>
 
-    <form asp-action="Edit" method="post" enctype="multipart/form-data">
-        <input type="hidden" asp-for="Id" />
+    <div class="main-content">
 
-        <input type="hidden" asp-for="ImageUrl" />
-
-        <div class="card shadow-sm border-0">
-            <div class="card-header bg-white py-3">
-                <h5 class="mb-0 fw-bold">Basic details</h5>
-            </div>
-            <div class="card-body">
-
-                <div class="row">
-                    <div class="col-md-8">
-                        <div class="mb-4">
-                            <label class="form-label text-muted">Category Name</label>
-                            <input asp-for="Name" class="form-control form-control-lg" />
-                            <span asp-validation-for="Name" class="text-danger"></span>
-                        </div>
-
-                        <div class="mb-4">
-                            <label class="form-label text-muted">Update Image</label>
-                            <input type="file" name="imageFile" class="form-control" accept="image/*" />
-                            <div class="form-text">Değiştirmek istemiyorsanız boş bırakın.</div>
-                        </div>
-                    </div>
-
-                    <div class="col-md-4 text-center">
-                        <label class="form-label text-muted d-block">Current Image</label>
-                        @if (!string.IsNullOrEmpty(Model.ImageUrl))
-                        {
-                            <img src="@Model.ImageUrl" class="img-thumbnail rounded shadow-sm" style="max-height: 200px;" />
-                        }
-                        else
-                        {
-                            <div class="alert alert-secondary py-5">
-                                <i class="bi bi-image-alt fs-1"></i>
-                                <p>Resim Yok</p>
-                            </div>
-                        }
-                    </div>
-                </div>
-
-                <div class="mt-4 border-top pt-4">
-                    <label class="form-label fw-bold">Sub Categories</label>
-                    <div class="p-3 bg-light rounded border">
-                        <div class="d-flex flex-wrap gap-2 mb-3">
-                            <span class="badge bg-white text-dark border p-2 d-flex align-items-center gap-2">
-                                Örnek Etiket <i class="bi bi-x text-muted" style="cursor:pointer"></i>
-                            </span>
-                        </div>
-                        <div class="input-group">
-                            <input type="text" class="form-control" placeholder="sub category" disabled>
-                            <button class="btn btn-primary" type="button" disabled>Add</button>
-                        </div>
-                    </div>
-                </div>
-
-            </div>
-            <div class="card-footer bg-light py-3 d-flex justify-content-end gap-2">
-                <a asp-action="Index" class="btn btn-outline-secondary">Cancel</a>
-                <button type="submit" class="btn btn-success px-5">Update Category</button>
+        <div style="display: flex; justify-content: flex-end; align-items: center; gap: 16px; margin-bottom: 40px;">
+            <div style="padding: 8px 12px; background: white; border: 1px solid #E9ECEF; border-radius: 8px; display: flex; align-items: center; gap: 8px;">
+                <span style="font-size: 14px; font-weight: 500;">Admin User</span>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ADB5BD" stroke-width="2"><path d="M6 9l6 6 6-6" /></svg>
             </div>
         </div>
-    </form>
-</div>
+
+        <div style="margin-bottom: 30px;">
+            <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 10px;">
+                <div style="width: 20px; height: 40px; background: #DB4444; border-radius: 4px;"></div>
+                <div style="color: #DB4444; font-size: 16px; font-weight: 600; font-family: 'Poppins';">Featured</div>
+            </div>
+            <div style="color: black; font-size: 36px; font-weight: 600; letter-spacing: 1px;">@pageTitle</div>
+        </div>
+
+        <form asp-action="@formAction" method="post" enctype="multipart/form-data">
+
+            @if (isEdit)
+            {
+                <input type="hidden" asp-for="Id" />
+                <input type="hidden" asp-for="ImageUrl" />
+            }
+
+            <div style="display: flex; gap: 30px; flex-wrap: wrap;">
+
+                <div style="flex: 1; min-width: 400px;">
+                    <div class="form-card">
+                        <div style="font-family: 'Plus Jakarta Sans'; font-weight: 700; font-size: 18px; margin-bottom: 24px;">Basic Details</div>
+
+                        <div style="margin-bottom: 24px;">
+                            <label class="form-label">Category Name</label>
+                            <input asp-for="Name" class="form-input" placeholder="e.g. Electronics" required />
+                            <span asp-validation-for="Name" style="color:red; font-size:12px;"></span>
+                        </div>
+
+                        <div>
+                            <label class="form-label">Sub Categories</label>
+                            <div style="display: flex; gap: 10px; margin-bottom: 16px;">
+                                <input type="text" class="form-input" placeholder="Sub category name" style="background-color: #F9FAFB;" />
+                                <button type="button" style="padding: 0 24px; background: #E0E7FF; color: #6366F1; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">Add</button>
+                            </div>
+
+                            <div style="display: flex; flex-wrap: wrap;">
+                                @if (Model != null && Model.Children != null && Model.Children.Any())
+                                {
+                                    foreach (var child in Model.Children)
+                                    {
+                                        <div class="badge-chip">
+                                            @child.Name
+                                            <span style="cursor:pointer; color:#9F9F9F;">x</span>
+                                        </div>
+                                    }
+                                }
+                                else
+                                {
+                                    <span style="color:#9CA3AF; font-size:13px;">No subcategories yet.</span>
+                                }
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; gap: 16px;">
+                        <button type="submit" style="flex:1; height: 50px; background: #6366F1; color: white; border: none; border-radius: 12px; font-weight: 600; cursor: pointer;">
+                            @buttonText
+                        </button>
+                        <a href="@Url.Action("Index")" style="flex:1; height: 50px; display:flex; align-items:center; justify-content:center; background: white; border: 1px solid #D1D5DB; color: #374151; border-radius: 12px; font-weight: 600;">
+                            Cancel
+                        </a>
+                    </div>
+                </div>
+
+                <div style="flex: 1; min-width: 400px;">
+                    <div class="form-card" style="min-height: 400px; display: flex; flex-direction: column;">
+                        <div style="font-family: 'Plus Jakarta Sans'; font-weight: 700; font-size: 18px; margin-bottom: 8px;">Images</div>
+                        <div style="color: #6C737F; font-size: 14px; margin-bottom: 24px;">Images will appear in the store front of your website.</div>
+
+                        <div style="flex: 1; border: 2px dashed #D1D5DB; border-radius: 12px; background: #F9FAFB; display: flex; flex-direction: column; justify-content: center; align-items: center; position: relative; overflow:hidden;">
+
+                            @if (isEdit && !string.IsNullOrEmpty(Model.ImageUrl))
+                            {
+                                <img src="@Model.ImageUrl" style="max-width: 100%; max-height: 250px; object-fit: contain; margin-bottom: 10px;" />
+                                <div style="font-size: 14px; color: #111927; font-weight: 600;">Current Image</div>
+                            }
+                            else
+                            {
+                                <div style="width: 64px; height: 64px; background: #E5E7EB; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 16px;">
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#6B7280" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                                </div>
+                                <div style="text-align: center;">
+                                    <span style="color: #111927; font-weight: 700; text-decoration: underline;">Click to upload</span>
+                                    <span style="color: #6C737F;"> or drag and drop</span>
+                                </div>
+                                <div style="color: #6C737F; font-size: 12px; margin-top: 4px;">(SVG, JPG, PNG max 900x400)</div>
+                            }
+
+                            <input type="file" name="imageFile" accept="image/*" style="position: absolute; top:0; left:0; width:100%; height:100%; opacity:0; cursor: pointer;" />
+                        </div>
+
+                        @if (isEdit)
+                        {
+                            <button type="button" onclick="alert('Delete functionality needs backend implementation')" style="margin-top: 16px; width: 100%; height: 40px; background: #EF4444; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">
+                                Delete This Image
+                            </button>
+                        }
+                    </div>
+                </div>
+
+            </div>
+        </form>
+
+    </div>
+
+</body>
+</html>

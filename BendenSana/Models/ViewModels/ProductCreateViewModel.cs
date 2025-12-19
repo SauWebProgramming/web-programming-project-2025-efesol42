@@ -6,7 +6,6 @@ namespace BendenSana.ViewModels
 {
     public class ProductCreateViewModel
     {
-        // 👇 BU SATIRI MUTLAKA EKLE (Edit sayfası için gerekli)
         public int Id { get; set; }
 
         [Required(ErrorMessage = "Ürün başlığı zorunludur.")]
@@ -25,8 +24,10 @@ namespace BendenSana.ViewModels
         [Display(Name = "Kategori")]
         public int CategoryId { get; set; }
 
-        // 👇 Resimler burada 'Photos' adıyla tutuluyor. View'da da bunu kullanmalısın.
         [Display(Name = "Ürün Fotoğrafları")]
         public List<IFormFile>? Photos { get; set; }
+
+        // 👇 BU KISIM EKSİKTİ, EKLENDİ
+        public List<string> ExistingImageUrls { get; set; } = new List<string>();
     }
 }

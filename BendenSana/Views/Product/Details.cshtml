@@ -5,50 +5,168 @@
     ViewData["Title"] = Model.Title;
     Layout = "~/Views/Shared/_Layout.cshtml";
 
-    var firstImage = Model.Images?.FirstOrDefault()?.ImageUrl ?? "https://via.placeholder.com/600x600?text=No+Image";
+    var firstImage = Model.Images?.FirstOrDefault()?.ImageUrl ?? "https://placehold.co/600x600?text=No+Image";
 
-   
+    // Yorum Hesaplamaları
     var ratedReviews = Model.Reviews.Where(r => r.Rating.HasValue).ToList();
     double avgRating = ratedReviews.Any() ? ratedReviews.Average(r => r.Rating.Value) : 0;
     int reviewCount = Model.Reviews.Count;
 }
 
+<style>
+    /* Figma Tasarımına Özel Stiller */
+    .product-title {
+        font-family: 'Inter', sans-serif;
+        font-weight: 600;
+        font-size: 24px;
+        color: #000;
+    }
+
+    .product-price {
+        font-family: 'Inter', sans-serif;
+        font-weight: 400;
+        font-size: 24px;
+        color: #000;
+        margin-top: 10px;
+    }
+
+    .product-desc {
+        font-family: 'Poppins', sans-serif;
+        font-weight: 400;
+        font-size: 14px;
+        color: #000;
+        line-height: 21px;
+        margin-top: 24px;
+    }
+
+    .thumbnail-container {
+        background: #F5F5F5;
+        border-radius: 4px;
+        width: 100%;
+        height: 138px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        margin-bottom: 16px;
+        transition: all 0.2s;
+    }
+
+        .thumbnail-container:hover {
+            border: 1px solid #DB4444;
+        }
+
+    .thumbnail-img {
+        max-width: 80%;
+        max-height: 80%;
+        object-fit: contain;
+    }
+
+    .main-image-container {
+        background: #F5F5F5;
+        border-radius: 4px;
+        height: 600px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .delivery-box {
+        border: 1px solid rgba(0, 0, 0, 0.5);
+        border-radius: 4px;
+        overflow: hidden;
+    }
+
+    .delivery-item {
+        padding: 24px 16px;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+    }
+
+        .delivery-item:first-child {
+            border-bottom: 1px solid rgba(0, 0, 0, 0.5);
+        }
+
+    .delivery-title {
+        font-family: 'Poppins', sans-serif;
+        font-weight: 500;
+        font-size: 16px;
+        color: #000;
+    }
+
+    .delivery-text {
+        font-family: 'Poppins', sans-serif;
+        font-weight: 500;
+        font-size: 12px;
+        color: #000;
+    }
+
+    .delivery-link {
+        text-decoration: underline;
+        cursor: pointer;
+    }
+
+    .attribute-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 16px;
+        font-family: 'Inter', sans-serif;
+        font-size: 20px;
+    }
+
+    .attribute-value {
+        font-family: 'Poppins', sans-serif;
+        font-size: 14px;
+        border: 1px solid rgba(0,0,0,0.5);
+        border-radius: 4px;
+        padding: 6px 12px;
+        min-width: 80px;
+        text-align: center;
+    }
+</style>
+
 <div class="container py-5">
-    <nav aria-label="breadcrumb" class="mb-4">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index" class="text-decoration-none text-muted">Ana Sayfa</a></li>
-            <li class="breadcrumb-item"><a asp-controller="Product" asp-action="Index" class="text-decoration-none text-muted">Ürünler</a></li>
-            <li class="breadcrumb-item active fw-bold" aria-current="page">@Model.Title</li>
-        </ol>
-    </nav>
+
+    <div class="d-flex align-items-center gap-3 mb-5">
+        <div style="width: 20px; height: 40px; background: #DB4444; border-radius: 4px;"></div>
+        <span style="color: #DB4444; font-family: 'Poppins', sans-serif; font-weight: 600;">Featured</span>
+        <span style="color: black; font-family: 'Inter', sans-serif; font-weight: 600; font-size: 24px; margin-left: 10px;">@Model.Title</span>
+    </div>
 
     <div class="row">
-        <div class="col-lg-7 mb-4">
-            <div class="row">
-                <div class="col-2 d-flex flex-column gap-2">
-                    @if (Model.Images != null)
+        <div class="col-lg-2 col-md-3 order-2 order-md-1">
+            <div class="d-flex flex-column">
+                @if (Model.Images != null && Model.Images.Any())
+                {
+                    foreach (var img in Model.Images)
                     {
-                        foreach (var img in Model.Images)
-                        {
-                            <img src="@img.ImageUrl" class="img-fluid rounded border thumbnail-img"
-                                 onclick="changeMainImage(this.src)"
-                                 style="cursor: pointer; height: 80px; object-fit: cover;">
-                        }
+                        <div class="thumbnail-container" onclick="changeMainImage('@img.ImageUrl')">
+                            <img src="@img.ImageUrl" class="thumbnail-img">
+                        </div>
                     }
-                </div>
-                <div class="col-10">
-                    <div class="bg-light rounded d-flex align-items-center justify-content-center border" style="height: 500px;">
-                        <img id="mainImage" src="@firstImage" class="img-fluid" style="max-height: 100%; object-fit: contain;">
+                }
+                else
+                {
+                    <div class="thumbnail-container">
+                        <img src="https://placehold.co/100x100?text=No+Img" class="thumbnail-img">
                     </div>
-                </div>
+                }
             </div>
         </div>
 
-        <div class="col-lg-5 ps-lg-4">
-            <h2 class="fw-bold text-dark">@Model.Title</h2>
+        <div class="col-lg-5 col-md-9 order-1 order-md-2 mb-4 mb-md-0">
+            <div class="main-image-container">
+                <img id="mainImage" src="@firstImage" class="img-fluid" style="max-height: 90%; max-width: 90%; object-fit: contain;">
+            </div>
+        </div>
 
-            <div class="d-flex align-items-center mb-3">
-                <div class="text-warning small me-2">
+        <div class="col-lg-5 order-3 ps-lg-5">
+            <h1 class="product-title">@Model.Title</h1>
+
+            <div class="d-flex align-items-center gap-2 mt-2">
+                <div class="text-warning small">
                     @for (int i = 1; i <= 5; i++)
                     {
                         if (i <= Math.Round(avgRating))
@@ -61,189 +179,169 @@
                         }
                     }
                 </div>
-                <small class="text-muted">(@avgRating.ToString("0.0")) | @reviewCount Değerlendirme</small>
-                <span class="mx-2">|</span>
-                <span class="text-success fw-bold">Stokta Var</span>
+                <span class="text-muted small">(@reviewCount Reviews)</span>
+                <span class="text-muted small">|</span>
+                <span class="text-success small fw-bold">Stokta Var</span>
             </div>
 
-            <h3 class="fw-bold text-dark mb-4">@Model.Price.ToString("C2")</h3>
-            <p class="text-muted mb-4">@Model.Description</p>
+            <div class="product-price">@Model.Price.ToString("C2")</div>
 
-            <hr class="my-4">
+            <p class="product-desc">
+                @Model.Description
+            </p>
+
+            <hr class="my-4" style="background-color: black; height: 1px; opacity: 0.2;">
 
             <div class="mb-4">
-                <div class="d-flex justify-content-between mb-2" style="max-width: 300px;">
-                    <span class="fw-bold">Satıcı:</span>
-                    <span>@(Model.Seller?.UserName ?? "Bilinmiyor")</span>
+                <div class="attribute-row">
+                    <span>Satıcı:</span>
+                    <div class="attribute-value">@(Model.Seller?.UserName ?? "Bilinmiyor")</div>
                 </div>
-                <div class="d-flex justify-content-between mb-2" style="max-width: 300px;">
-                    <span class="fw-bold">Kategori:</span>
-                    <span>@(Model.Category?.Name ?? "Genel")</span>
+                <div class="attribute-row">
+                    <span>Kategori:</span>
+                    <div class="attribute-value">@(Model.Category?.Name ?? "Genel")</div>
                 </div>
-                <div class="d-flex justify-content-between" style="max-width: 300px;">
-                    <span class="fw-bold">Durum:</span>
-                    <span class="badge bg-info text-dark">@Model.Status</span>
+                <div class="attribute-row">
+                    <span>Durum:</span>
+                    <div class="attribute-value">@Model.Status</div>
                 </div>
             </div>
 
-            <div class="d-flex align-items-center gap-3 mb-3">
-                <form asp-controller="Cart" asp-action="AddToCart" method="post" class="flex-grow-1 d-flex gap-3">
+            <div class="d-flex flex-column gap-3 mb-4">
+                <form asp-controller="Cart" asp-action="AddToCart" method="post" class="d-flex gap-3">
                     <input type="hidden" name="productId" value="@Model.Id" />
-                    <div class="input-group" style="width: 120px;">
-                        <button class="btn btn-outline-secondary" type="button" onclick="decrementValue()">-</button>
-                        <input type="number" id="quantity" name="quantity" class="form-control text-center" value="1" min="1" max="10">
-                        <button class="btn btn-outline-secondary" type="button" onclick="incrementValue()">+</button>
+
+                    <div class="d-flex align-items-center border rounded" style="width: 140px; height: 44px;">
+                        <button type="button" class="btn btn-link text-dark text-decoration-none px-3" onclick="decrementValue()">-</button>
+                        <input type="number" id="quantity" name="quantity" value="1" min="1" max="10" class="form-control border-0 text-center p-0" style="font-weight: 500;">
+                        <button type="button" class="btn btn-link text-danger text-decoration-none px-3" onclick="incrementValue()">+</button>
                     </div>
-                    <button type="submit" class="btn btn-danger flex-grow-1">Satın Al / Sepete Ekle</button>
+
+                    <button type="submit" class="btn btn-danger flex-grow-1 text-white fw-medium" style="height: 44px; border-radius: 4px;">
+                        Hemen Satın Al
+                    </button>
+
+                    <button type="submit" formaction="@Url.Action("Toggle", "Favorite")" class="btn border rounded d-flex align-items-center justify-content-center" style="width: 44px; height: 44px;">
+                        <i class="bi @(ViewBag.IsFavorite == true ? "bi-heart-fill text-danger" : "bi-heart")"></i>
+                    </button>
                 </form>
 
-                <form asp-controller="Favorite" asp-action="Toggle" method="post">
-                    <input type="hidden" name="productId" value="@Model.Id" />
-                    @if (ViewBag.IsFavorite == true)
-                    {
-                        <button class="btn btn-danger" title="Favorilerden Çıkar"><i class="bi bi-heart-fill"></i></button>
-                    }
-                    else
-                    {
-                        <button class="btn btn-outline-secondary" title="Favorilere Ekle"><i class="bi bi-heart"></i></button>
-                    }
-                </form>
-            </div>
-
-            <div class="d-grid gap-2">
-                <a asp-controller="Trade" asp-action="Create" asp-route-targetProductId="@Model.Id" class="btn btn-outline-danger py-2 fw-bold">
-                    <i class="bi bi-arrow-left-right"></i> Takas İsteği Oluştur
-                </a>
                 <div class="d-flex gap-2">
-                    <a asp-controller="Conversation" asp-action="Start" asp-route-userId="@Model.SellerId" asp-route-productId="@Model.Id" class="btn btn-dark flex-grow-1">
-                        <i class="bi bi-chat-dots"></i> Satıcıyla Sohbet
+                    <a asp-controller="Trade" asp-action="Create" asp-route-targetProductId="@Model.Id" class="btn btn-outline-dark flex-grow-1">
+                        <i class="bi bi-arrow-left-right me-2"></i>Takas İste
                     </a>
-                    <a asp-controller="Product" asp-action="Report" asp-route-id="@Model.Id" class="btn btn-secondary">
-                        <i class="bi bi-flag"></i> Şikayet Et
+                    <a asp-controller="Product" asp-action="Report" asp-route-id="@Model.Id" class="btn btn-outline-secondary" title="Şikayet Et">
+                        <i class="bi bi-flag"></i>
                     </a>
                 </div>
             </div>
+
+            <div class="delivery-box mt-4">
+                <div class="delivery-item">
+                    <i class="bi bi-truck fs-3"></i>
+                    <div>
+                        <div class="delivery-title">Free Delivery</div>
+                        <div class="delivery-text">
+                            <span class="delivery-link">Enter your postal code for Delivery Availability</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="delivery-item">
+                    <i class="bi bi-arrow-repeat fs-3"></i>
+                    <div>
+                        <div class="delivery-title">Return Delivery</div>
+                        <div class="delivery-text">
+                            Free 30 Days Delivery Returns. <span class="delivery-link">Details</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
         </div>
     </div>
 
-    <div class="row mt-5">
+    <div class="row mt-5 pt-5">
         <div class="col-12">
-            <h4 class="fw-bold border-bottom pb-2 mb-4">Değerlendirmeler (@reviewCount)</h4>
+            <div class="d-flex align-items-center gap-3 mb-4">
+                <div style="width: 20px; height: 40px; background: #DB4444; border-radius: 4px;"></div>
+                <h3 class="fw-bold m-0" style="font-family: 'Inter', sans-serif;">Değerlendirmeler (@reviewCount)</h3>
+            </div>
 
-            <div class="mb-5">
-                @if (Model.Reviews != null && Model.Reviews.Any())
-                {
-                    @foreach (var review in Model.Reviews.OrderByDescending(r => r.CreatedAt))
+            <div class="row">
+                <div class="col-lg-7">
+                    @if (Model.Reviews != null && Model.Reviews.Any())
                     {
-                        <div class="d-flex gap-3 mb-4 border-bottom pb-3">
-                            <div class="bg-secondary text-white rounded-circle d-flex align-items-center justify-content-center flex-shrink-0" style="width: 45px; height: 45px;">
-                                @(review.User?.UserName?.Substring(0, 1).ToUpper() ?? "U")
-                            </div>
-                            <div>
-                                <div class="d-flex align-items-center gap-2">
-                                    <h6 class="fw-bold mb-0">@review.User?.UserName</h6>
-                                    <small class="text-muted">@review.CreatedAt.ToString("dd MMMM yyyy")</small>
-                                </div>
-                                @if (review.Rating.HasValue)
-                                {
-                                    <div class="text-warning small my-1">
-                                        @for (int i = 0; i < review.Rating.Value; i++)
+                        @foreach (var review in Model.Reviews.OrderByDescending(r => r.CreatedAt))
+                        {
+                            <div class="card border-0 shadow-sm mb-3">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between">
+                                        <h6 class="fw-bold">@review.User?.UserName</h6>
+                                        <small class="text-muted">@review.CreatedAt.ToString("dd MMM yyyy")</small>
+                                    </div>
+                                    <div class="text-warning small mb-2">
+                                        @for (int i = 0; i < (review.Rating ?? 0); i++)
                                         {
                                             <i class="bi bi-star-fill"></i>
                                         }
                                     </div>
-                                }
-                                <p class="mb-0 text-dark">@review.Comment</p>
-                            </div>
-                        </div>
-                    }
-                }
-                else
-                {
-                    <div class="alert alert-light border">Henüz yorum yapılmamış.</div>
-                }
-            </div>
-
-            @if (User.Identity.IsAuthenticated)
-            {
-                <div class="card bg-light border-0 p-4">
-                    <h5 class="fw-bold mb-3">Yorum Yap</h5>
-                    <form asp-action="AddReview" method="post">
-                        <input type="hidden" name="productId" value="@Model.Id" />
-                        <div class="mb-3">
-                            <label class="fw-bold d-block">Puanınız</label>
-                            <div class="rating-css">
-                                <div class="star-icon">
-                                    <input type="radio" name="rating" value="5" id="r5"><label for="r5" class="bi bi-star-fill"></label>
-                                    <input type="radio" name="rating" value="4" id="r4"><label for="r4" class="bi bi-star-fill"></label>
-                                    <input type="radio" name="rating" value="3" id="r3"><label for="r3" class="bi bi-star-fill"></label>
-                                    <input type="radio" name="rating" value="2" id="r2"><label for="r2" class="bi bi-star-fill"></label>
-                                    <input type="radio" name="rating" value="1" id="r1"><label for="r1" class="bi bi-star-fill"></label>
+                                    <p class="text-muted mb-0">@review.Comment</p>
                                 </div>
                             </div>
-                        </div>
-                        <div class="mb-3">
-                            <label class="fw-bold">Yorumunuz</label>
-                            <textarea name="comment" class="form-control" rows="3"></textarea>
-                        </div>
-                        <button type="submit" class="btn btn-primary px-4">Gönder</button>
-                    </form>
+                        }
+                    }
+                    else
+                    {
+                        <div class="alert alert-light border">Bu ürün için henüz yorum yapılmamış.</div>
+                    }
                 </div>
-            }
-            else
-            {
-                <div class="alert alert-warning">Yorum yapmak için <a asp-controller="Account" asp-action="Login">giriş yapın</a>.</div>
-            }
+
+                <div class="col-lg-5">
+                    @if (User.Identity.IsAuthenticated)
+                    {
+                        <div class="card border-0 bg-light p-4">
+                            <h5 class="fw-bold mb-3">Yorum Ekle</h5>
+                            <form asp-action="AddReview" method="post">
+                                <input type="hidden" name="productId" value="@Model.Id" />
+                                <div class="mb-3">
+                                    <label class="form-label">Puanınız</label>
+                                    <select name="rating" class="form-select">
+                                        <option value="5">⭐⭐⭐⭐⭐ - Çok İyi</option>
+                                        <option value="4">⭐⭐⭐⭐ - İyi</option>
+                                        <option value="3">⭐⭐⭐ - Orta</option>
+                                        <option value="2">⭐⭐ - Kötü</option>
+                                        <option value="1">⭐ - Çok Kötü</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Yorumunuz</label>
+                                    <textarea name="comment" class="form-control" rows="3" required></textarea>
+                                </div>
+                                <button type="submit" class="btn btn-dark w-100">Gönder</button>
+                            </form>
+                        </div>
+                    }
+                </div>
+            </div>
         </div>
     </div>
+
 </div>
 
 <script>
-    function changeMainImage(src) { document.getElementById('mainImage').src = src; }
+    function changeMainImage(src) {
+        document.getElementById('mainImage').src = src;
+    }
+
     function incrementValue() {
         var el = document.getElementById('quantity');
         var val = parseInt(el.value) || 0;
         if (val < 10) el.value = val + 1;
     }
+
     function decrementValue() {
         var el = document.getElementById('quantity');
         var val = parseInt(el.value) || 0;
         if (val > 1) el.value = val - 1;
     }
 </script>
-
-<style>
-    .rating-css div {
-        color: #ffe400;
-        font-size: 24px;
-        font-weight: 800;
-        padding: 5px 0;
-    }
-
-    .rating-css input {
-        display: none;
-    }
-
-        .rating-css input + label {
-            font-size: 24px;
-            text-shadow: 1px 1px 0 #ffe400;
-            cursor: pointer;
-        }
-
-        .rating-css input:checked + label ~ label {
-            color: #b4b4b4;
-            text-shadow: none;
-        }
-
-    .rating-css {
-        display: flex;
-        flex-direction: row-reverse;
-        justify-content: start;
-        gap: 5px;
-    }
-
-    .thumbnail-img:hover {
-        opacity: 0.7;
-        border-color: #000 !important;
-    }
-</style>
