@@ -6,85 +6,89 @@
 }
 
 <div class="container-fluid py-4">
-
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <span class="text-danger fw-bold border-start border-4 border-danger ps-2">Featured</span>
-            <h2 class="fw-bold mt-2">Satıcılar</h2>
+    <div class="mb-4 d-flex flex-column gap-3">
+        <div class="d-flex align-items-center gap-3">
+            <div style="width: 15px; height: 35px; background: #DB4444; border-radius: 4px"></div>
+            <span class="text-danger fw-bold">Featured</span>
         </div>
-
-        <div class="bg-white p-2 rounded shadow-sm" style="min-width: 300px;">
-            <input type="text" class="form-control border-0" placeholder="Search..." id="sellerSearch">
-        </div>
+        <h2 class="fw-bold h1">Satıcılar</h2>
     </div>
 
-    <div class="card border-0 shadow-sm">
-        <div class="card-body p-0">
-            <table class="table table-hover align-middle mb-0">
-                <thead class="bg-light text-secondary">
+    <form asp-action="Sellers" method="get" class="mb-3">
+        <div class="input-group" style="max-width: 320px;">
+            <span class="input-group-text bg-white border-end-0 rounded-start-2">
+                <i class="bi bi-search text-muted"></i>
+            </span>
+            <input type="text" name="search" value="@ViewBag.SearchTerm" class="form-control border-start-0 rounded-end-2" placeholder="Search...">
+        </div>
+    </form>
+
+    <div class="card border-0 shadow-sm p-3" style="border-radius: 8px;">
+        <div class="table-responsive">
+            <table class="table align-middle m-0">
+                <thead class="text-secondary border-bottom" style="font-size: 12px; font-weight: 500;">
                     <tr>
-                        <th scope="col" class="ps-4">#</th>
-                        <th scope="col">Full Name</th>
-                        <th scope="col">E-Mail</th>
-                        <th scope="col">Address</th>
-                        <th scope="col" class="text-end pe-4">Actions</th>
+                        <th class="px-4 py-3" style="width: 64px;">#</th>
+                        <th class="px-4 py-3">Full Name</th>
+                        <th class="px-4 py-3">E-Mail</th>
+                        <th class="px-4 py-3">Address</th>
+                        <th class="px-4 py-3 text-end">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @if (Model != null && Model.Any())
+                    @{ int i = ((int)ViewBag.CurrentPage - 1) * 10 + 1; }
+                    @foreach (var seller in Model)
                     {
-                        int index = 1;
-                        foreach (var seller in Model)
-                        {
-                            <tr>
-                                <td class="ps-4 text-muted">@index</td>
-                                <td>
-                                    <div class="d-flex align-items-center">
-                                        <div class="bg-light rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
-                                            <span class="fw-bold text-secondary">@seller.FullName.Substring(0, 1)</span>
-                                        </div>
-                                        <span class="fw-semibold">@seller.FullName</span>
-                                    </div>
-                                </td>
-                                <td class="text-muted">@seller.Email</td>
-                                <td class="text-muted">@seller.Address</td>
-                                <td class="text-end pe-4">
-                                    <div class="d-flex justify-content-end gap-2">
-                                        <a asp-controller="Admin" asp-action="Details" asp-route-id="@seller.Id" class="btn btn-light btn-sm border" title="Detay">
-                                            <i class="bi bi-arrow-up-right"></i> ↗
-                                        </a>
-                                        <form asp-action="DeleteUser" asp-controller="Admin" method="post" onsubmit="return confirm('Bu satıcıyı silmek istediğinize emin misiniz?');">
-                                            <input type="hidden" name="id" value="@seller.Id" />
-                                            <button type="submit" class="btn btn-light btn-sm border text-danger" title="Sil">
-                                                <i class="bi bi-trash"></i> 🗑
-                                            </button>
-                                        </form>
-                                    </div>
-                                </td>
-                            </tr>
-                            index++;
-                        }
-                    }
-                    else
-                    {
-                        <tr>
-                            <td colspan="5" class="text-center py-4">Hiç satıcı bulunamadı.</td>
+                        <tr class="@(i % 2 != 0 ? "bg-light" : "")" style="height: 56px; font-size: 14px;">
+                            <td class="px-4 py-3 text-dark">@i</td>
+                            <td class="px-4 py-3 text-dark">@seller.FullName</td>
+                            <td class="px-4 py-3 text-dark">@seller.Email</td>
+                            <td class="px-4 py-3 text-muted opacity-75">@seller.Address</td>
+                            <td class="px-4 py-3 text-end">
+                                <div class="d-flex justify-content-end gap-2">
+                                    <a asp-action="Details" asp-route-id="@seller.Id" class="btn btn-outline-secondary btn-sm rounded-2 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                        <i class="bi bi-box-arrow-up-right"></i>
+                                    </a>
+                                    <form asp-action="DeleteUser" asp-route-id="@seller.Id" method="post" onsubmit="return confirm('Silmek istediğinize emin misiniz?')">
+                                        <button type="submit" class="btn btn-outline-secondary btn-sm rounded-2 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
                         </tr>
+                        i++;
                     }
                 </tbody>
             </table>
         </div>
+
+        <div class="d-flex align-items-center gap-3 mt-4 overflow-auto px-2 pb-2">
+            <div class="d-flex gap-2 align-items-center">
+                <a asp-action="Sellers" asp-route-page="@(ViewBag.CurrentPage - 1)" asp-route-search="@ViewBag.SearchTerm" 
+                   class="btn @(ViewBag.CurrentPage == 1 ? "btn-light disabled" : "btn-outline-secondary") rounded-2 py-2 px-3">
+                    <i class="bi bi-chevron-left"></i>
+                </a>
+
+                @for (int p = 1; p <= ViewBag.TotalPages; p++)
+                {
+                    <a asp-action="Sellers" asp-route-page="@p" asp-route-search="@ViewBag.SearchTerm"
+                       class="btn @(ViewBag.CurrentPage == p ? "btn-primary shadow-sm" : "btn-outline-secondary") rounded-2 py-2 px-3" 
+                       style="@(ViewBag.CurrentPage == p ? " border-color: #0057FC;" : "")">
+                        @p
+                    </a>
+                }
+
+                <a asp-action="Sellers" asp-route-page="@(ViewBag.CurrentPage + 1)" asp-route-search="@ViewBag.SearchTerm" 
+                   class="btn @(ViewBag.CurrentPage == ViewBag.TotalPages ? "btn-light disabled" : "btn-outline-secondary") rounded-2 py-2 px-3">
+                    <i class="bi bi-chevron-right"></i>
+                </a>
+            </div>
+
+            <div class="d-flex align-items-center gap-2 ms-3">
+                <div class="px-3 py-2 border rounded-2 bg-white fw-bold" style="min-width: 80px; text-align: center;">10</div>
+                <span class="text-dark small">/Page</span>
+            </div>
+        </div>
     </div>
 </div>
-
-<script>
-    document.getElementById('sellerSearch').addEventListener('keyup', function() {
-        var value = this.value.toLowerCase();
-        var rows = document.querySelectorAll("tbody tr");
-
-        rows.forEach(function(row) {
-            var text = row.textContent.toLowerCase();
-            row.style.display = text.indexOf(value) > -1 ? "" : "none";
-        });
-    });
-</script>

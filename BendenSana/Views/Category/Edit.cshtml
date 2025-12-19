@@ -1,58 +1,137 @@
 ﻿@model Category
 
 @{
-    ViewData["Title"] = "Kategori Düzenle";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+    bool isEdit = Model != null && Model.Id > 0;
+    string pageTitle = isEdit ? "Edit Category" : "Add New Category";
+    string formAction = isEdit ? "Edit" : "Create";
 }
 
-<div class="container mt-4">
-    <div class="row">
-        <div class="col-md-6 offset-md-3">
-            <div class="card shadow">
-                <div class="card-header bg-warning text-dark">
-                    <h4>Kategori Düzenle: @Model.Name</h4>
+<div class="container-fluid py-4" style="background-color: #F8F9FA; min-height: 100vh; font-family: 'Inter', sans-serif;">
+
+    <div style="margin-bottom: 40px; margin-left: 316px;">
+        <div class="d-flex align-items-center gap-3 mb-2">
+            <div style="width: 20px; height: 40px; background: #DB4444; border-radius: 4px"></div>
+            <span style="color: #DB4444; font-size: 16px; font-family: 'Poppins'; font-weight: 600;">Featured</span>
+        </div>
+        <h1 style="color: black; font-size: 36px; font-weight: 600; letter-spacing: 1.44px;">@pageTitle</h1>
+    </div>
+
+    <form asp-action="@formAction" asp-controller="Category" method="post" enctype="multipart/form-data">
+        @if (isEdit)
+        {
+            <input type="hidden" asp-for="Id" />
+            <input type="hidden" asp-for="ImageUrl" />
+        }
+
+        <div style="width: 1144px; height: 579px; position: relative; background: white; box-shadow: 0px 0px 0px 0.5px rgba(0, 0, 0, 0.03); border-radius: 20px; margin: 0 auto 30px auto; overflow: hidden;">
+            <div style="position: absolute; left: 24px; top: 32px; font-family: 'Plus Jakarta Sans'; font-weight: 700; font-size: 16.7px; color: #111927;">Basic details</div>
+
+            <div style="position: absolute; width: 653.35px; height: 55.33px; left: 466.67px; top: 32px; border-radius: 8px; border: 1px #E5E7EB solid; padding: 0 12px; display: flex; align-items: center;">
+                <div style="position: absolute; top: -10px; left: 12px; background: white; padding: 0 5px; color: #6C737F; font-size: 12px; font-weight: 500;">category</div>
+                <input asp-for="Name" class="form-control border-0 w-100 shadow-none" style="font-size: 14px;" placeholder="e.g. Clothes" required />
+            </div>
+
+            <div style="position: absolute; left: 467px; top: 114px; color: #6C737F; font-size: 14px; font-weight: 500;">sub categories</div>
+
+            <div style="position: absolute; width: 653px; height: 400px; left: 467px; top: 149px; border-radius: 8px; border: 1px #F2F4F7 solid; background: #fff;">
+                <div style="position: absolute; width: 287px; height: 55px; left: 16px; top: 16px; border-radius: 8px; border: 1px #E5E7EB solid; display: flex; align-items: center; padding: 0 15px;">
+                    <input type="text" id="subCategoryInput" class="form-control border-0 p-0 shadow-none" placeholder="sub category name" style="font-size: 14px;">
                 </div>
-                <div class="card-body">
-                    <form asp-action="Edit" method="post" enctype="multipart/form-data">
-                        <input type="hidden" asp-for="Id" />
 
-                        <input type="hidden" asp-for="ImageUrl" />
+                <button type="button" onclick="addSubCategory()" style="position: absolute; width: 85.54px; height: 40.45px; left: 338px; top: 23px; background: #6366F1; box-shadow: 0px 1px 5px rgba(0, 0, 0, 0.08); border-radius: 12px; border: none; color: white; font-weight: 600; font-size: 14px; cursor: pointer;">
+                    Add
+                </button>
 
-                        <div class="mb-3">
-                            <label asp-for="Name" class="form-label">Kategori Adı</label>
-                            <input asp-for="Name" class="form-control" required />
-                            <span asp-validation-for="Name" class="text-danger"></span>
-                        </div>
-
-                        <div class="mb-3">
-                            <label asp-for="ParentId" class="form-label">Üst Kategori</label>
-                            <select asp-for="ParentId" class="form-select" asp-items="ViewBag.Parents">
-                                <option value="">-- Ana Kategori --</option>
-                            </select>
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label">Mevcut Görsel</label><br />
-                            @if (!string.IsNullOrEmpty(Model.ImageUrl))
-                            {
-                                <img src="@Model.ImageUrl" width="100" class="img-thumbnail mb-2" />
-                            }
-                            else
-                            {
-                                <span class="badge bg-secondary">Resim Yok</span>
-                            }
-
-                            <label class="form-label">Görseli Değiştir</label>
-                            <input type="file" name="imageFile" class="form-control" accept="image/*" />
-                            <small class="text-muted">Resim değiştirmek istemiyorsanız boş bırakın.</small>
-                        </div>
-
-                        <div class="d-grid gap-2">
-                            <button type="submit" class="btn btn-primary">Güncelle</button>
-                            <a asp-action="Index" class="btn btn-secondary">İptal</a>
-                        </div>
-                    </form>
+                <div id="subCategoryList" style="position: absolute; left: 16px; top: 96px; right: 16px; display: flex; flex-wrap: wrap; gap: 10px;">
+                    @if (Model?.Children != null)
+                    {
+                        foreach (var child in Model.Children)
+                        {
+                            <div class="badge-item" style="padding: 2px 12px; background: #F5F5F5; border-radius: 4px; display: flex; align-items: center; gap: 8px;">
+                                <span style="color: #454545; font-size: 12px; font-family: 'Source Sans Pro';">@child.Name</span>
+                                <span style="color: #9F9F9F; cursor: pointer; font-size: 14px;" onclick="this.parentElement.remove()">×</span>
+                            </div>
+                        }
+                    }
                 </div>
             </div>
         </div>
-    </div>
+
+        <div style="width: 1144px; height: 451px; position: relative; background: white; box-shadow: 0px 0px 0px 0.5px rgba(0, 0, 0, 0.03); border-radius: 20px; margin: 0 auto; overflow: hidden;">
+            <div style="position: absolute; left: 24px; top: 32px; font-family: 'Plus Jakarta Sans'; font-weight: 700; font-size: 16.7px; color: #111927;">Images</div>
+            <div style="position: absolute; left: 24px; top: 62px; color: #6C737F; font-size: 14px;">Images will appear in the store front of your website.</div>
+
+            <div id="dropZone" style="position: absolute; width: 653px; height: 388px; left: 467px; top: 32px; background: rgba(17, 25, 39, 0.04); border-radius: 8px; border: 1px dashed #F2F4F7; display: flex; flex-direction: column; justify-content: center; align-items: center; cursor: pointer;">
+                @if (isEdit && !string.IsNullOrEmpty(Model.ImageUrl))
+                {
+                    <img id="previewImage" src="@Model.ImageUrl" style="max-width: 100%; max-height: 250px; object-fit: contain;" />
+                }
+                else
+                {
+                    <div id="uploadPlaceholder" class="text-center">
+                        <div style="width: 64px; height: 64px; background: #E5E7EB; border-radius: 32px; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px auto;">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                        </div>
+                        <div style="font-family: 'Plus Jakarta Sans'; font-weight: 700;">
+                            <span style="text-decoration: underline; color: #111927;">Click to upload</span> or drag and drop
+                        </div>
+                        <p style="color: #6C737F; font-size: 12px; margin-top: 5px;">(SVG, JPG, PNG maximum 900x400)</p>
+                    </div>
+                }
+                <input type="file" name="imageFile" id="imageFileInput" style="position: absolute; opacity: 0; width: 100%; height: 100%; cursor: pointer;" onchange="previewFile()" />
+            </div>
+
+            <div style="position: absolute; left: 28px; top: 336px; display: flex; flex-direction: column; gap: 10px;">
+                <button type="submit" style="width: 422px; height: 40px; background: #6366F1; box-shadow: 0px 1px 5px rgba(0, 0, 0, 0.08); border-radius: 12px; border: none; color: white; font-weight: 600; font-size: 14px;">
+                    @(isEdit ? "Save Category Changes" : "Create Category")
+                </button>
+                <a href="@Url.Action("Index")" class="btn d-flex align-items-center justify-content-center" style="width: 422px; height: 40px; background: #f5f5f5; border-radius: 12px; color: #444; font-weight: 600; font-size: 14px; text-decoration: none;">
+                    Cancel
+                </a>
+            </div>
+        </div>
+    </form>
 </div>
+
+<script>
+    // Resim Önizleme
+    function previewFile() {
+        const preview = document.getElementById('previewImage') || document.createElement('img');
+        const file = document.getElementById('imageFileInput').files[0];
+        const reader = new FileReader();
+
+        reader.onloadend = function () {
+            const placeholder = document.getElementById('uploadPlaceholder');
+            if(placeholder) placeholder.style.display = 'none';
+
+            preview.src = reader.result;
+            preview.id = "previewImage";
+            preview.style = "max-width: 100%; max-height: 250px; object-fit: contain;";
+
+            if(!document.getElementById('previewImage')) {
+                document.getElementById('dropZone').prepend(preview);
+            }
+        }
+
+        if (file) {
+            reader.readAsDataURL(file);
+        }
+    }
+
+    // Alt Kategori Ekleme (Arayüzde gösterir)
+    function addSubCategory() {
+        const input = document.getElementById('subCategoryInput');
+        const list = document.getElementById('subCategoryList');
+        if (input.value.trim() !== "") {
+            const div = document.createElement('div');
+            div.style = "padding: 2px 12px; background: #F5F5F5; border-radius: 4px; display: flex; align-items: center; gap: 8px;";
+            div.innerHTML = `<span style="color: #454545; font-size: 12px; font-family: 'Source Sans Pro';">${input.value}</span>
+                             <span style="color: #9F9F9F; cursor: pointer; font-size: 14px;" onclick="this.parentElement.remove()">×</span>`;
+            list.appendChild(div);
+            input.value = "";
+        }
+    }
+</script>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Plus+Jakarta+Sans:wght@700&family=Poppins:wght@600&display=swap" rel="stylesheet">

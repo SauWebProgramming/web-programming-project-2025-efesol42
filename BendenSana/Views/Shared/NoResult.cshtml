@@ -1,0 +1,34 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+    <div class="d-flex justify-content-center align-items-center" style="min-height: 600px;">
+        <div class="bg-white rounded-5 shadow p-5 text-center position-relative overflow-hidden" style="width: 400px; height: 474px; border-radius: 28px;">
+
+            <div class="mb-4 d-flex justify-content-center">
+                <div class="position-relative" style="width: 200px; height: 150px;">
+                    <i class="bi bi-search" style="font-size: 5rem; color: #DB4444; opacity: 0.2;"></i>
+                    <i class="bi bi-x-circle-fill position-absolute" style="font-size: 2rem; color: #DB4444; bottom: 40px; right: 60px; border: 3px solid white; border-radius: 50%;"></i>
+                </div>
+            </div>
+
+            <h3 class="fw-bold mb-2" style="font-family: 'Avenir Next', sans-serif; color: #4A4A4A;">No results found</h3>
+            <p class="text-muted mb-5" style="font-family: 'Avenir Next', sans-serif;">
+                Try adjusting your search<br>to find what you are looking for
+            </p>
+
+            @if (User.Identity.IsAuthenticated)
+            {
+                <a asp-action="Create" class="btn btn-primary rounded-pill w-75 py-3 fw-bold shadow-sm" style="background-color: #DB4444; border: none; font-family: 'ABeeZee', sans-serif;">
+                    Ürün Ekle
+                </a>
+            }
+            else
+            {
+                <a asp-action="Index" class="btn btn-outline-dark rounded-pill w-75 py-3 fw-bold">
+                    Tümünü Gör
+                </a>
+            }
+        </div>
+    </div>
+}

@@ -47,7 +47,7 @@
                     </button>
 
                     <ul class="dropdown-menu dropdown-menu-end">
-                        <li><a class="dropdown-item" asp-controller="Account" asp-action="Index">Profil</a></li>
+                        <li><a class="dropdown-item" asp-controller="Profile" asp-action="EditProfile">Profil</a></li>
                         <li><a class="dropdown-item" asp-controller="Account" asp-action="Settings">Ayarlar</a></li>
                         <li><hr class="dropdown-divider"></li>
                         <li><a class="dropdown-item text-danger" asp-controller="Account" asp-action="Logout">Çıkış</a></li>
@@ -86,14 +86,14 @@
                             <a asp-controller="Admin" asp-action="Index" class="adm-sidebar__item">
                                 DASHBOARD
                             </a>
-                            <a asp-controller="AdminProduct" asp-action="Index" class="adm-sidebar__item">
-                                PRODUCTS
+                            <a asp-controller="Admin" asp-action="Sellers" class="adm-sidebar__item">
+                                SELLERS
                             </a>
-                            <a asp-controller="AdminOrder" asp-action="Index" class="adm-sidebar__item">
-                                ORDERS
+                            <a asp-controller="Category" asp-action="Index" class="adm-sidebar__item">
+                                CATEGORIES
                             </a>
-                            <a asp-controller="AdminTrade" asp-action="Index" class="adm-sidebar__item">
-                                TAKAS TEKLİFLERİ
+                            <a asp-controller="Admin" asp-action="Reports" class="adm-sidebar__item">
+                                SIKAYET EDILEN URUNLER
                             </a>
                         </div>
 

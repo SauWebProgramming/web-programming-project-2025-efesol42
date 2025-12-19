@@ -1,67 +1,74 @@
-﻿@model IEnumerable<Category>
+@model IEnumerable<global::Category>
 
 @{
     ViewData["Title"] = "Kategoriler";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
 }
 
-<div class="container mt-4">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <h2>Kategori Listesi</h2>
-        <a asp-action="Create" class="btn btn-success">+ Yeni Kategori</a>
+<div class="container-fluid py-4" style="background-color: #fcfcfc; min-height: 100vh; font-family: 'Inter', sans-serif;">
+
+    <div class="mb-5">
+        <div class="d-flex align-items-center mb-2" style="gap: 16px;">
+            <div style="width: 20px; height: 40px; background: #DB4444; border-radius: 4px"></div>
+            <span style="color: #DB4444; font-size: 16px; font-family: 'Poppins'; font-weight: 600;">Featured</span>
+        </div>
+        <h1 class="fw-bold" style="font-size: 36px; letter-spacing: 1.44px;">Allowed Categories For Sale Inside Site</h1>
     </div>
 
-    <table class="table table-hover table-bordered shadow-sm bg-white">
-        <thead class="table-dark">
-            <tr>
-                <th style="width: 100px;">Görsel</th>
-                <th>Kategori Adı</th>
-                <th>Türü</th>
-                <th style="width: 200px;">İşlemler</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var parent in Model)
-            {
-                <tr class="table-light">
-                    <td>
-                        @if (!string.IsNullOrEmpty(parent.ImageUrl))
-                        {
-                            <img src="@parent.ImageUrl" width="50" height="50" style="object-fit:cover; border-radius:5px;" />
-                        }
-                    </td>
-                    <td class="fw-bold text-primary">@parent.Name</td>
-                    <td><span class="badge bg-primary">Ana Kategori</span></td>
-                    <td>
-                        <a asp-action="Edit" asp-route-id="@parent.Id" class="btn btn-sm btn-warning">Düzenle</a>
-                        <a asp-action="Delete" asp-route-id="@parent.Id" class="btn btn-sm btn-danger" onclick="return confirm('Bu kategoriyi ve alt kategorilerini silmek istediğine emin misin?');">Sil</a>
-                    </td>
-                </tr>
+    <div class="d-flex flex-column gap-4">
+        @foreach (var parent in Model)
+        {
+            <div class="card border-0 shadow-sm p-4" style="background: white; border-radius: 12px; border: 1px solid #D3D3D3 !important;">
+                <div class="row align-items-start">
 
-                @if (parent.Children != null && parent.Children.Any())
-                {
-                    foreach (var child in parent.Children)
-                    {
-                        <tr>
-                            <td>
-                                <div style="margin-left: 20px;">
-                                    @if (!string.IsNullOrEmpty(child.ImageUrl))
-                                    {
-                                        <img src="@child.ImageUrl" width="40" height="40" style="object-fit:cover; border-radius:5px;" />
-                                    }
-                                </div>
-                            </td>
-                            <td>
-                                <span class="text-muted ms-3">↳ @child.Name</span>
-                            </td>
-                            <td><span class="badge bg-secondary">Alt Kategori</span></td>
-                            <td>
-                                <a asp-action="Edit" asp-route-id="@child.Id" class="btn btn-sm btn-outline-warning">Düzenle</a>
-                                <a asp-action="Delete" asp-route-id="@child.Id" class="btn btn-sm btn-outline-danger" onclick="return confirm('Silmek istediğine emin misin?');">Sil</a>
-                            </td>
-                        </tr>
-                    }
-                }
-            }
-        </tbody>
-    </table>
+                    <div class="col-auto">
+                        <div class="d-flex align-items-center justify-content-center bg-white border rounded" style="width: 140px; height: 150px; border: 1px solid #D3D3D3 !important;">
+                            <img src="@(parent.ImageUrl ?? "https://placehold.co/113x120")"
+                                 alt="@parent.Name"
+                                 style="width: 113px; height: 120px; object-fit: contain;" />
+                        </div>
+                    </div>
+
+                    <div class="col px-4">
+                        <h4 class="fw-bold mb-1" style="font-size: 18px; color: #1C1A1A;">@parent.Name</h4>
+                        <p class="mb-3" style="color: #9B9B9B; font-size: 12px;">Sub Categories</p>
+
+                        <div class="d-flex flex-wrap gap-2">
+                            @if (parent.Children != null && parent.Children.Any())
+                            {
+                                foreach (var child in parent.Children)
+                                {
+                                    <div class="px-3 py-1 bg-light rounded" style="font-size: 13px; color: #454545; border: 1px solid #eee;">
+                                        @child.Name
+                                    </div>
+                                }
+                            }
+                            else
+                            {
+                                <span class="text-muted small italic">Alt kategori bulunamadı.</span>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="col-auto d-flex gap-2">
+                        <a asp-action="Edit" asp-route-id="@parent.Id"
+                           class="btn btn-outline-danger btn-sm px-4 fw-bold"
+                           style="border-color: #FF4F5A; color: #FF4F5A; border-radius: 4px;">
+                            Edit
+                        </a>
+
+                        <form asp-action="Delete" asp-route-id="@parent.Id" method="post" onsubmit="return confirm('Bu kategoriyi silmek istediğinize emin misiniz?')">
+                            <button type="submit" class="btn btn-outline-danger btn-sm px-3 fw-bold"
+                                    style="border-color: #FF4F5A; color: #FF4F5A; border-radius: 4px;">
+                                Delete
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
 </div>
+
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Poppins:wght@600&family=Source+Sans+Pro:wght@400;600&display=swap" rel="stylesheet">
