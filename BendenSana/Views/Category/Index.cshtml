@@ -1,67 +1,80 @@
 ﻿@model IEnumerable<Category>
 
 @{
-    ViewData["Title"] = "Kategoriler";
+    ViewData["Title"] = "Tüm Kategoriler";
 }
 
-<div class="container mt-4">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <h2>Kategori Listesi</h2>
-        <a asp-action="Create" class="btn btn-success">+ Yeni Kategori</a>
+<div class="container mt-5 mb-5">
+    <div class="text-center">
+        <h2 class="fw-bold text-dark">Kategorilere Göz At</h2>
+        <p class="text-muted">
+            İlgini çeken kategoriyi seç ve alışverişe başla.
+        </p>
     </div>
-
-    <table class="table table-hover table-bordered shadow-sm bg-white">
-        <thead class="table-dark">
-            <tr>
-                <th style="width: 100px;">Görsel</th>
-                <th>Kategori Adı</th>
-                <th>Türü</th>
-                <th style="width: 200px;">İşlemler</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var parent in Model)
-            {
-                <tr class="table-light">
-                    <td>
-                        @if (!string.IsNullOrEmpty(parent.ImageUrl))
-                        {
-                            <img src="@parent.ImageUrl" width="50" height="50" style="object-fit:cover; border-radius:5px;" />
-                        }
-                    </td>
-                    <td class="fw-bold text-primary">@parent.Name</td>
-                    <td><span class="badge bg-primary">Ana Kategori</span></td>
-                    <td>
-                        <a asp-action="Edit" asp-route-id="@parent.Id" class="btn btn-sm btn-warning">Düzenle</a>
-                        <a asp-action="Delete" asp-route-id="@parent.Id" class="btn btn-sm btn-danger" onclick="return confirm('Bu kategoriyi ve alt kategorilerini silmek istediğine emin misin?');">Sil</a>
-                    </td>
-                </tr>
-
-                @if (parent.Children != null && parent.Children.Any())
-                {
-                    foreach (var child in parent.Children)
-                    {
-                        <tr>
-                            <td>
-                                <div style="margin-left: 20px;">
-                                    @if (!string.IsNullOrEmpty(child.ImageUrl))
-                                    {
-                                        <img src="@child.ImageUrl" width="40" height="40" style="object-fit:cover; border-radius:5px;" />
-                                    }
-                                </div>
-                            </td>
-                            <td>
-                                <span class="text-muted ms-3">↳ @child.Name</span>
-                            </td>
-                            <td><span class="badge bg-secondary">Alt Kategori</span></td>
-                            <td>
-                                <a asp-action="Edit" asp-route-id="@child.Id" class="btn btn-sm btn-outline-warning">Düzenle</a>
-                                <a asp-action="Delete" asp-route-id="@child.Id" class="btn btn-sm btn-outline-danger" onclick="return confirm('Silmek istediğine emin misin?');">Sil</a>
-                            </td>
-                        </tr>
-                    }
-                }
-            }
-        </tbody>
-    </table>
 </div>
+
+<div class="container mb-5">
+    <div class="row g-4 justify-content-center">
+        @foreach (var item in Model)
+        {
+            // Resim kontrolü (Yoksa placeholder)
+            var imgUrl = !string.IsNullOrEmpty(item.ImageUrl)
+            ? item.ImageUrl
+            : "https://placehold.co/400x300?text=" + item.Name;
+
+            <div class="col-6 col-md-4 col-lg-3">
+                <a asp-controller="Product"
+                   asp-action="Search"
+                   asp-route-SelectedCategoryIds="@item.Id"
+                   class="text-decoration-none">
+
+                    <div class="card h-100 border-0 shadow-sm category-card text-center">
+                        <div class="overflow-hidden rounded-top position-relative" style="height: 200px;">
+                            <img src="@imgUrl" class="w-100 h-100" style="object-fit: cover; transition: transform 0.3s ease;" alt="@item.Name">
+
+                            <div class="category-overlay">
+                                <span class="btn btn-light btn-sm fw-bold">Ürünleri Gör</span>
+                            </div>
+                        </div>
+
+                        <div class="card-body">
+                            <h5 class="card-title fw-bold text-dark mb-1">@item.Name</h5>
+                            @if (item.Children != null && item.Children.Any())
+                            {
+                                <small class="text-muted">@item.Children.Count alt kategori</small>
+                            }
+                            else
+                            {
+                                <small class="text-muted">Koleksiyonu Keşfet</small>
+                            }
+                        </div>
+                    </div>
+                </a>
+            </div>
+        }
+    </div>
+</div>
+
+<style>
+    .category-card:hover img {
+        transform: scale(1.1);
+    }
+
+    .category-card .category-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0,0,0,0.3);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .category-card:hover .category-overlay {
+        opacity: 1;
+    }
+</style>

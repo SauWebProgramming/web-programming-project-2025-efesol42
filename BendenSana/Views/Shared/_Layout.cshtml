@@ -26,7 +26,7 @@
                     <span class="bs-header__topbar-text">
                         Summer Sale For All Swim Suits And Free Express Delivery - OFF 50%!
                     </span>
-                    <a asp-controller="Product" asp-action="Index" class="bs-header__topbar-link ms-2">
+                    <a asp-controller="Product" asp-action="Search" class="bs-header__topbar-link ms-2">
                         ShopNow
                     </a>
                 </div>
@@ -59,9 +59,22 @@
 
                     <nav class="bs-header__nav d-none d-lg-flex align-items-center gap-4">
                         <a asp-controller="Home" asp-action="Index" class="bs-header__navlink">Ana Sayfa</a>
+
+                        <a asp-controller="Product" asp-action="Search" class="bs-header__navlink">Ürünler</a>
+
+                        <a asp-controller="Category" asp-action="Index" class="bs-header__navlink">Kategoriler</a>
+
                         <a asp-controller="Home" asp-action="Contact" class="bs-header__navlink">Bize Ulaşın</a>
                         <a asp-controller="Home" asp-action="About" class="bs-header__navlink">Hakkımızda</a>
-                        <a asp-controller="Account" asp-action="Login" class="bs-header__navlink fw-semibold">Giriş Yap</a>
+
+                        @if (SignInManager.IsSignedIn(User))
+                        {
+                            <a asp-controller="Profile" asp-action="Index" class="bs-header__navlink fw-semibold">Hesabım</a>
+                        }
+                        else
+                        {
+                            <a asp-controller="Account" asp-action="Login" class="bs-header__navlink fw-semibold">Giriş Yap</a>
+                        }
                     </nav>
 
                     <div class="d-flex align-items-center gap-3">
