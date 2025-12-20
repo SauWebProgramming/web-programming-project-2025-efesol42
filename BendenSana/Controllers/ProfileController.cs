@@ -23,7 +23,7 @@ namespace BendenSana.Controllers
         public async Task<IActionResult> EditProfile()
         {
             var user = await _userManager.GetUserAsync(User);
-            if (user == null) return RedirectToAction("Login", "Account");
+            if (user == null) return RedirectToAction("Index", "Account");
 
             var model = new EditProfileViewModel
             {

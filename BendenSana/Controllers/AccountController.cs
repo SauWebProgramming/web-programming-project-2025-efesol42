@@ -17,6 +17,12 @@ namespace BendenSana.Controllers
             _signInManager = signInManager;
         }
 
+        [HttpGet]
+        public IActionResult Index()
+        {
+            return View();
+        }
+
         // 1. LOGIN SAYFASI
         [HttpGet]
         public IActionResult Login()
