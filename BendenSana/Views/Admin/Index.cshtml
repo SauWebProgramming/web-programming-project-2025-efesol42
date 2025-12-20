@@ -1,120 +1,114 @@
-﻿@model List<Order>
-
+﻿@using BendenSana.ViewModels
 @{
     ViewData["Title"] = "Admin Dashboard";
+    var topSellers = ViewBag.TopSellers as List<SellerListViewModel>;
     Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
 }
 
-<div class="container-fluid py-4">
-    <h3 class="mb-4 fw-bold text-dark">Panel Özeti</h3>
+<div class="container-fluid py-4 bg-light">
+    <div class="mb-4">
+        <div class="d-flex align-items-center gap-2 mb-2">
+            <div style="width: 15px; height: 35px; background: #DB4444; border-radius: 4px"></div>
+            <span class="text-danger fw-bold">Öne Çıkan</span>
+        </div>
+        <h2 class="fw-bold">Web Sitede Satış Faaliyetleri</h2>
+    </div>
 
-    <div class="row mb-4">
-        <div class="col-xl-3 col-sm-6 mb-4">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <p class="text-muted mb-1 text-uppercase small fw-bold">Toplam Ciro</p>
-                            <h4 class="mb-0 text-success fw-bold">@(((decimal)ViewBag.TotalSales).ToString("C0"))</h4>
-                        </div>
-                        <div class="bg-success bg-opacity-10 p-3 rounded-circle text-success">
-                            <i class="bi bi-wallet2 fs-3"></i>
-                        </div>
-                    </div>
-                </div>
+    <div class="row g-4 mb-5">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm p-4" style="border-radius: 20px; height: 450px;">
+                <h5 class="fw-bold mb-4">Satış Geliri (TL)</h5>
+                <canvas id="salesChart"></canvas>
             </div>
         </div>
 
-        <div class="col-xl-3 col-sm-6 mb-4">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <p class="text-muted mb-1 text-uppercase small fw-bold">Üye Sayısı</p>
-                            <h4 class="mb-0 fw-bold">@ViewBag.TotalUsers</h4>
-                        </div>
-                        <div class="bg-primary bg-opacity-10 p-3 rounded-circle text-primary">
-                            <i class="bi bi-people fs-3"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-xl-3 col-sm-6 mb-4">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <p class="text-muted mb-1 text-uppercase small fw-bold">Toplam Ürün</p>
-                            <h4 class="mb-0 fw-bold">@ViewBag.TotalProducts</h4>
-                        </div>
-                        <div class="bg-warning bg-opacity-10 p-3 rounded-circle text-warning">
-                            <i class="bi bi-box-seam fs-3"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-xl-3 col-sm-6 mb-4">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <p class="text-muted mb-1 text-uppercase small fw-bold">Siparişler</p>
-                            <h4 class="mb-0 fw-bold">@ViewBag.TotalOrders</h4>
-                        </div>
-                        <div class="bg-danger bg-opacity-10 p-3 rounded-circle text-danger">
-                            <i class="bi bi-bag-check fs-3"></i>
-                        </div>
-                    </div>
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm p-4" style="border-radius: 20px; height: 450px;">
+                <h5 class="fw-bold mb-4">Ülke Bazlı Ziyaretler</h5>
+                <div class="table-responsive">
+                    <table class="table align-middle">
+                        <thead class="table-light text-uppercase small">
+                            <tr>
+                                <th>Ülke</th>
+                                <th>Değer</th>
+                                <th>SEO</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><span class="me-2">🇺🇸</span> United States</td>
+                                <td class="fw-bold">31,200</td>
+                                <td class="text-success">40%</td>
+                            </tr>
+                            <tr>
+                                <td><span class="me-2">🇬🇧</span> United Kingdom</td>
+                                <td class="fw-bold">12,700</td>
+                                <td class="text-success">47%</td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="card border-0 shadow-sm">
-        <div class="card-header bg-white py-3">
-            <h6 class="mb-0 fw-bold">Son Gelen Siparişler</h6>
+    <div class="mb-4 pt-4">
+        <div class="d-flex align-items-center gap-2 mb-2">
+            <div style="width: 15px; height: 35px; background: #DB4444; border-radius: 4px"></div>
+            <span class="text-danger fw-bold">Öne Çıkan</span>
         </div>
-        <div class="table-responsive">
-            <table class="table align-middle mb-0">
-                <thead class="bg-light">
-                    <tr>
-                        <th class="ps-3">Sipariş Kodu</th>
-                        <th>Alıcı</th>
-                        <th>Tutar</th>
-                        <th>Durum</th>
-                        <th>Tarih</th>
-                        <th></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @if (Model != null && Model.Any())
-                    {
-                        @foreach (var item in Model)
-                        {
-                            <tr>
-                                <td class="ps-3 fw-bold">@item.OrderCode</td>
-                                <td>@item.Buyer?.UserName</td>
-                                <td class="text-success fw-bold">@item.TotalPrice.ToString("C")</td>
-                                <td><span class="badge bg-secondary">@item.Status</span></td>
-                                <td class="text-muted small">@item.CreatedAt.ToString("dd.MM.yyyy HH:mm")</td>
-                                <td>
-                                    <a asp-controller="Order" asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary">Detay</a>
-                                </td>
-                            </tr>
-                        }
-                    }
-                    else
-                    {
-                        <tr>
-                            <td colspan="6" class="text-center py-4 text-muted">Henüz hiç sipariş yok.</td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
-        </div>
+        <h2 class="fw-bold">En Çok Satan Satıcılar</h2>
+    </div>
+
+    <div class="row g-4">
+        @if (topSellers != null)
+        {
+            foreach (var seller in topSellers)
+            {
+                <div class="col-md-4 text-center">
+                    <div class="card border-0 shadow-sm overflow-hidden mb-3" style="border-radius: 4px; background: #F5F5F5;">
+                        <div class="p-5">
+                            <img src="https://ui-avatars.com/api/?name=@seller.FullName&background=random&size=200" 
+                                 class="img-fluid rounded shadow-sm" style="max-height: 300px;" alt="@seller.FullName">
+                        </div>
+                    </div>
+                    <h3 class="h4 fw-bold mb-1">@seller.FullName</h3>
+                    <p class="text-muted mb-0">@seller.Email</p>
+                    <span class="badge bg-dark mt-2">@seller.ProductCount İlan</span>
+                </div>
+            }
+        }
     </div>
 </div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        const ctx = document.getElementById('salesChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: @Html.Raw(Json.Serialize(ViewBag.ChartLabels)),
+                datasets: [{
+                    label: 'Günlük Kazanç',
+                    data: @Html.Raw(Json.Serialize(ViewBag.ChartValues)),
+                    borderColor: '#6366F1',
+                    backgroundColor: 'rgba(99, 102, 241, 0.1)',
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 5,
+                    pointBackgroundColor: '#6366F1'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { beginAtZero: true, grid: { display: false } },
+                    x: { grid: { display: false } }
+                }
+            }
+        });
+    </script>
+}

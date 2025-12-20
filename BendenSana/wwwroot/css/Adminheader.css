@@ -1,4 +1,6 @@
-﻿/* Wrapper */
+﻿
+
+/* Wrapper */
 .adm-topbar {
     width: 100%;
     background: transparent;
@@ -70,6 +72,7 @@
 /* ---- Layout Shell ---- */
 .adm-shell{
   display: flex;
+  justify-content:center;
   min-height: 100vh;
   background: #f8f9fa;
 }
@@ -96,11 +99,12 @@
 }
 
 /* ---- Content ---- */
-.adm-content{
-  flex: 1;
-  min-width: 0;
-  padding: 24px;
-  transition: margin-left .28s ease;
+.adm-content {
+    flex: 1;
+    max-width: 90vw;
+    min-width: 0;
+    padding: 24px;
+    transition: margin-left .28s ease;
 }
 
 /* İstersen içerik de sola kayarak boşluğu kapatsın */

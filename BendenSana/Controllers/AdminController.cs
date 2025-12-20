@@ -23,21 +23,60 @@ namespace BendenSana.Controllers
         // ==========================================
         public async Task<IActionResult> Index()
         {
-           
-            
+            // 1. TEMEL İSTATİSTİKLER
+            // SQLite decimal Sum() desteklemediği için veriyi belleğe çekip topluyoruz
+            var allOrderPrices = await _context.Set<Order>()
+                                               .Select(o => o.TotalPrice)
+                                               .ToListAsync();
 
-            var allPrices = await _context.Set<Order>()
-                                          .Select(o => o.TotalPrice)
-                                          .ToListAsync();
-
-            ViewBag.TotalSales = allPrices.Sum(); 
-
-           
+            ViewBag.TotalSales = allOrderPrices.Sum();
             ViewBag.TotalOrders = await _context.Set<Order>().CountAsync();
             ViewBag.TotalUsers = await _userManager.Users.CountAsync();
             ViewBag.TotalProducts = await _context.Set<Product>().CountAsync();
 
-           
+            // 2. GRAFİK VERİSİ (Son 12 Günün Satış Faaliyetleri)
+            var startDateLimit = DateTime.Now.AddDays(-11);
+
+            // Verileri ham halde çekiyoruz (SQLite kısıtlamaları nedeniyle gruplama bellekte yapılacak)
+            var chartOrders = await _context.Set<Order>()
+                .Select(o => new { o.CreatedAt, o.TotalPrice })
+                .ToListAsync();
+
+            var chartData = chartOrders
+            .GroupBy(o => o.CreatedAt.Date) // CreatedAt zaten DateTime olduğu için direkt .Date kullanıyoruz
+            .Select(g => new {
+                Date = g.Key,
+                Total = g.Sum(o => o.TotalPrice)
+            })
+            .Where(d => d.Date >= startDateLimit.Date)
+            .OrderBy(g => g.Date)
+            .ToList();
+
+            ViewBag.ChartLabels = chartData.Select(d => d.Date.ToString("dd MMM")).ToList();
+            ViewBag.ChartValues = chartData.Select(d => d.Total).ToList();
+
+            // 3. EN ÇOK SATAN SATICILAR (Görseldeki 3'lü yapı için)
+            // Önce ham veriyi çekip sonra ViewModel'e dönüştürmek SQLite için daha güvenlidir
+            var topSellersData = await _userManager.Users
+                .Select(u => new {
+                    u.Id,
+                    FullName = u.FirstName + " " + u.LastName,
+                    u.Email,
+                    ProductCount = _context.Set<Product>().Count(p => p.SellerId == u.Id)
+                })
+                .OrderByDescending(s => s.ProductCount)
+                .Take(3)
+                .ToListAsync();
+
+            ViewBag.TopSellers = topSellersData.Select(s => new SellerListViewModel
+            {
+                Id = s.Id,
+                FullName = s.FullName,
+                Email = s.Email,
+                ProductCount = s.ProductCount
+            }).ToList();
+
+            // 4. SON SİPARİŞLER (Alt kısımdaki tablo için)
             var recentOrders = await _context.Set<Order>()
                                              .Include(o => o.Buyer)
                                              .OrderByDescending(o => o.CreatedAt)
@@ -50,10 +89,24 @@ namespace BendenSana.Controllers
         // ========================
         // SATICILARI LİSTELEME
         // ========================
-        public async Task<IActionResult> Sellers()
+        // AdminController.cs
+        public async Task<IActionResult> Sellers(string search, int page = 1)
         {
-            // Tüm kullanıcıları getir
-            var users = await _userManager.Users.ToListAsync();
+            int pageSize = 10; // Her sayfada 10 satıcı
+            var query = _userManager.Users.AsQueryable();
+
+            // Arama filtresi
+            if (!string.IsNullOrEmpty(search))
+            {
+                query = query.Where(u => u.FirstName.Contains(search) || u.LastName.Contains(search) || u.Email.Contains(search));
+            }
+
+            var totalSellers = await query.CountAsync();
+            var users = await query
+                .OrderBy(u => u.Id)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
 
             var model = new List<SellerListViewModel>();
 
@@ -64,11 +117,15 @@ namespace BendenSana.Controllers
                     Id = user.Id,
                     FullName = $"{user.FirstName} {user.LastName}",
                     Email = user.Email,
-                    // Şimdilik statik, ileride Address tablosundan çekilebilir
-                    Address = "İstanbul, Türkiye",
+                    Address = "İstanbul, Türkiye", // Gerçek adres verisi varsa u.Address yazılabilir
                     ProductCount = _context.Set<Product>().Count(p => p.SellerId == user.Id)
                 });
             }
+
+            // View tarafında sayfalama için gerekli veriler
+            ViewBag.CurrentPage = page;
+            ViewBag.TotalPages = (int)Math.Ceiling((double)totalSellers / pageSize);
+            ViewBag.SearchTerm = search;
 
             return View(model);
         }
