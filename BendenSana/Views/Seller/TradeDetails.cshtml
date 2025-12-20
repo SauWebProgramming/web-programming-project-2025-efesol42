@@ -1,0 +1,138 @@
+﻿@model global::TradeOffer
+@using BendenSana.Models.ViewModels
+@{
+    Layout = "~/Views/Shared/_LayoutSeller.cshtml";
+    var mainProduct = ViewBag.RequestedProduct as ProductViewModel;
+    var offeredItems = ViewBag.OfferedItems as List<ProductViewModel>;
+}
+
+<div class="container-fluid py-4" style="font-family: 'Inter', sans-serif;">
+    <div class="mb-4">
+        <div class="d-flex align-items-center gap-2 mb-2">
+            <div style="width: 15px; height: 35px; background: #DB4444; border-radius: 4px"></div>
+            <span class="text-danger fw-bold">Featured</span>
+        </div>
+        <h2 class="fw-bold">Trade Details</h2>
+    </div>
+    <h1 class="mb-4 fw-bold">#@Model.TradeCode - Takas Detayı</h1>
+
+    <div class="card border-0 shadow-sm mb-4" style="border-radius: 20px; overflow: hidden; background: white;">
+        <div class="p-3 border-bottom ps-4">
+            <h5 style="font-family: 'Plus Jakarta Sans'; font-weight: 700; font-size: 16.7px; margin: 0;">Basic info</h5>
+        </div>
+        <div class="card-body p-0">
+            <div class="row mx-0 border-bottom py-3 align-items-center">
+                <div class="col-md-3 fw-medium ps-4">Partner</div>
+                <div class="col-md-9 text-dark">
+                    <strong>@Model.Offerer.FirstName @Model.Offerer.LastName</strong><br />
+                    <small class="text-muted">@Model.Offerer.Email</small>
+                </div>
+            </div>
+            <div class="row mx-0 border-bottom py-2">
+                <div class="col-md-3 fw-medium ps-4">Trade Name</div>
+                <div class="col-md-9 text-muted">Takas Teklifi #@Model.Id</div>
+            </div>
+            <div class="row mx-0 border-bottom py-2">
+                <div class="col-md-3 fw-medium ps-4">Date</div>
+                <div class="col-md-9 text-muted">@Model.CreatedAt.ToString("dd/MM/yyyy HH:mm")</div>
+            </div>
+            <div class="row mx-0 border-bottom py-2">
+                <div class="col-md-3 fw-medium ps-4">Cash Adjustment</div>
+                <div class="col-md-9 fw-bold text-success">@(Model.OfferedCashAmount?.ToString("C") ?? "$0.00")</div>
+            </div>
+            <div class="row mx-0 border-bottom py-3">
+                <div class="col-md-3 fw-medium ps-4">Partner's Message</div>
+                <div class="col-md-9 text-muted small" style="line-height: 1.6;">@Model.OffererMessage</div>
+            </div>
+
+            <form asp-action="SaveTradeState" method="post" class="row mx-0 py-4 bg-light bg-opacity-10 align-items-center">
+                <input type="hidden" name="id" value="@Model.Id" />
+                <div class="col-md-3 fw-medium ps-4 text-primary">Current Status</div>
+                <div class="col-md-6">
+                    <select name="status" class="form-select shadow-none" style="height: 50px; border-radius: 8px;">
+                        @foreach (var status in Enum.GetValues(typeof(TradeOfferStatus)))
+                        {
+                            <option value="@status" selected="@(Model.Status == (TradeOfferStatus)status)">@status</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <button type="submit" class="btn text-white w-75" style="background: #6366F1; border-radius: 10px; height: 45px; font-weight: 600;">Save Status</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm mb-3" style="border-radius: 20px; overflow: hidden; background: white;">
+        <div class="p-3 bg-light bg-opacity-50 ps-4">
+            <h6 class="fw-bold m-0 text-uppercase small text-secondary">İstenilen Ürün (Senin Ürünün)</h6>
+        </div>
+        <div class="table-responsive">
+            <table class="table align-middle mb-0">
+                <tbody>
+                    @if (mainProduct != null)
+                    {
+                        <tr style="height: 100px;">
+                            <td class="ps-4">
+                                <div class="d-flex align-items-center gap-3">
+                                    <img src="@mainProduct.CoverImageUrl" style="width: 80px; height: 80px; border-radius: 8px; object-fit: cover;">
+                                    <div>
+                                        <div class="fw-bold text-dark">@mainProduct.Title</div>
+                                        <div class="text-muted small">@mainProduct.CategoryName</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="fw-bold">@mainProduct.Price.ToString("C")</td>
+                            <td class="text-end pe-4">
+                                <a asp-controller="Product" asp-action="Details" asp-route-id="@mainProduct.Id" class="btn btn-sm btn-outline-primary">İncele</a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="text-center my-n3 position-relative" style="z-index: 5;">
+        <div class="d-inline-flex align-items-center justify-content-center shadow"
+             style="width: 54px; height: 54px; background: #878E9F; border-radius: 50%; border: 4px solid #fcfcfc;">
+            <i class="bi bi-arrow-down-up text-white fs-5"></i>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm mt-3" style="border-radius: 20px; overflow: hidden; background: white;">
+        <div class="p-3 bg-light bg-opacity-50 ps-4">
+            <h6 class="fw-bold m-0 text-uppercase small text-secondary">Sana Teklif Edilen Ürünler</h6>
+        </div>
+        <div class="table-responsive">
+            <table class="table align-middle mb-0">
+                <thead class="bg-light bg-opacity-10">
+                    <tr style="font-size: 11px; color: #6C737F;">
+                        <th class="ps-4 py-3">ÜRÜN ADI</th>
+                        <th>FİYAT</th>
+                        <th class="text-end pe-4">AKSİYON</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in offeredItems)
+                    {
+                        <tr style="height: 90px; border-bottom: 1px solid #F2F4F7;">
+                            <td class="ps-4">
+                                <div class="d-flex align-items-center gap-3">
+                                    <img src="@item.CoverImageUrl" style="width: 60px; height: 60px; border-radius: 8px; object-fit: cover;">
+                                    <div class="fw-medium text-dark">@item.Title</div>
+                                </div>
+                            </td>
+                            <td class="fw-bold">@item.Price.ToString("C")</td>
+                            <td class="text-end pe-4">
+                                <a asp-controller="Product" asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-light border">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

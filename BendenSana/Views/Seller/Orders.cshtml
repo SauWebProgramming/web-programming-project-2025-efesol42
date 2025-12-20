@@ -1,0 +1,87 @@
+﻿@using BendenSana.Models.ViewModels
+@model IEnumerable<OrderViewModel>
+@{
+    Layout = "~/Views/Shared/_LayoutSeller.cshtml";
+    int pageSize = 5;
+    int startRange = ((int)ViewBag.CurrentPage - 1) * pageSize + 1;
+    int endRange = Math.Min(startRange + pageSize - 1, (int)ViewBag.TotalOrders);
+}
+
+<div class="container-fluid py-4" style="font-family: 'Inter', sans-serif;">
+    <div class="mb-4">
+        <div class="d-flex align-items-center gap-2 mb-2">
+            <div style="width: 15px; height: 35px; background: #DB4444; border-radius: 4px"></div>
+            <span class="text-danger fw-bold">Featured</span>
+        </div>
+        <h2 class="fw-bold">Orders</h2>
+    </div>
+    <div class="card border-0 shadow-sm" style="border-radius: 20px; overflow: hidden; background: white;">
+
+        <form method="get" asp-action="Orders" class="border-bottom p-3">
+            <div class="row align-items-center">
+                <div class="col-md-8 d-flex align-items-center gap-3">
+                    <i class="bi bi-search text-muted"></i>
+                    <input type="text" name="search" value="@ViewBag.CurrentSearch" class="form-control border-0 shadow-none" placeholder="Search by Order code or status...">
+                </div>
+                <div class="col-md-4 d-flex justify-content-end align-items-center gap-2">
+                    <span class="text-muted small">Sort By</span>
+                    <select name="sortBy" onchange="this.form.submit()" class="form-select border-0 fw-bold" style="width: auto;">
+                        <option value="newest" selected="@(ViewBag.CurrentSort == "newest")">Newest</option>
+                        <option value="last_day" selected="@(ViewBag.CurrentSort == "last_day")">Last Day</option>
+                        <option value="last_week" selected="@(ViewBag.CurrentSort == "last_week")">Last Week</option>
+                    </select>
+                </div>
+            </div>
+        </form>
+
+        <div class="table-responsive">
+            <table class="table align-middle mb-0">
+                <tbody>
+                    @foreach (var order in Model)
+                    {
+
+                        <tr onclick="location.href='@Url.Action("OrderDetails", "Seller", new { id = order.Id })'" style="height: 100px; border-bottom: 1px solid #F2F4F7;cursor:pointer">
+                                <td class="ps-4" style="width: 40px;"><i class="bi bi-chevron-right text-muted"></i></td>
+                                <td style="width: 100px;">
+                                    <div style="width: 44px; height: 58px; background: #E5E7EB; border-radius: 12px;" class="d-flex flex-column align-items-center justify-content-center mx-auto">
+                                        <span style="font-size: 12px; font-weight: 600; color: #111927;">@order.CreatedAt.ToString("MMM").ToUpper()</span>
+                                        <span style="font-family: 'Plus Jakarta Sans'; font-weight: 700; font-size: 18px; color: #111927;">@order.CreatedAt.Day</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="d-flex flex-column">
+                                        <span style="color: #111927; font-weight: 600; font-size: 15px;">#@order.OrderCode</span>
+                                        <span style="color: #6C737F; font-size: 14px;">Your Total: <b>@order.SellerTotal.ToString("C")</b></span>
+                                    </div>
+                                </td>
+                                <td class="text-end pe-5">
+                                    @{
+                                        string badgeStyle = order.Status switch
+                                        {
+                                            "Delivered" => "background: rgba(16, 185, 129, 0.12); color: #0B815A;",
+                                            "Shipped" => "background: rgba(247, 144, 9, 0.12); color: #B54708;",
+                                            _ => "background: rgba(6, 174, 212, 0.12); color: #0E7090;"
+                                        };
+                                    }
+                                    <span class="badge px-3 py-2 rounded-pill" style="@badgeStyle font-weight: 600; text-transform: uppercase; font-size: 11px;">
+                                        @order.Status
+                                    </span>
+                                </td>
+                            </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <div class="p-3 d-flex justify-content-end align-items-center gap-4 border-top" style="font-size: 14px;">
+            <span class="text-muted">Rows per page: <b>@pageSize</b></span>
+            <span>@startRange - @endRange of @ViewBag.TotalOrders</span>
+            <div class="d-flex gap-3">
+                <a asp-action="Orders" asp-route-page="@(ViewBag.CurrentPage - 1)" asp-route-search="@ViewBag.CurrentSearch" asp-route-sortBy="@ViewBag.CurrentSort"
+                   class="bi bi-chevron-left text-dark @(ViewBag.CurrentPage <= 1 ? "opacity-25 pe-none" : "")"></a>
+                <a asp-action="Orders" asp-route-page="@(ViewBag.CurrentPage + 1)" asp-route-search="@ViewBag.CurrentSearch" asp-route-sortBy="@ViewBag.CurrentSort"
+                   class="bi bi-chevron-right text-dark @(ViewBag.CurrentPage >= ViewBag.TotalPages ? "opacity-25 pe-none" : "")"></a>
+            </div>
+        </div>
+    </div>
+</div>

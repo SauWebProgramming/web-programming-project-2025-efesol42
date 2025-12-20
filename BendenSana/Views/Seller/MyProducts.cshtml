@@ -1,0 +1,136 @@
+﻿@model IEnumerable<global::Product>
+@{
+    Layout = "~/Views/Shared/_LayoutSeller.cshtml";
+    int pageSize = 5;
+    int startRange = ((int)ViewBag.CurrentPage - 1) * pageSize + 1;
+    int endRange = Math.Min(startRange + pageSize - 1, (int)ViewBag.TotalItems);
+}
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Plus+Jakarta+Sans:wght@700&display=swap" rel="stylesheet">
+
+<div class="container-fluid py-4" style="background-color: #fcfcfc; font-family: 'Inter', sans-serif;">
+
+    <div class="mb-4">
+        <div class="d-flex align-items-center gap-2 mb-2">
+            <div style="width: 15px; height: 35px; background: #DB4444; border-radius: 4px"></div>
+            <span class="text-danger fw-bold">Featured</span>
+        </div>
+        <h2 class="fw-bold">My Products</h2>
+    </div>
+
+    <div class="card border-0 shadow-sm mb-4" style="border-radius: 20px; overflow: hidden; background: white;">
+        <form method="get" asp-action="MyProducts" id="filterForm">
+            <div class="p-3 border-bottom d-flex align-items-center gap-3">
+                <i class="bi bi-search text-muted ms-2"></i>
+                <input type="text" name="search" value="@ViewBag.CurrentSearch"
+                       class="form-control border-0 shadow-none" placeholder="Search by keywords..."
+                       onchange="this.form.submit()">
+
+                
+            </div>
+
+            <div class="p-2 bg-white d-flex gap-3 px-3 border-bottom">
+                <select name="categoryId" class="form-select border-0 fw-bold shadow-none" style="width: auto;" onchange="this.form.submit()">
+                    <option value="">Category</option>
+                    @foreach (var cat in ViewBag.Categories)
+                    {
+                        <option value="@cat.Id">@cat.Name</option>
+                    }
+                </select>
+
+                <select name="status" class="form-select border-0 fw-bold shadow-none" style="width: auto;" onchange="this.form.submit()">
+                    <option value="">Status</option>
+                    <option value="published">PUBLISHED</option>
+                    <option value="blocked">ENGELLENDİ</option>
+                </select>
+
+                <select name="gender" class="form-select border-0 fw-bold shadow-none" style="width: auto;" onchange="this.form.submit()">
+                    <option value="">Gender</option>
+                    <option value="Male">Erkek</option>
+                    <option value="Female">Kadın</option>
+                    <option value="Kids">Çocuk</option>
+                    <option value="Unisex">Herkes Icin</option>
+                </select>
+            </div>
+        </form>
+
+        <div class="table-responsive">
+            <table class="table align-middle mb-0">
+                <thead style="background: #F8F9FA;">
+                    <tr style="font-size: 12px; color: #2F3746; text-transform: uppercase; font-weight: 600;">
+                        <th class="ps-4"></th>
+                        <th>Name</th>
+                        <th>Price</th>
+                        <th>Kategori</th>
+                        <th>Gender</th>
+                        <th>Status</th>
+                        <th class="text-end pe-4">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr style="height: 110px; border-bottom: 1.11px solid #F2F4F7;">
+                            <td class="ps-4"><i class="bi bi-chevron-right text-muted"></i></td>
+                            <td>
+                                <div class="d-flex align-items-center gap-3">
+                                    <img src="@(item.Images?.FirstOrDefault()?.ImageUrl ?? "https://placehold.co/80x80")"
+                                         style="width: 80px; height: 80px; border-radius: 8px; object-fit: cover;">
+                                    <div>
+                                        <div class="fw-bold" style="color: #111927;">@item.Title</div>
+                                        <div class="text-muted small">in @item.Category?.Name</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="fw-medium">@item.Price.ToString("C")</td>
+                            <td>@item.Category?.Name</td>
+                            <td>@item.Gender</td>
+                            <td>
+                                @if (item.Status.ToString().ToLower() == "published")
+                                {
+                                    <span class="badge" style="background: rgba(16, 185, 129, 0.12); color: #0B815A; padding: 6px 12px; border-radius: 12px;">PUBLISHED</span>
+                                }
+                                else
+                                {
+                                    <span class="badge" style="background: rgba(240, 68, 56, 0.12); color: #B42318; padding: 6px 12px; border-radius: 12px;">ENGELLENDİ</span>
+                                }
+                            </td>
+                            <td class="text-end pe-4">
+                                <div class="d-flex justify-content-end gap-2">
+                                    <a asp-controller="Product" asp-action="Details" asp-route-id="@item.Id" class="btn btn-outline-secondary rounded-2 p-2 px-3 border-light shadow-sm">
+                                        <i class="bi bi-box-arrow-up-right"></i>
+                                    </a>
+                                    <a asp-controller="Product" asp-action="Edit" asp-route-id="@item.Id" class="btn btn-outline-secondary rounded-2 p-2 px-3 border-light shadow-sm">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+                                    <form asp-controller="Product" asp-action="Delete" asp-route-id="@item.Id" method="post" onsubmit="return confirm('Silmek istediğinize emin misiniz?')">
+                                        <button type="submit" class="btn btn-outline-secondary rounded-2 p-2 px-3 border-light shadow-sm">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <div class="p-3 d-flex align-items-center gap-4 border-top" style="font-size: 14px; color: #111927; justify-content: space-between;">
+            <a asp-controller="Product" asp-action="Create" class="btn btn-primary d-flex align-items-center gap-2 px-3"
+               style="background: #6366F1; border-radius: 12px; border:none; height: 40px;">
+                <i class="bi bi-plus-lg"></i> + Add
+            </a>
+            <div>
+                <span>Rows per page: <b class="ms-2">@pageSize</b></span>
+                <span>@startRange - @endRange of @ViewBag.TotalItems</span>
+                <div class="d-flex gap-3 ms-2">
+                    <a asp-action="MyProducts" asp-route-page="@(ViewBag.CurrentPage - 1)"
+                       class="bi bi-chevron-left text-dark @(ViewBag.CurrentPage <= 1 ? "opacity-25 pe-none" : "")"></a>
+                    <a asp-action="MyProducts" asp-route-page="@(ViewBag.CurrentPage + 1)"
+                       class="bi bi-chevron-right text-dark @(ViewBag.CurrentPage >= ViewBag.TotalPages ? "opacity-25 pe-none" : "")"></a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

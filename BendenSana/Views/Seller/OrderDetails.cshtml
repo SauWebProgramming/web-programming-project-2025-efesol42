@@ -1,0 +1,120 @@
+﻿@model global::Order
+@using BendenSana.Models.ViewModels
+@{
+    Layout = "~/Views/Shared/_LayoutSeller.cshtml";
+    var items = ViewBag.OrderItems as List<ProductViewModel>;
+}
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Plus+Jakarta+Sans:wght@700&display=swap" rel="stylesheet">
+
+<div class="container-fluid py-4" style="font-family: 'Inter', sans-serif; background-color: #fcfcfc;">
+    <div class="mb-4">
+        <div class="d-flex align-items-center gap-2 mb-2">
+            <div style="width: 15px; height: 35px; background: #DB4444; border-radius: 4px"></div>
+            <span class="text-danger fw-bold">Featured</span>
+        </div>
+        <h2 class="fw-bold">Order Details</h2>
+    </div>
+    <div class="mb-4">
+        <h1 style="font-family: 'Plus Jakarta Sans'; font-weight: 700; font-size: 33.3px; color: #111927;">#@Model.OrderCode</h1>
+    </div>
+
+    <div class="card border-0 shadow-sm mb-5" style="border-radius: 20px; overflow: hidden; background: white;">
+        <div class="p-4 border-bottom">
+            <h5 style="font-family: 'Plus Jakarta Sans'; font-weight: 700; font-size: 16.7px; margin: 0;">Basic info</h5>
+        </div>
+
+        <div class="card-body p-0">
+            <div class="row mx-0 border-bottom align-items-center py-3">
+                <div class="col-md-2 fw-medium ps-4">Customer</div>
+                <div class="col-md-10">
+                    <div class="fw-bold text-dark">@Model.Buyer.FirstName @Model.Buyer.LastName</div>
+                    <div class="text-muted small">
+                        @Model.Address?.AddressLine<br />
+                        @Model.Address?.City / @Model.Address?.Country
+                    </div>
+                </div>
+            </div>
+
+            <div class="row mx-0 border-bottom py-3">
+                <div class="col-md-2 fw-medium ps-4">ID</div>
+                <div class="col-md-10 text-muted small">@Model.BuyerId</div>
+            </div>
+
+            <div class="row mx-0 border-bottom py-3">
+                <div class="col-md-2 fw-medium ps-4">Date</div>
+                <div class="col-md-10 text-muted small">@Model.CreatedAt.ToString("dd/MM/yyyy HH:mm")</div>
+            </div>
+
+            <div class="row mx-0 border-bottom py-3">
+                <div class="col-md-2 fw-medium ps-4">Total Amount</div>
+                <div class="col-md-10 text-muted small fw-bold">@Model.TotalPrice.ToString("C")</div>
+            </div>
+
+            <form asp-action="UpdateStatus" method="post" class="row mx-0 py-4 align-items-center bg-light bg-opacity-10">
+                <input type="hidden" name="id" value="@Model.Id" />
+                <div class="col-md-2 fw-medium ps-4">Status</div>
+                <div class="col-md-7">
+                    <div class="position-relative">
+                        <label class="position-absolute px-2 bg-white" style="top: -10px; left: 12px; font-size: 11px; color: #6C737F; z-index: 1;">Status</label>
+                        <select name="status" class="form-select shadow-none border-secondary-subtle" style="height: 55px; border-radius: 8px; padding-top: 15px;">
+                            @foreach (var status in Enum.GetValues(typeof(OrderStatus)))
+                            {
+                                <option value="@status" selected="@(Model.Status == (OrderStatus)status)">@status</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <button type="submit" class="btn text-white w-100" style="background: #6366F1; height: 40px; border-radius: 12px; font-weight: 600;">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm" style="border-radius: 20px; overflow: hidden; background: white;">
+        <div class="p-4">
+            <h5 style="font-family: 'Plus Jakarta Sans'; font-weight: 700; font-size: 16.7px; margin: 0;">Order items</h5>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table align-middle mb-0">
+                <thead style="background: #F8F9FA;">
+                    <tr style="font-size: 12px; color: #2F3746; text-transform: uppercase; font-weight: 600;">
+                        <th class="ps-4"></th>
+                        <th>Name</th>
+                        <th>Price</th>
+                        <th>Kategori</th>
+                        <th class="text-end pe-4">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in items)
+                    {
+                        <tr style="height: 110px; border-bottom: 1.11px solid #F2F4F7;">
+                            <td class="ps-4"><i class="bi bi-chevron-right text-muted"></i></td>
+                            <td>
+                                <div class="d-flex align-items-center gap-3">
+                                    <img src="@item.CoverImageUrl" style="width: 80px; height: 80px; border-radius: 8px; object-fit: cover;">
+                                    <div>
+                                        <div class="fw-bold" style="color: #111927; font-size: 14px;">@item.Title</div>
+                                        <div class="text-muted small">@item.Description</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="fw-medium">@item.Price.ToString("C")</td>
+                            <td>
+                                <span class="badge bg-light text-dark border">@item.CategoryName</span>
+                            </td>
+                            <td class="text-end pe-4">
+                                <a asp-controller="Product" asp-action="Details" asp-route-id="@item.Id" class="btn btn-outline-secondary rounded-2">
+                                    <i class="bi bi-box-arrow-up-right"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
