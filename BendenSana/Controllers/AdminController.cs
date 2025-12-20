@@ -227,6 +227,15 @@ namespace BendenSana.Controllers
                 return RedirectToAction("Sellers");
             }
         }
+        public async Task<IActionResult> Category()
+        {
+            var categories = await _context.Categories
+                                           .Include(c => c.Children)
+                                           .Where(c => c.ParentId == null)
+                                           .AsNoTracking() // Sadece okuma yaptığımız için performans artırır
+                                           .ToListAsync();
+            return View(categories);
+        }
 
         // ========================
         //  SATICI DETAY SAYFASI

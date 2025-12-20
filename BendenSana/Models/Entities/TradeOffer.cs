@@ -21,7 +21,9 @@ using System.ComponentModel.DataAnnotations.Schema;
         [Required, MaxLength(50)]
         public string TradeCode { get; set; } = Guid.NewGuid().ToString().Substring(0, 8).ToUpper();
 
-        
+        [Required]
+        public int ProductId { get; set; }
+        [ForeignKey(nameof(ProductId))]
         [Required]
         public string OffererId { get; set; } = default!;
         [ForeignKey(nameof(OffererId))]
@@ -44,5 +46,5 @@ using System.ComponentModel.DataAnnotations.Schema;
         public decimal? OfferedCashAmount { get; set; }
 
   
-    public virtual ICollection<TradeItem> Items { get; set; } = new List<TradeItem>();
-}
+        public virtual ICollection<TradeItem> Items { get; set; } = new List<TradeItem>();
+    }

@@ -798,6 +798,9 @@ namespace BendenSana.Migrations
                     b.Property<string>("OffererMessage")
                         .HasColumnType("TEXT");
 
+                    b.Property<int>("ProductId")
+                        .HasColumnType("INTEGER");
+
                     b.Property<string>("ReceiverId")
                         .IsRequired()
                         .HasColumnType("TEXT");

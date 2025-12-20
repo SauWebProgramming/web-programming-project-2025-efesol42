@@ -32,8 +32,7 @@
                                 <div class="form-check">
                                     <input class="form-check-input" type="checkbox" name="SelectedCategoryIds"
                                            value="@cat.Id" id="cat_@cat.Id"
-                                    @(Model.SelectedCategoryIds.Contains(cat.Id) ? "checked" : "")
-                                           onchange="this.form.submit()">
+                                    @(Model.SelectedCategoryIds.Contains(cat.Id) ? "checked" : "")>
                                     <label class="form-check-label fw-semibold" for="cat_@cat.Id">
                                         @cat.Name
                                     </label>
@@ -46,8 +45,7 @@
                                             <div class="form-check">
                                                 <input class="form-check-input" type="checkbox" name="SelectedCategoryIds"
                                                        value="@child.Id" id="cat_@child.Id"
-                                                @(Model.SelectedCategoryIds.Contains(child.Id) ? "checked" : "")
-                                                       onchange="this.form.submit()">
+                                                @(Model.SelectedCategoryIds.Contains(child.Id) ? "checked" : "")>
                                                 <label class="form-check-label text-muted small" for="cat_@child.Id">
                                                     @child.Name
                                                 </label>
@@ -67,8 +65,7 @@
                                 <div class="form-check">
                                     <input class="form-check-input" type="checkbox" name="SelectedGenders"
                                            value="@gender" id="g_@gender"
-                                    @(Model.SelectedGenders.Contains(gender) ? "checked" : "")
-                                           onchange="this.form.submit()">
+                                    @(Model.SelectedGenders.Contains(gender) ? "checked" : "")>
                                     <label class="form-check-label" for="g_@gender">@gender</label>
                                 </div>
                             }
@@ -78,9 +75,9 @@
                     <div class="mb-4 border-bottom pb-4">
                         <h6 class="fw-bold mb-3">Fiyat Aralığı</h6>
                         <div class="d-flex gap-2 align-items-center">
-                            <input type="number" asp-for="MinPrice" class="form-control form-control-sm" placeholder="Min" onblur="this.form.submit()">
+                            <input type="number" asp-for="MinPrice" class="form-control form-control-sm" placeholder="Min">
                             <span>-</span>
-                            <input type="number" asp-for="MaxPrice" class="form-control form-control-sm" placeholder="Max" onblur="this.form.submit()">
+                            <input type="number" asp-for="MaxPrice" class="form-control form-control-sm" placeholder="Max">
                         </div>
                     </div>
 
@@ -90,16 +87,19 @@
                             @foreach (var color in Model.AllColors)
                             {
                                 var isChecked = Model.SelectedColorIds.Contains(color.Id);
-                                var borderStyle = isChecked ? "2px solid #000" : "1px solid #ddd";
+                                // Sayfa yüklendiğinde seçili olanların kenarlığı siyah olsun
+                                var initialBorder = isChecked ? "2px solid #000" : "1px solid #ddd";
                                 var hex = !string.IsNullOrEmpty(color.HexCode) ? color.HexCode : "#ccc";
 
-                                <label style="cursor: pointer;" title="@color.Name">
-                                    <input type="checkbox" name="SelectedColorIds" value="@color.Id" class="d-none"
-                                    @(isChecked ? "checked" : "") onchange="this.form.submit()">
+                                <label style="cursor: pointer;" title="@color.Name" class="position-relative">
+                                    <input type="checkbox" name="SelectedColorIds" value="@color.Id"
+                                           class="d-none btn-color-select"
+                                    @(isChecked ? "checked" : "")>
 
-                                    <div class="rounded-circle"
-                                         style="width: 32px; height: 32px; background-color: @hex; border: @borderStyle;">
+                                    <div class="rounded-circle color-circle-visual"
+                                         style="width: 32px; height: 32px; background-color: @hex; border: @initialBorder; transition: border 0.2s ease;">
                                     </div>
+
                                     <div class="text-center mt-1" style="font-size: 10px; max-width: 32px; overflow: hidden; white-space: nowrap;">
                                         @color.Name
                                     </div>
@@ -108,7 +108,11 @@
                         </div>
                     </div>
 
-                    <a href="@Url.Action("Search", "Product")" class="btn btn-outline-dark w-100 btn-sm mt-3">Filtreleri Temizle</a>
+                    <div class="d-grid gap-2 mt-4">
+                        <button type="submit" class="btn btn-dark">Filtreleri Uygula</button>
+                        <a href="@Url.Action("Search", "Product")" class="btn btn-outline-secondary btn-sm">Temizle</a>
+                    </div>
+
                 </div>
             </div>
 
@@ -164,7 +168,15 @@
                                         {
                                             <span class="text-muted text-decoration-line-through small">$@item.OriginalPrice?.ToString("N0")</span>
                                         }
-                                    </div> 
+                                    </div>
+
+                                    @if (item.Color != null)
+                                    {
+                                        <div class="d-flex align-items-center gap-1 mt-2">
+                                            <div class="rounded-circle border" style="width: 10px; height: 10px; background-color: @(item.Color.HexCode ?? "#ccc")"></div>
+                                            <small class="text-muted" style="font-size: 11px;">@item.Color.Name</small>
+                                        </div>
+                                    }
                                 </div>
                             </div>
                         </div>
@@ -174,3 +186,30 @@
         </div>
     </form>
 </div>
+
+@section Scripts {
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            // Renk kutularını bul
+            const colorInputs = document.querySelectorAll(".btn-color-select");
+
+            colorInputs.forEach(function (input) {
+                // Her birine tıklama (change) olayı ekle
+                input.addEventListener("change", function () {
+                    // Inputun hemen yanındaki (görsel daire) elementini bul
+                    const circleDiv = this.nextElementSibling;
+
+                    if (this.checked) {
+                        // Seçildiyse: Siyah kalın çerçeve
+                        circleDiv.style.border = "2px solid #000";
+                        circleDiv.style.boxShadow = "0 0 4px rgba(0,0,0,0.3)";
+                    } else {
+                        // Seçim kalktıysa: Gri ince çerçeve
+                        circleDiv.style.border = "1px solid #ddd";
+                        circleDiv.style.boxShadow = "none";
+                    }
+                });
+            });
+        });
+    </script>
+}

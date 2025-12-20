@@ -18,13 +18,16 @@ namespace BendenSana.Controllers
         }
 
         // 1. KATEGORİ LİSTESİ 
+        // Mevcut Index metodunu bununla değiştir veya yoksa ekle:
         public async Task<IActionResult> Index()
         {
+            // Sadece Ana Kategorileri (ParentId'si olmayanları) listeliyoruz
             var categories = await _context.Categories
-                                           .Include(c => c.Children)
-                                           .Where(c => c.ParentId == null)
-                                           .AsNoTracking() // Sadece okuma yaptığımız için performans artırır
-                                           .ToListAsync();
+                .Where(c => c.ParentId == null)
+                .Include(c => c.Children) // Alt kategorisi varsa sayısını göstermek için
+                .AsNoTracking()
+                .ToListAsync();
+
             return View(categories);
         }
 
