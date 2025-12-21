@@ -1,4 +1,5 @@
 using BendenSana.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 
@@ -22,12 +23,14 @@ namespace BendenSana.Controllers
             return View();
         }
 
+        [Authorize(Roles = "Seller, User")]
         [HttpGet]
         public IActionResult Contact()
         {
             return View();
         }
 
+        [Authorize(Roles ="Seller, User")]        
         [HttpPost]
         public IActionResult Contact(string name, string email, string phone, string message)
         {

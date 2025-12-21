@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace BendenSana.Controllers
 {
 
-    [Authorize]
+    [Authorize(Roles = "User")]
     public class FavoriteController : Controller
     {
         private readonly IFavoriteRepository _favoriteRepo;

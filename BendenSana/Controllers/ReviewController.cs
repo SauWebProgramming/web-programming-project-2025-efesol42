@@ -25,6 +25,7 @@ namespace BendenSana.Controllers
         }
 
         // YORUM OLUŞTURMA
+        [Authorize(Roles="User")]
         [HttpPost]
         public async Task<IActionResult> Create(int productId, string comment, int rating)
         {
@@ -58,6 +59,7 @@ namespace BendenSana.Controllers
         }
 
         // YORUM SİLME
+        [Authorize(Roles ="Admin")]
         [HttpPost]
         public async Task<IActionResult> Delete(int id)
         {

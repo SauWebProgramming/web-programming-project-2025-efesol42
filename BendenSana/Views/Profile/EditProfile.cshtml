@@ -143,16 +143,36 @@
                 <div class="account-sidebar-title">Manage My Account</div>
 
                 <a href="@Url.Action("EditProfile", "Profile")" class="account-sidebar-link active">My Profile</a>
-                <a href="@Url.Action("Index","Address")" class="account-sidebar-link">Address Book</a>
+                @if (User.IsInRole("User"))
+                {
+                    <a href="@Url.Action("Index","Address")" class="account-sidebar-link">Address Book</a>
                 <a href="@Url.Action("Index","Payment")" class="account-sidebar-link">My Payment Options</a>
+                }
             </div>
 
             <div>
                 <div class="account-sidebar-title">My Orders</div>
+               
+                @if (User.IsInRole("User"))
+                {
+                    <a href="@Url.Action("MyProducts", "Product")" class="account-sidebar-link">Takas Ürünlerim</a>
+                }
+                @if (!User.IsInRole("Admin"))
+                {
 
-                <a href="@Url.Action("Index", "Order")" class="account-sidebar-link">Siparişlerim</a>
-                <a href="@Url.Action("MyProducts", "Product")" class="account-sidebar-link">Takas Ürünlerim</a>
-                <a href="@Url.Action("Index", "Trade")" class="account-sidebar-link">Takas Tekliflerim</a>
+                    @if (User.IsInRole("Seller"))
+                    {
+                        <a href="@Url.Action("Orders", "Seller")" class="account-sidebar-link">Siparişlerim</a>
+                        <a href="@Url.Action("Trades", "Seller")" class="account-sidebar-link">Takas Tekliflerim</a>
+                    }
+
+                    @if (User.IsInRole("User"))
+                    {
+                        <a href="@Url.Action("Index", "Order")" class="account-sidebar-link">Siparişlerim</a>
+                        <a href="@Url.Action("Index", "Trade")" class="account-sidebar-link">Takas Tekliflerim</a>
+                    }
+          
+               }
             </div>
         </div>
 

@@ -217,7 +217,9 @@
                 </div>
             </div>
 
-            <div class="d-flex flex-column gap-3 mb-4">
+            @if (!User.IsInRole("Admin") && !User.IsInRole("Seller"))
+            {
+                <div class="d-flex flex-column gap-3 mb-4">
                 <form asp-controller="Cart" asp-action="AddToCart" method="post" class="d-flex gap-3">
                     <input type="hidden" name="productId" value="@Model.Id" />
 
@@ -245,6 +247,7 @@
                     </a>
                 </div>
             </div>
+            }
 
             <div class="delivery-box mt-4">
                 <div class="delivery-item">

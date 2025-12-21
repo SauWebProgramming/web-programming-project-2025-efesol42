@@ -64,7 +64,10 @@
 
                         <a asp-controller="Category" asp-action="Index" class="bs-header__navlink">Kategoriler</a>
 
-                        <a asp-controller="Home" asp-action="Contact" class="bs-header__navlink">Bize Ulaşın</a>
+                        @if (!User.IsInRole("Admin"))
+                        {
+                            <a asp-controller="Home" asp-action="Contact" class="bs-header__navlink">Bize Ulaşın</a>
+                        }
                         <a asp-controller="Home" asp-action="About" class="bs-header__navlink">Hakkımızda</a>
 
                         @if (SignInManager.IsSignedIn(User))

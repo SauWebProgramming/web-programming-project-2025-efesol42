@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BendenSana.Controllers
 {
-    // [Authorize(Roles = "Admin")] // Canlıya alırken mutlaka açın
+     [Authorize(Roles = "Admin")] 
     public class AdminController : Controller
     {
         private readonly IAdminRepository _adminRepo;

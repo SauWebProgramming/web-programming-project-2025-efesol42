@@ -20,6 +20,13 @@ namespace BendenSana.Controllers
         [HttpGet]
         public IActionResult Index()
         {
+         
+            if (User.Identity.IsAuthenticated)
+            {
+              
+                return RedirectToAction("EditProfile", "Profile");
+            }
+
             return View();
         }
 
@@ -39,6 +46,17 @@ namespace BendenSana.Controllers
                 var result = await _signInManager.PasswordSignInAsync(user, password, false, false);
                 if (result.Succeeded)
                 {
+                    if (User.IsInRole("Seller"))
+                    {
+
+                        return RedirectToAction("Index", "Seller");
+                    }
+                    if (User.IsInRole("Admin"))
+                    {
+
+                        return RedirectToAction("Index", "Admin");
+                    }
+
                     return RedirectToAction("Index", "Home");
                 }
             }

@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BendenSana.Controllers
 {
-    [Authorize]
+    [Authorize(Roles ="User, Seller")]
     public class TradeController : Controller
     {
         private readonly ITradeRepository _tradeRepo;
@@ -20,6 +20,7 @@ namespace BendenSana.Controllers
             _userManager = userManager;
         }
 
+        [Authorize(Roles ="User")]
         [HttpGet]
         public async Task<IActionResult> Create(int targetProductId)
         {
@@ -44,6 +45,7 @@ namespace BendenSana.Controllers
             return View(myProducts);
         }
 
+        [Authorize(Roles = "User")]
         [HttpPost]
         public async Task<IActionResult> Create(int targetProductId, List<int> offeredProductIds, decimal? offeredCash, string message)
         {
@@ -101,6 +103,7 @@ namespace BendenSana.Controllers
             return View(trades);
         }
 
+        [Authorize(Roles="Seller")]
         [HttpPost]
         public async Task<IActionResult> Accept(int id)
         {
@@ -126,6 +129,7 @@ namespace BendenSana.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        [Authorize(Roles="Seller")]
         [HttpPost]
         public async Task<IActionResult> Reject(int id)
         {

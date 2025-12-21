@@ -129,4 +129,97 @@ using (var scope = app.Services.CreateScope())
 }
 // ------------------------------------------------------------
 
-app.Run(); // Bu satýr zaten vardý, kodlarý bunun ÜZERÝNE yapýþtýr.
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    try
+    {
+        var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
+        var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
+
+        // 1. Rolleri Tanýmla (Eðer yoksa oluþturur)
+        string[] roleNames = { "Admin", "Seller", "User" };
+        foreach (var roleName in roleNames)
+        {
+            if (!await roleManager.RoleExistsAsync(roleName))
+            {
+                await roleManager.CreateAsync(new IdentityRole(roleName));
+            }
+        }
+
+        // ==========================================
+        // 2. ADMIN KULLANICISI OLUÞTUR
+        // ==========================================
+        var adminEmail = "admin@bendensana.com";
+        var adminUser = await userManager.FindByEmailAsync(adminEmail);
+        if (adminUser == null)
+        {
+            adminUser = new ApplicationUser
+            {
+                UserName = adminEmail,
+                Email = adminEmail,
+                EmailConfirmed = true,
+                FirstName = "Sistem",
+                LastName = "Yöneticisi"
+            };
+            var createResult = await userManager.CreateAsync(adminUser, "Admin123!");
+            if (createResult.Succeeded)
+            {
+                await userManager.AddToRoleAsync(adminUser, "Admin");
+            }
+        }
+
+        // ==========================================
+        // 3. SATICI (SELLER) KULLANICISI OLUÞTUR
+        // ==========================================
+        var sellerEmail = "seller@bendensana.com";
+        var sellerUser = await userManager.FindByEmailAsync(sellerEmail);
+        if (sellerUser == null)
+        {
+            sellerUser = new ApplicationUser
+            {
+                UserName = sellerEmail,
+                Email = sellerEmail,
+                EmailConfirmed = true,
+                FirstName = "Test",
+                LastName = "Satýcý"
+            };
+            var createResult = await userManager.CreateAsync(sellerUser, "Seller123!"); // Þifreye dikkat
+            if (createResult.Succeeded)
+            {
+                await userManager.AddToRoleAsync(sellerUser, "Seller");
+            }
+        }
+
+        // ==========================================
+        // 4. NORMAL KULLANICI (USER) OLUÞTUR
+        // ==========================================
+        var userEmail = "user@bendensana.com";
+        var normalUser = await userManager.FindByEmailAsync(userEmail);
+        if (normalUser == null)
+        {
+            normalUser = new ApplicationUser
+            {
+                UserName = userEmail,
+                Email = userEmail,
+                EmailConfirmed = true,
+                FirstName = "Test",
+                LastName = "Kullanýcý"
+            };
+            var createResult = await userManager.CreateAsync(normalUser, "User123!"); // Þifreye dikkat
+            if (createResult.Succeeded)
+            {
+                await userManager.AddToRoleAsync(normalUser, "User");
+            }
+        }
+
+    }
+    catch (Exception ex)
+    {
+        var logger = services.GetRequiredService<ILogger<Program>>();
+        logger.LogError(ex, "Roller ve kullanýcýlar oluþturulurken hata meydana geldi.");
+    }
+}
+
+
+app.Run(); 

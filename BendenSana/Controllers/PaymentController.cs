@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BendenSana.Controllers
 {
-    [Authorize]
+    [Authorize(Roles ="User")]
     public class PaymentController : Controller
     {
         private readonly UserManager<ApplicationUser> _userManager;

@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BendenSana.Controllers
 {
-    [Authorize]
+    [Authorize(Roles = "Seller")]
     public class SellerController : Controller
     {
         private readonly ISellerRepository _sellerRepo;

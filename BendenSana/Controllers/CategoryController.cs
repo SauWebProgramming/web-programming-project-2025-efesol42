@@ -1,5 +1,6 @@
 ﻿using BendenSana.Models.Repositories;
 using BendenSana.Repositories;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -23,6 +24,7 @@ namespace BendenSana.Controllers
             return View(categories);
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpGet]
         public async Task<IActionResult> Create()
         {
@@ -30,7 +32,7 @@ namespace BendenSana.Controllers
             ViewBag.Parents = new Microsoft.AspNetCore.Mvc.Rendering.SelectList(parents, "Id", "Name");
             return View();
         }
-
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Category category, IFormFile? imageFile)
@@ -46,6 +48,7 @@ namespace BendenSana.Controllers
             return RedirectToAction("Category", "Admin");
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpGet]
         public async Task<IActionResult> Edit(int id)
         {
@@ -57,6 +60,7 @@ namespace BendenSana.Controllers
             return View(category);
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, Category category, IFormFile? imageFile)
@@ -92,6 +96,7 @@ namespace BendenSana.Controllers
             return View(category);
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         public async Task<IActionResult> Delete(int id)
         {
