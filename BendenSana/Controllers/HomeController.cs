@@ -1,5 +1,6 @@
 using BendenSana.Models;
 using Microsoft.AspNetCore.Authorization;
+using BendenSana.Models.Repositories;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 
@@ -7,15 +8,18 @@ namespace BendenSana.Controllers
 {
     public class HomeController : Controller
     {
+        private readonly IProductRepository _productRepo;
 
-        public HomeController()
+        public HomeController(IProductRepository productRepo)
         {
+            _productRepo = productRepo;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-
-            return View();
+            // Ana sayfa için son 6 ürünü getiriyoruz
+            var products = await _productRepo.GetHomeProductsAsync(6);
+            return View(products);
         }
 
         public IActionResult About()

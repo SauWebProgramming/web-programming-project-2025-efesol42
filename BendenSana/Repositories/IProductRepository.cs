@@ -18,6 +18,7 @@ namespace BendenSana.Models.Repositories
         Task AddReportAsync(ProductReport report);
         Task<bool> IsFavoriteAsync(string userId, int productId);
         Task SaveChangesAsync();
+        Task<List<Product>> GetHomeProductsAsync(int count);
     }
 
     public class ProductRepository : IProductRepository
@@ -87,5 +88,15 @@ namespace BendenSana.Models.Repositories
         public async Task<bool> IsFavoriteAsync(string userId, int productId) =>
             await _context.Favorites.AnyAsync(f => f.UserId == userId && f.ProductId == productId);
         public async Task SaveChangesAsync() => await _context.SaveChangesAsync();
+        public async Task<List<Product>> GetHomeProductsAsync(int count)
+        {
+            return await _context.Products
+                .Include(p => p.Images)
+                .Include(p => p.Seller)
+                .Where(p => p.Status == ProductStatus.published) // Sadece yayında olanlar
+                .OrderByDescending(p => p.CreatedAt) // En yeni en üstte
+                .Take(count)
+                .ToListAsync();
+        }
     }
 }
