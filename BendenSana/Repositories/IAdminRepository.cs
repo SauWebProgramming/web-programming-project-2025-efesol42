@@ -23,6 +23,7 @@ namespace BendenSana.Repositories
         Task<bool> DismissReportAsync(int id);
         Task<bool> BanProductAsync(int reportId);
         Task<(List<Category> Categories, int TotalCount)> GetPagedCategoriesAsync(string search, int page, int pageSize);
+        Task<SellerDetailsViewModel?> GetSellerDetailsAsync(string userId);
     }
 
     public class AdminRepository : IAdminRepository
@@ -184,6 +185,32 @@ namespace BendenSana.Repositories
                 .ToListAsync();
 
             return (categories, totalCount);
+        }
+        public async Task<SellerDetailsViewModel?> GetSellerDetailsAsync(string userId)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null) return null;
+
+            // Satıcının ürünlerini detaylarıyla getiriyoruz
+            var products = await _context.Set<Product>()
+                .Include(p => p.Images)
+                .Include(p => p.Category)
+                .Where(p => p.SellerId == userId)
+                .OrderByDescending(p => p.CreatedAt)
+                .ToListAsync();
+
+            // Satıcının toplam kaç satış yaptığını (OrderItem üzerinden) hesaplıyoruz
+            // Not: SQLite Sum kısıtlaması nedeniyle CountAsync veya SumAsync kontrolü yapılır
+            var totalSalesCount = await _context.Set<OrderItem>()
+                .Where(oi => oi.SellerId == userId)
+                .CountAsync();
+
+            return new SellerDetailsViewModel
+            {
+                User = user,
+                Products = products,
+                TotalSalesCount = totalSalesCount
+            };
         }
     }
 }

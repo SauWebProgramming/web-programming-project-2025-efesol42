@@ -17,7 +17,7 @@ public class ApplicationUser : IdentityUser
     // SQL'de created_at vardý
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
-    public string Address { get; set; } 
+    public string? Address { get; set; } 
 
     // Ýstersen (SQL’de role vardý) ama önerim: IdentityRole kullanýn
     // public UserRole? Role { get; set; }

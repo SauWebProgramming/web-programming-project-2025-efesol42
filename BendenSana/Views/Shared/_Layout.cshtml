@@ -69,11 +69,11 @@
 
                         @if (SignInManager.IsSignedIn(User))
                         {
-                            <a asp-controller="Profile" asp-action="Index" class="bs-header__navlink fw-semibold">Hesabım</a>
+                            <i></i>
                         }
                         else
                         {
-                            <a asp-controller="Account" asp-action="Login" class="bs-header__navlink fw-semibold">Giriş Yap</a>
+                            <a asp-controller="Account" asp-action="Index" class="bs-header__navlink fw-semibold">Giriş Yap</a>
                         }
                     </nav>
 
@@ -117,8 +117,8 @@
                                  class="bs-header__icon-img" />
                         </a>
 
-                        <a asp-controller="Profile"
-                           asp-action="EditProfile"
+                        <a asp-controller="Account"
+                           asp-action="Index"
                            class="bs-header__iconbtn"
                            aria-label="Profile">
                             <img src="~/icons/user.png"
@@ -202,7 +202,7 @@
                         <span class="bs-footer__title">Account</span>
                         <div class="d-flex flex-column gap-2">
                             <a asp-controller="Account" asp-action="Index" class="bs-footer__link">My Account</a>
-                            <a asp-controller="Account" asp-action="Login" class="bs-footer__link">Login / Register</a>
+                            <a asp-controller="Account" asp-action="Index" class="bs-footer__link">Login / Register</a>
                             <a asp-controller="Cart" asp-action="Index" class="bs-footer__link">Cart</a>
                             <a asp-controller="Favorite" asp-action="Index" class="bs-footer__link">Wishlist</a>
                             <a asp-controller="Product" asp-action="Index" class="bs-footer__link">Shop</a>

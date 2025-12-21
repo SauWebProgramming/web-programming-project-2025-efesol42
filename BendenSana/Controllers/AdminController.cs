@@ -129,5 +129,22 @@ namespace BendenSana.Controllers
 
             return View(categories);
         }
+        // ========================
+        //  SATICI DETAY SAYFASI
+        // ========================
+        [HttpGet]
+        public async Task<IActionResult> Details(string id)
+        {
+            if (string.IsNullOrEmpty(id))
+                return NotFound();
+
+            // Veriyi repository üzerinden çekiyoruz
+            var model = await _adminRepo.GetSellerDetailsAsync(id);
+
+            if (model == null)
+                return NotFound("Kullanıcı veya satıcı bilgileri bulunamadı.");
+
+            return View(model);
+        }
     }
 }
