@@ -102,7 +102,8 @@
                             </button>
                         </form>
 
-                        <a asp-controller="Favorite"
+                        @if (User.IsInRole("User"))
+                        { <a asp-controller="Favorite"
                            asp-action="Index"
                            class="bs-header__iconbtn"
                            aria-label="Favorites">
@@ -110,6 +111,7 @@
                                  alt="Favorites"
                                  class="bs-header__icon-img" />
                         </a>
+                        
 
                         <a asp-controller="Cart"
                            asp-action="Index"
@@ -119,7 +121,7 @@
                                  alt="Cart"
                                  class="bs-header__icon-img" />
                         </a>
-
+                        }
                         <a asp-controller="Account"
                            asp-action="Index"
                            class="bs-header__iconbtn"

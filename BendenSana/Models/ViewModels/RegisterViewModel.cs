@@ -16,5 +16,7 @@ namespace BendenSana.ViewModels
         [DataType(DataType.Password)]
         [MinLength(6, ErrorMessage = "Şifre en az 6 karakter olmalıdır.")]
         public string Password { get; set; }
+
+        public string UserRole { get; set; }
     }
 }
