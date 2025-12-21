@@ -1,4 +1,6 @@
 ﻿using BendenSana.Models;
+using BendenSana.Models.Repositories;
+using BendenSana.Repositories;
 using BendenSana.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -10,226 +12,91 @@ namespace BendenSana.Controllers
 {
     public class ProductController : Controller
     {
-        private readonly AppDbContext _context;
+        private readonly IProductRepository _productRepo;
+        private readonly ICategoryRepository _categoryRepo;
+        private readonly IFileService _fileService;
         private readonly UserManager<ApplicationUser> _userManager;
-        private readonly IWebHostEnvironment _webHostEnvironment;
+        private readonly AppDbContext _context; // Renkler vb. için geçici
 
-        public ProductController(
-            AppDbContext context,
-            UserManager<ApplicationUser> userManager,
-            IWebHostEnvironment webHostEnvironment)
+        public ProductController(IProductRepository productRepo, ICategoryRepository categoryRepo,
+                                 IFileService fileService, UserManager<ApplicationUser> userManager, AppDbContext context)
         {
-            _context = context;
+            _productRepo = productRepo;
+            _categoryRepo = categoryRepo;
+            _fileService = fileService;
             _userManager = userManager;
-            _webHostEnvironment = webHostEnvironment;
+            _context = context;
         }
 
-        // --- 1. GELİŞMİŞ ARAMA VE FİLTRELEME (Search Sayfası) ---
-        // Home sayfasındaki arama çubuğu buraya istek atacak: asp-controller="Product" asp-action="Search"
         [HttpGet]
         public async Task<IActionResult> Search(SearchViewModel model)
         {
-            // 1. Ana Sorgu
-            var query = _context.Products
-                .Include(p => p.Category)
-                .Include(p => p.Images)
-                .Include(p => p.Color)
-                .Where(p => p.Status == ProductStatus.available)
-                .AsQueryable();
-
-            // 2. Arama Kelimesi
-            if (!string.IsNullOrEmpty(model.SearchQuery))
-            {
-                var lowerQuery = model.SearchQuery.ToLower();
-                query = query.Where(p => p.Title.ToLower().Contains(lowerQuery) ||
-                                         p.Description.ToLower().Contains(lowerQuery));
-            }
-
-            // 3. Kategori Filtresi
-            if (model.SelectedCategoryIds != null && model.SelectedCategoryIds.Any())
-            {
-                query = query.Where(p => model.SelectedCategoryIds.Contains(p.CategoryId));
-            }
-
-            // 4. Renk Filtresi
-            if (model.SelectedColorIds != null && model.SelectedColorIds.Any())
-            {
-                query = query.Where(p => p.ColorId.HasValue && model.SelectedColorIds.Contains(p.ColorId.Value));
-            }
-
-            // 5. Cinsiyet Filtresi
-            if (model.SelectedGenders != null && model.SelectedGenders.Any())
-            {
-                query = query.Where(p => p.Gender.HasValue && model.SelectedGenders.Contains(p.Gender.Value));
-            }
-
-            // 6. Fiyat
-            if (model.MinPrice.HasValue) query = query.Where(p => p.Price >= model.MinPrice.Value);
-            if (model.MaxPrice.HasValue) query = query.Where(p => p.Price <= model.MaxPrice.Value);
-
-            // 7. Sıralama
-            query = model.SortBy switch
-            {
-                "price_asc" => query.OrderBy(p => p.Price),
-                "price_desc" => query.OrderByDescending(p => p.Price),
-                _ => query.OrderByDescending(p => p.CreatedAt)
-            };
-
-            // 8. Sonuçları Doldur
-            model.Products = await query.ToListAsync();
+            model.Products = await _productRepo.SearchProductsAsync(model);
             model.TotalResults = model.Products.Count;
-
-            // 9. View'ın hata vermemesi için Dropdownları Doldur (Çok Önemli)
-            model.AllCategories = await _context.Categories
-                .Where(c => c.ParentId == null)
-                .Include(c => c.Children)
-                .ToListAsync();
-
+            model.AllCategories = await _categoryRepo.GetParentCategoriesAsync();
             model.AllColors = await _context.Set<Color>().ToListAsync();
-
-            return View(model); // Views/Product/Search.cshtml sayfasına gider
+            return View(model);
         }
 
-        // --- 2. VARSAYILAN INDEX (İstersen Search'e yönlendir) ---
-        public IActionResult Index()
-        {
-            return RedirectToAction("Search");
-        }
+        public IActionResult Index() => RedirectToAction("Search");
 
-        // --- 3. SATICININ ÜRÜNLERİM SAYFASI ---
         [Authorize]
-        [HttpGet]
         public async Task<IActionResult> MyProducts()
         {
             var user = await _userManager.GetUserAsync(User);
-            if (user == null) return RedirectToAction("Login", "Account");
-
-            var myProducts = await _context.Products
-                .Include(p => p.Category)
-                .Include(p => p.Images)
-                .Where(p => p.SellerId == user.Id)
-                .OrderByDescending(p => p.CreatedAt)
-                .ToListAsync();
-
-            return View(myProducts);
+            return View(await _productRepo.GetMyProductsAsync(user.Id));
         }
 
-        // --- 4. ÜRÜN DETAY ---
         public async Task<IActionResult> Details(int id)
         {
-            var product = await _context.Products
-                .Include(p => p.Images)
-                .Include(p => p.Category)
-                .Include(p => p.Color)
-                .Include(p => p.Seller)
-                .Include(p => p.Reviews).ThenInclude(r => r.User)
-                .FirstOrDefaultAsync(p => p.Id == id);
-
+            var product = await _productRepo.GetDetailsAsync(id);
             if (product == null) return NotFound();
 
-            // Benzer Ürünler
-            var relatedProducts = await _context.Products
-                .Include(p => p.Images)
-                .Where(p => p.CategoryId == product.CategoryId && p.Id != id && p.Status == ProductStatus.available)
-                .OrderByDescending(p => p.CreatedAt)
-                .Take(4)
-                .ToListAsync();
-
-            ViewBag.RelatedProducts = relatedProducts;
-
-            // Favori Kontrolü
+            ViewBag.RelatedProducts = await _productRepo.GetRelatedProductsAsync(product.CategoryId, id, 4);
             var userId = _userManager.GetUserId(User);
-            ViewBag.IsFavorite = false;
-            if (userId != null)
-            {
-                ViewBag.IsFavorite = await _context.Favorites.AnyAsync(f => f.UserId == userId && f.ProductId == id);
-            }
+            ViewBag.IsFavorite = userId != null && await _productRepo.IsFavoriteAsync(userId, id);
 
             return View(product);
         }
 
-        // --- 5. YORUM EKLEME ---
-        [HttpPost]
-        [Authorize]
+        [HttpPost, Authorize]
         public async Task<IActionResult> AddReview(int productId, int? rating, string? comment)
         {
             var user = await _userManager.GetUserAsync(User);
-            var product = await _context.Products.FindAsync(productId);
-
+            var product = await _productRepo.GetByIdAsync(productId);
             if (product == null) return NotFound();
+
             if (product.SellerId == user.Id)
             {
                 TempData["Error"] = "Kendi ürününüze yorum yapamazsınız.";
                 return RedirectToAction("Details", new { id = productId });
             }
 
-            if (rating == null && string.IsNullOrWhiteSpace(comment))
-            {
-                TempData["Error"] = "Lütfen puan verin veya yorum yazın.";
-                return RedirectToAction("Details", new { id = productId });
-            }
-
-            var review = new Review
+            await _productRepo.AddReviewAsync(new Review
             {
                 ProductId = productId,
                 UserId = user.Id,
                 Rating = rating,
                 Comment = comment,
                 CreatedAt = DateTime.UtcNow
-            };
-
-            _context.Reviews.Add(review);
-            await _context.SaveChangesAsync();
-            TempData["Success"] = "Değerlendirmeniz eklendi.";
+            });
+            await _productRepo.SaveChangesAsync();
             return RedirectToAction("Details", new { id = productId });
         }
 
-        // --- 6. RAPORLAMA ---
-        [Authorize]
-        [HttpGet]
-        public IActionResult Report(int id)
+        [Authorize, HttpGet]
+        public async Task<IActionResult> Create()
         {
-            ViewBag.ProductId = id;
+            ViewBag.Categories = new SelectList(await _categoryRepo.GetAllAsync(), "Id", "Name");
             return View();
         }
 
-        [Authorize]
-        [HttpPost]
-        public async Task<IActionResult> Report(int productId, string reason, string description)
-        {
-            var user = await _userManager.GetUserAsync(User);
-            var report = new ProductReport
-            {
-                ProductId = productId,
-                ReporterId = user.Id,
-                Reason = reason,
-                Description = description,
-                Status = "pending",
-                CreatedAt = DateTime.UtcNow
-            };
-
-            _context.ProductReports.Add(report);
-            await _context.SaveChangesAsync();
-            TempData["Success"] = "Şikayetiniz alındı.";
-            return RedirectToAction("Details", new { id = productId });
-        }
-
-        // --- 7. YENİ ÜRÜN EKLEME ---
-        [Authorize]
-        [HttpGet]
-        public IActionResult Create()
-        {
-            ViewBag.Categories = new SelectList(_context.Categories, "Id", "Name");
-            return View();
-        }
-
-        [Authorize]
-        [HttpPost]
+        [Authorize, HttpPost]
         public async Task<IActionResult> Create(ProductCreateViewModel model)
         {
             if (!ModelState.IsValid)
             {
-                ViewBag.Categories = new SelectList(_context.Categories, "Id", "Name");
+                ViewBag.Categories = new SelectList(await _categoryRepo.GetAllAsync(), "Id", "Name");
                 return View(model);
             }
 
@@ -245,137 +112,36 @@ namespace BendenSana.Controllers
                 Status = ProductStatus.available
             };
 
-            _context.Products.Add(product);
-            await _context.SaveChangesAsync();
+            await _productRepo.AddAsync(product);
+            await _productRepo.SaveChangesAsync();
 
-            if (model.Photos != null && model.Photos.Count > 0)
+            if (model.Photos?.Any() == true)
             {
-                string uploadFolder = Path.Combine(_webHostEnvironment.WebRootPath, "images/products");
-                if (!Directory.Exists(uploadFolder)) Directory.CreateDirectory(uploadFolder);
-
                 foreach (var file in model.Photos)
                 {
-                    if (file.Length > 0)
-                    {
-                        string uniqueFileName = Guid.NewGuid().ToString() + "_" + file.FileName;
-                        string filePath = Path.Combine(uploadFolder, uniqueFileName);
-
-                        using (var fileStream = new FileStream(filePath, FileMode.Create))
-                        {
-                            await file.CopyToAsync(fileStream);
-                        }
-
-                        var productImage = new ProductImage
-                        {
-                            ProductId = product.Id,
-                            ImageUrl = "/images/products/" + uniqueFileName
-                        };
-                        _context.ProductImages.Add(productImage);
-                    }
+                    var url = await _fileService.UploadImageAsync(file, "images/products");
+                    await _productRepo.AddImageAsync(new ProductImage { ProductId = product.Id, ImageUrl = url });
                 }
-                await _context.SaveChangesAsync();
+                await _productRepo.SaveChangesAsync();
             }
 
-            TempData["Success"] = "İlanınız yayınlandı.";
-            return RedirectToAction("Index"); // Search sayfasına yönlendirir
+            return RedirectToAction("Search");
         }
 
-        // --- 8. DÜZENLEME (EDIT) ---
-        [Authorize]
-        [HttpGet]
-        public async Task<IActionResult> Edit(int id)
-        {
-            var product = await _context.Products.Include(p => p.Images).FirstOrDefaultAsync(p => p.Id == id);
-            if (product == null) return NotFound();
-
-            var user = await _userManager.GetUserAsync(User);
-            if (product.SellerId != user.Id && !User.IsInRole("Admin")) return Forbid();
-
-            var model = new ProductCreateViewModel
-            {
-                Id = product.Id,
-                Title = product.Title,
-                Description = product.Description,
-                Price = product.Price,
-                CategoryId = product.CategoryId,
-                ExistingImageUrls = product.Images.Select(i => i.ImageUrl).ToList()
-            };
-
-            ViewBag.Categories = new SelectList(_context.Categories, "Id", "Name", product.CategoryId);
-            return View(model);
-        }
-
-        [Authorize]
-        [HttpPost]
-        public async Task<IActionResult> Edit(ProductCreateViewModel model)
-        {
-            if (!ModelState.IsValid)
-            {
-                ViewBag.Categories = new SelectList(_context.Categories, "Id", "Name", model.CategoryId);
-                return View(model);
-            }
-
-            var product = await _context.Products.FindAsync(model.Id);
-            if (product == null) return NotFound();
-
-            var user = await _userManager.GetUserAsync(User);
-            if (product.SellerId != user.Id && !User.IsInRole("Admin")) return Forbid();
-
-            product.Title = model.Title;
-            product.Description = model.Description;
-            product.Price = model.Price;
-            product.CategoryId = model.CategoryId;
-
-            if (model.Photos != null && model.Photos.Count > 0)
-            {
-                string uploadFolder = Path.Combine(_webHostEnvironment.WebRootPath, "images/products");
-                if (!Directory.Exists(uploadFolder)) Directory.CreateDirectory(uploadFolder);
-
-                foreach (var file in model.Photos)
-                {
-                    if (file.Length > 0)
-                    {
-                        string uniqueFileName = Guid.NewGuid().ToString() + "_" + file.FileName;
-                        string filePath = Path.Combine(uploadFolder, uniqueFileName);
-                        using (var fileStream = new FileStream(filePath, FileMode.Create))
-                        {
-                            await file.CopyToAsync(fileStream);
-                        }
-                        var productImage = new ProductImage { ProductId = product.Id, ImageUrl = "/images/products/" + uniqueFileName };
-                        _context.ProductImages.Add(productImage);
-                    }
-                }
-            }
-            await _context.SaveChangesAsync();
-            TempData["Success"] = "Ürün güncellendi.";
-            return RedirectToAction("Details", new { id = product.Id });
-        }
-
-        // --- 9. SİLME (DELETE) ---
-        [Authorize]
-        [HttpPost]
+        [Authorize, HttpPost]
         public async Task<IActionResult> Delete(int id)
         {
-            var product = await _context.Products.Include(p => p.Images).FirstOrDefaultAsync(p => p.Id == id);
+            var product = await _productRepo.GetDetailsAsync(id);
             if (product == null) return NotFound();
 
             var user = await _userManager.GetUserAsync(User);
             if (product.SellerId != user.Id && !User.IsInRole("Admin")) return Forbid();
 
-            if (product.Images != null)
-            {
-                foreach (var img in product.Images)
-                {
-                    var filePath = Path.Combine(_webHostEnvironment.WebRootPath, img.ImageUrl.TrimStart('/'));
-                    if (System.IO.File.Exists(filePath)) System.IO.File.Delete(filePath);
-                }
-            }
+            foreach (var img in product.Images) _fileService.DeleteImage(img.ImageUrl);
 
-            _context.Products.Remove(product);
-            await _context.SaveChangesAsync();
-
-            TempData["Success"] = "Ürün silindi.";
-            return RedirectToAction("Index");
+            await _productRepo.DeleteAsync(product);
+            await _productRepo.SaveChangesAsync();
+            return RedirectToAction("Search");
         }
     }
 }

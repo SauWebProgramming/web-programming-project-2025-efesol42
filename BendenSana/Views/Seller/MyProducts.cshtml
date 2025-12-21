@@ -1,9 +1,15 @@
 ﻿@model IEnumerable<global::Product>
 @{
     Layout = "~/Views/Shared/_LayoutSeller.cshtml";
-    int pageSize = 5;
-    int startRange = ((int)ViewBag.CurrentPage - 1) * pageSize + 1;
-    int endRange = Math.Min(startRange + pageSize - 1, (int)ViewBag.TotalItems);
+    
+    // Değerlerin null gelme ihtimaline karşı güvenli cast işlemi
+    int currentPage = ViewBag.CurrentPage ?? 1;
+    int totalItems = ViewBag.TotalItems ?? 0;
+    int pageSize = 5; 
+
+    // Kaçıncı ürünler arasında olduğumuzu hesaplayan mantık
+    int startRange = totalItems == 0 ? 0 : ((currentPage - 1) * pageSize) + 1;
+    int endRange = Math.Min(currentPage * pageSize, totalItems);
 }
 
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Plus+Jakarta+Sans:wght@700&display=swap" rel="stylesheet">
@@ -98,14 +104,14 @@
                             <td class="text-end pe-4">
                                 <div class="d-flex justify-content-end gap-2">
                                     <a asp-controller="Product" asp-action="Details" asp-route-id="@item.Id" class="btn btn-outline-secondary rounded-2 p-2 px-3 border-light shadow-sm">
-                                        <i class="bi bi-box-arrow-up-right"></i>
+                                        <i class="bi bi-box-arrow-up-right">Detay</i>
                                     </a>
                                     <a asp-controller="Product" asp-action="Edit" asp-route-id="@item.Id" class="btn btn-outline-secondary rounded-2 p-2 px-3 border-light shadow-sm">
-                                        <i class="bi bi-pencil"></i>
+                                        <i class="bi bi-pencil">Duzenle</i>
                                     </a>
                                     <form asp-controller="Product" asp-action="Delete" asp-route-id="@item.Id" method="post" onsubmit="return confirm('Silmek istediğinize emin misiniz?')">
                                         <button type="submit" class="btn btn-outline-secondary rounded-2 p-2 px-3 border-light shadow-sm">
-                                            <i class="bi bi-trash"></i>
+                                            <i class="bi bi-trash">Sil</i>
                                         </button>
                                     </form>
                                 </div>

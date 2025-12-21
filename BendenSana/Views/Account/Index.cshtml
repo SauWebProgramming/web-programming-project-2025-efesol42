@@ -1,0 +1,125 @@
+﻿@{
+    ViewData["Title"] = "Rol Seç";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    .role-selection-container {
+        background-color: #F9FAFB;
+        min-height: 80vh;
+        padding: 48px 20px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 48px;
+    }
+
+    .role-card {
+        cursor: pointer;
+        /* Kutu ve resim büyüme hızı aynı olmalı */
+        transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        background: white;
+        border-radius: 20px;
+        border: 2px solid transparent;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        overflow: hidden;
+        box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+        /* Başlangıç Boyutu: Küçük */
+        width: 187px;
+        height: 340px;
+        position: relative;
+    }
+
+        /* Seçili kartın büyüyeceği boyut */
+        .role-card.selected {
+            border-color: #DB4444;
+            width: 600px;
+            height: 600px; /* Orantılı büyüme için yükseklik artırıldı */
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Resim Boyutlandırma */
+        .role-card img {
+            width: 100%;
+            height: 100%;
+            /* Resmin kutuyu tamamen kaplamasını ve oranını korumasını sağlar */
+            object-fit: cover;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+    .role-title-overlay {
+        position: absolute;
+        top: 20px;
+        left: 20px;
+        background: rgba(255, 255, 255, 0.9);
+        padding: 5px 15px;
+        border-radius: 10px;
+        font-family: 'Work Sans', sans-serif;
+        font-weight: 600;
+        color: #111827;
+        font-size: 16px;
+        z-index: 10;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .btn-continue {
+        background-color: #DB4444;
+        color: white;
+        padding: 14px 60px;
+        border-radius: 12px;
+        font-weight: 600;
+        border: none;
+        transition: all 0.3s;
+        font-size: 18px;
+        display: block;
+        margin-top: 20px;
+    }
+
+        .btn-continue:hover {
+            background-color: #b33636;
+            transform: scale(1.05);
+        }
+</style>
+
+<div class="role-selection-container">
+    <h2 class="text-center" style="font-family: 'Work Sans'; font-weight: 600; font-size: 32px;">Giriş Yapmak İçin Rolünü Seç</h2>
+
+    <div class="d-flex justify-content-center align-items-center gap-4 flex-wrap" style="min-height: 620px;">
+        <div class="role-card" id="adminCard" onclick="selectRole('Admin', this)">
+            <div class="role-title-overlay">Admin</div>
+            <img src="~/images/Account/admin.png" alt="Admin" />
+        </div>
+
+        <div class="role-card selected" id="userCard" onclick="selectRole('User', this)">
+            <div class="role-title-overlay">Kullanıcı</div>
+            <img src="~/images/Account/kullnaici.png" alt="Kullanıcı" />
+        </div>
+
+        <div class="role-card" id="sellerCard" onclick="selectRole('Seller', this)">
+            <div class="role-title-overlay">Satıcı</div>
+            <img src="~/images/Account/satici.png" alt="Satıcı" />
+        </div>
+    </div>
+
+    <form id="roleForm" asp-controller="Account" asp-action="Login" method="get">
+        <input type="hidden" name="role" id="selectedRoleInput" value="User" />
+        <button type="submit" id="continueBtn" class="btn-continue">Devam Et</button>
+    </form>
+</div>
+
+<script>
+    function selectRole(roleName, element) {
+        // Sınıf temizliği
+        document.querySelectorAll('.role-card').forEach(card => {
+            card.classList.remove('selected');
+        });
+
+        // Seçim ve efekt
+        element.classList.add('selected');
+        document.getElementById('selectedRoleInput').value = roleName;
+    }
+</script>
+
+<link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;600&display=swap" rel="stylesheet">

@@ -6,7 +6,55 @@
     ViewData["Title"] = "Arama Sonuçları";
 }
 
-<div class="container mt-5 mb-5">
+
+<style>
+    /* Kaydırma çubuğunu (Scrollbar) özelleştirme */
+    .category-scroll-container::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .category-scroll-container::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 10px;
+    }
+
+    .category-scroll-container::-webkit-scrollbar-thumb {
+        background: #ccc;
+        border-radius: 10px;
+    }
+
+        .category-scroll-container::-webkit-scrollbar-thumb:hover {
+            background: #db4444; /* Sitenin ana rengi ile uyumlu olsun */
+        }
+
+    @@media (min-width: 992px) { /* Sadece geniş ekranlarda (laptop/masaüstü) sticky olsun */
+        .sticky-filter
+
+    {
+        position: -webkit-sticky; /* Safari desteği */
+        position: sticky;
+        top: 120px; /* Üstten bırakılacak boşluk */
+        align-self: flex-start; /* Bootstrap row içindeki boyunu içeriğe göre ayarlar */
+        /* Opsiyonel: Eğer filtreler çok uzunsa panelin kendi içinde scroll olmasını sağlar */
+        max-height: 80vh;
+        overflow-y: auto;
+    }
+
+    /* Sticky panel içindeki scrollbar'ı daha şık yapalım */
+    .sticky-filter::-webkit-scrollbar {
+        width: 4px;
+    }
+
+    .sticky-filter::-webkit-scrollbar-thumb {
+        background: #eee;
+        border-radius: 10px;
+    }
+
+    }
+</style>
+
+
+<div class="container mt-1 mb-1">
     <div class="text-center">
         <h2 class="fw-bold text-dark">Arama Sonuçları</h2>
         <p class="text-muted">
@@ -20,55 +68,59 @@
 
         <input type="hidden" asp-for="SearchQuery" />
 
-        <div class="row">
-            <div class="col-lg-3 mb-4">
-                <div class="pe-lg-3">
+        <div class="row" >
+            <div class="col-lg-3 mb-4" >
+                <div class="pe-lg-3 sticky-filter" style="top: 120px;">
 
                     <div class="mb-4 border-bottom pb-4">
                         <h6 class="fw-bold mb-3">Kategoriler</h6>
-                        <div class="d-flex flex-column gap-2">
-                            @foreach (var cat in Model.AllCategories)
-                            {
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" name="SelectedCategoryIds"
-                                           value="@cat.Id" id="cat_@cat.Id"
-                                    @(Model.SelectedCategoryIds.Contains(cat.Id) ? "checked" : "")>
-                                    <label class="form-check-label fw-semibold" for="cat_@cat.Id">
-                                        @cat.Name
-                                    </label>
-                                </div>
-                                @if (cat.Children != null && cat.Children.Any())
+                        <div class="category-scroll-container" style="max-height: 150px; overflow-y: auto; padding-right: 10px;">
+                            <div class="d-flex flex-column gap-2">
+                                @foreach (var cat in Model.AllCategories)
                                 {
-                                    <div class="ms-4 d-flex flex-column gap-1">
-                                        @foreach (var child in cat.Children)
-                                        {
-                                            <div class="form-check">
-                                                <input class="form-check-input" type="checkbox" name="SelectedCategoryIds"
-                                                       value="@child.Id" id="cat_@child.Id"
-                                                @(Model.SelectedCategoryIds.Contains(child.Id) ? "checked" : "")>
-                                                <label class="form-check-label text-muted small" for="cat_@child.Id">
-                                                    @child.Name
-                                                </label>
-                                            </div>
-                                        }
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="SelectedCategoryIds"
+                                               value="@cat.Id" id="cat_@cat.Id"
+                                        @(Model.SelectedCategoryIds.Contains(cat.Id) ? "checked" : "")>
+                                        <label class="form-check-label fw-semibold" for="cat_@cat.Id">
+                                            @cat.Name
+                                        </label>
                                     </div>
+                                    @if (cat.Children != null && cat.Children.Any())
+                                    {
+                                        <div class="ms-4 d-flex flex-column gap-1">
+                                            @foreach (var child in cat.Children)
+                                            {
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" name="SelectedCategoryIds"
+                                                           value="@child.Id" id="cat_@child.Id"
+                                                    @(Model.SelectedCategoryIds.Contains(child.Id) ? "checked" : "")>
+                                                    <label class="form-check-label text-muted small" for="cat_@child.Id">
+                                                        @child.Name
+                                                    </label>
+                                                </div>
+                                            }
+                                        </div>
+                                    }
                                 }
-                            }
+                            </div>
                         </div>
                     </div>
 
                     <div class="mb-4 border-bottom pb-4">
                         <h6 class="fw-bold mb-3">Cinsiyet</h6>
-                        <div class="d-flex flex-column gap-2">
-                            @foreach (var gender in Enum.GetValues(typeof(ProductGender)).Cast<ProductGender>())
-                            {
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" name="SelectedGenders"
-                                           value="@gender" id="g_@gender"
-                                    @(Model.SelectedGenders.Contains(gender) ? "checked" : "")>
-                                    <label class="form-check-label" for="g_@gender">@gender</label>
-                                </div>
-                            }
+                        <div class="category-scroll-container" style="max-height: 50px; overflow-y: auto; padding-right: 10px;">
+                            <div class="d-flex flex-column gap-2">
+                                @foreach (var gender in Enum.GetValues(typeof(ProductGender)).Cast<ProductGender>())
+                                {
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="SelectedGenders"
+                                               value="@gender" id="g_@gender"
+                                               @(Model.SelectedGenders.Contains(gender) ? "checked" : "")>
+                                        <label class="form-check-label" for="g_@gender">@gender</label>
+                                    </div>
+                                }
+                            </div>
                         </div>
                     </div>
 
@@ -83,28 +135,30 @@
 
                     <div class="mb-4">
                         <h6 class="fw-bold mb-3">Renk</h6>
-                        <div class="d-flex flex-wrap gap-2">
-                            @foreach (var color in Model.AllColors)
-                            {
-                                var isChecked = Model.SelectedColorIds.Contains(color.Id);
-                                // Sayfa yüklendiğinde seçili olanların kenarlığı siyah olsun
-                                var initialBorder = isChecked ? "2px solid #000" : "1px solid #ddd";
-                                var hex = !string.IsNullOrEmpty(color.HexCode) ? color.HexCode : "#ccc";
+                        <div class="category-scroll-container" style="max-height: 50px; overflow-y: auto; padding-right: 10px;">
+                            <div class="d-flex flex-wrap gap-2">
+                                @foreach (var color in Model.AllColors)
+                                {
+                                    var isChecked = Model.SelectedColorIds.Contains(color.Id);
+                                    // Sayfa yüklendiğinde seçili olanların kenarlığı siyah olsun
+                                    var initialBorder = isChecked ? "2px solid #000" : "1px solid #ddd";
+                                    var hex = !string.IsNullOrEmpty(color.HexCode) ? color.HexCode : "#ccc";
 
-                                <label style="cursor: pointer;" title="@color.Name" class="position-relative">
-                                    <input type="checkbox" name="SelectedColorIds" value="@color.Id"
-                                           class="d-none btn-color-select"
-                                    @(isChecked ? "checked" : "")>
+                                    <label style="cursor: pointer;" title="@color.Name" class="position-relative">
+                                        <input type="checkbox" name="SelectedColorIds" value="@color.Id"
+                                               class="d-none btn-color-select"
+                                               @(isChecked ? "checked" : "")>
 
-                                    <div class="rounded-circle color-circle-visual"
-                                         style="width: 32px; height: 32px; background-color: @hex; border: @initialBorder; transition: border 0.2s ease;">
-                                    </div>
+                                        <div class="rounded-circle color-circle-visual"
+                                             style="width: 32px; height: 32px; background-color: @hex; border: @initialBorder; transition: border 0.2s ease;">
+                                        </div>
 
-                                    <div class="text-center mt-1" style="font-size: 10px; max-width: 32px; overflow: hidden; white-space: nowrap;">
-                                        @color.Name
-                                    </div>
-                                </label>
-                            }
+                                        <div class="text-center mt-1" style="font-size: 10px; max-width: 32px; overflow: hidden; white-space: nowrap;">
+                                            @color.Name
+                                        </div>
+                                    </label>
+                                }
+                            </div>
                         </div>
                     </div>
 
@@ -117,7 +171,7 @@
             </div>
 
             <div class="col-lg-9">
-                <div class="d-flex justify-content-between align-items-center mb-4">
+                <div class="d-flex justify-content-between align-items-center mb-4" style="position: sticky; top: 110px; background-color:white; z-index:30000; padding:20px">
                     <span class="text-muted">Toplam <strong>@Model.TotalResults</strong> ürün bulundu</span>
                     <div class="d-flex align-items-center gap-2">
                         <label class="small fw-bold text-nowrap">Sırala:</label>
