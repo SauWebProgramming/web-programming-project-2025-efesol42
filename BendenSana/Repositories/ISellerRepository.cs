@@ -27,6 +27,7 @@ namespace BendenSana.Models.Repositories
         Task<ProductViewModel?> GetTradeMainProductAsync(int productId);
         Task<List<ProductViewModel>> GetTradeOfferedItemsAsync(int tradeId);
 
+
         Task SaveChangesAsync();
     }
 

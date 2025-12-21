@@ -134,7 +134,7 @@
         @foreach (var item in Model)
         {
             <div class="col">
-                <div onclick="location.href='@Url.Action("Details", "Product", new { id = item.Id })'" class="card h-100 border-0 shadow-sm product-card overflow-hidden" style="width:30%;border-radius: 12px;">
+                <div onclick="location.href='@Url.Action("Details", "Product", new { id = item.Id })'" class="card h-100 border-0 shadow-sm product-card overflow-hidden" style="width:100%;border-radius: 12px;">
                     <div class="position-relative" style="height: 250px; background-color: #F5F5F5;">
                         @if (item.Images != null && item.Images.Any())
                         {
@@ -177,39 +177,65 @@
 @section Scripts {
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
+        // Tüm grafikler için ortak minimalist konfigürasyon
         const chartConfig = {
-            responsive: true, maintainAspectRatio: false,
+            responsive: true,
+            maintainAspectRatio: false,
             plugins: { legend: { display: false } },
-            scales: { x: { display: false }, y: { display: false } },
-            elements: { point: { radius: 0 }, line: { borderWeight: 3 } }
+            scales: {
+                x: { display: false },
+                y: { display: false, beginAtZero: false }
+            },
+            elements: {
+                point: { radius: 0 },
+                line: { borderWidth: 3, capStyle: 'round' }
+            }
         };
 
-        // Orders Chart
+        // 1. Orders Chart (Sipariş Adedi Grafiği - Statik)
         new Chart(document.getElementById('ordersChart'), {
             type: 'line',
             data: {
-                labels: @Html.Raw(Json.Serialize(ViewBag.OrderLabels)),
-                datasets: [{ data: @Html.Raw(Json.Serialize(ViewBag.OrderCounts)), borderColor: '#DB4444', tension: 0.4, fill: true, backgroundColor: 'rgba(219,68,68,0.1)' }]
+                labels: ['Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt', 'Paz'],
+                datasets: [{
+                    data: [28, 35, 25, 45, 32, 50, 42], // Statik Örnek Veri
+                    borderColor: '#DB4444',
+                    tension: 0.4,
+                    fill: true,
+                    backgroundColor: 'rgba(219,68,68,0.1)'
+                }]
             },
             options: chartConfig
         });
 
-        // Revenue Chart
+        // 2. Revenue Chart (Gelir Grafiği - Statik)
         new Chart(document.getElementById('revenueChart'), {
             type: 'line',
             data: {
-                labels: @Html.Raw(Json.Serialize(ViewBag.OrderLabels)),
-                datasets: [{ data: @Html.Raw(Json.Serialize(ViewBag.RevenueValues)), borderColor: '#DB4444', tension: 0.4, fill: true, backgroundColor: 'rgba(219,68,68,0.1)' }]
+                labels: ['Hafta 1', 'Hafta 2', 'Hafta 3', 'Hafta 4'],
+                datasets: [{
+                    data: [1200, 2100, 1800, 3500], // Statik Örnek Veri
+                    borderColor: '#DB4444',
+                    tension: 0.4,
+                    fill: true,
+                    backgroundColor: 'rgba(219,68,68,0.1)'
+                }]
             },
             options: chartConfig
         });
 
-        // Users Chart (Static Placeholder)
+        // 3. Users Chart (Aktif Kullanıcı Grafiği - Statik)
         new Chart(document.getElementById('usersChart'), {
             type: 'line',
             data: {
-                labels: ['1','2','3','4','5'],
-                datasets: [{ data: [12, 19, 15, 25, 22], borderColor: '#DB4444', tension: 0.4, fill: true, backgroundColor: 'rgba(219,68,68,0.1)' }]
+                labels: ['Oca', 'Şub', 'Mar', 'Nis', 'May', 'Haz'],
+                datasets: [{
+                    data: [150, 230, 190, 310, 280, 400], // Statik Örnek Veri
+                    borderColor: '#DB4444',
+                    tension: 0.4,
+                    fill: true,
+                    backgroundColor: 'rgba(219,68,68,0.1)'
+                }]
             },
             options: chartConfig
         });

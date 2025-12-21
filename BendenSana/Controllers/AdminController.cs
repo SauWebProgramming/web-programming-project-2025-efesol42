@@ -46,6 +46,7 @@ namespace BendenSana.Controllers
                                              .OrderByDescending(o => o.CreatedAt)
                                              .Take(5)
                                              .ToListAsync();
+            ViewBag.CountryStats = await _adminRepo.GetCountryStatisticsAsync();
 
             return View(recentOrders);
         }

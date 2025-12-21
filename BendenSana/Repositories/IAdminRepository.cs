@@ -1,4 +1,5 @@
-﻿using BendenSana.ViewModels;
+﻿using BendenSana.Models.ViewModels;
+using BendenSana.ViewModels;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -24,6 +25,7 @@ namespace BendenSana.Repositories
         Task<bool> BanProductAsync(int reportId);
         Task<(List<Category> Categories, int TotalCount)> GetPagedCategoriesAsync(string search, int page, int pageSize);
         Task<SellerDetailsViewModel?> GetSellerDetailsAsync(string userId);
+        Task<List<CountryStatViewModel>> GetCountryStatisticsAsync();
     }
 
     public class AdminRepository : IAdminRepository
@@ -84,7 +86,35 @@ namespace BendenSana.Repositories
                 ProductCount = s.ProductCount
             }).ToList();
         }
+        public async Task<List<CountryStatViewModel>> GetCountryStatisticsAsync()
+        {
+            // 1. Ülke bazlı gruplandırma ve sayım
+            var rawStats = await _context.Set<Address>()
+                .Where(a => !string.IsNullOrEmpty(a.Country))
+                .GroupBy(a => a.Country)
+                .Select(g => new
+                {
+                    Country = g.Key!,
+                    Count = g.Count()
+                })
+                .ToListAsync();
 
+            // 2. Toplam kayıtlı adres sayısını bul (Oran hesaplamak için)
+            int totalAddresses = rawStats.Sum(x => x.Count);
+
+            if (totalAddresses == 0) return new List<CountryStatViewModel>();
+
+            // 3. Oranları hesapla ve ViewModel'e dönüştür
+            return rawStats.Select(s => new CountryStatViewModel
+            {
+                Name = s.Country,
+                Value = s.Count,
+                // SEO sütunu için yüzde hesaplama: (Ülke Sayısı / Toplam) * 100
+                SEO = $"%{Math.Round((double)s.Count / totalAddresses * 100, 1)}"
+            })
+            .OrderByDescending(x => x.Value) // En çok kullanıcısı olan ülke üstte
+            .ToList();
+        }
         public async Task<(List<ApplicationUser> Users, int TotalCount)> GetPagedSellersAsync(string search, int page, int pageSize)
         {
             var query = _userManager.Users.AsQueryable();
