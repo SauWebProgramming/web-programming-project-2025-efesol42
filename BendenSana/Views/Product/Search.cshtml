@@ -217,10 +217,10 @@
                                     </h6>
 
                                     <div class="d-flex gap-2 align-items-center">
-                                        <span class="fw-bold" style="color: #DB4444;">$@item.Price.ToString("N0")</span>
+                                        <span class="fw-bold" style="color: #DB4444;">@item.Price.ToString("N0")₺</span>
                                         @if (item.OriginalPrice > item.Price)
                                         {
-                                            <span class="text-muted text-decoration-line-through small">$@item.OriginalPrice?.ToString("N0")</span>
+                                            <span class="text-muted text-decoration-line-through small">@item.OriginalPrice?.ToString("N0")₺</span>
                                         }
                                     </div>
 
