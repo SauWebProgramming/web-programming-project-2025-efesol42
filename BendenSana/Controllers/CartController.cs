@@ -1,139 +1,98 @@
-﻿using BendenSana.Repositories;
+﻿using BendenSana.Models.Repositories;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-
-using BendenSana.Models;
 
 namespace BendenSana.Controllers
 {
+
+    [Authorize]
     public class CartController : Controller
     {
         private readonly UserManager<ApplicationUser> _userManager;
-        private readonly IProductRepository _productRepository;
-        private readonly IRepository<Cart> _cartRepository;
-        private readonly IRepository<CartItem> _cartItemRepository;
-        private readonly AppDbContext _context; 
+        private readonly ICartRepository _cartRepo;
 
-        public CartController(UserManager<ApplicationUser> userManager,
-                              IProductRepository productRepository,
-                              IRepository<Cart> cartRepository,
-                              IRepository<CartItem> cartItemRepository,
-                              AppDbContext context)
+        public CartController(UserManager<ApplicationUser> userManager, ICartRepository cartRepo)
         {
             _userManager = userManager;
-            _productRepository = productRepository;
-            _cartRepository = cartRepository;
-            _cartItemRepository = cartItemRepository;
-            _context = context;
+            _cartRepo = cartRepo;
         }
 
-        // SEPETİM SAYFASI
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            var user = GetCurrentUser();
-            if (user == null) return RedirectToAction("Index", "Home");
+            var userId = _userManager.GetUserId(User);
+            if (userId == null) return RedirectToAction("Login", "Account");
 
-            
-            var cart = _context.Set<Cart>()
-                               .Include(c => c.Items)
-                               .ThenInclude(ci => ci.Product)
-                               .ThenInclude(p => p.Images)
-                               .FirstOrDefault(c => c.UserId == user.Id);
+            var cart = await _cartRepo.GetCartByUserIdAsync(userId);
 
             if (cart == null)
             {
                 return View(new List<CartItem>());
             }
 
-            
             return View(cart.Items);
         }
 
-        // SEPETE EKLEME İŞLEMİ
-        public IActionResult AddToCart(int productId, int quantity = 1)
+        public async Task<IActionResult> AddToCart(int productId, int quantity = 1)
         {
-            var user = GetCurrentUser();
-            if (user == null) return RedirectToAction("Index", "Home");
+            var userId = _userManager.GetUserId(User);
+            if (userId == null) return RedirectToAction("Login", "Account");
 
-            
-            var cart = _context.Set<Cart>()
-                               .Include(c => c.Items)
-                               .FirstOrDefault(c => c.UserId == user.Id);
+            var cart = await _cartRepo.GetCartByUserIdAsync(userId);
 
-            // Sepet yoksa oluştur
             if (cart == null)
             {
-                cart = new Cart { UserId = user.Id, CreatedAt = DateTime.UtcNow };
-                _context.Set<Cart>().Add(cart);
-                _context.SaveChanges();
+                cart = await _cartRepo.CreateCartAsync(userId);
             }
 
-            
-            var cartItem = cart.Items.FirstOrDefault(x => x.ProductId == productId);
+            var cartItem = await _cartRepo.GetCartItemAsync(cart.Id, productId);
 
             if (cartItem != null)
             {
-                
                 cartItem.Quantity += quantity;
             }
             else
             {
-                
                 cartItem = new CartItem
                 {
                     CartId = cart.Id,
                     ProductId = productId,
                     Quantity = quantity
                 };
-                _context.Set<CartItem>().Add(cartItem);
+                await _cartRepo.AddCartItemAsync(cartItem);
             }
 
-            _context.SaveChanges();
-
+            await _cartRepo.SaveChangesAsync();
             return RedirectToAction("Index");
         }
 
-        private ApplicationUser GetCurrentUser()
+        public async Task<IActionResult> RemoveFromCart(int id)
         {
-            var userId = _userManager.GetUserId(User);
-            if (userId != null)
-            {
-                return _userManager.FindByIdAsync(userId).Result;
-            }
-            return _userManager.Users.FirstOrDefault();
-        }
-
-        // SEPETTEN SİLME İŞLEMİ
-        public IActionResult RemoveFromCart(int id)
-        {
-            var cartItem = _context.Set<global::CartItem>().Find(id);
+            var cartItem = await _cartRepo.GetCartItemByIdAsync(id);
 
             if (cartItem != null)
             {
-                _context.Set<global::CartItem>().Remove(cartItem);
-                _context.SaveChanges();
+                await _cartRepo.RemoveCartItemAsync(cartItem);
+                await _cartRepo.SaveChangesAsync();
             }
 
-            
             return RedirectToAction("Index");
         }
 
         [HttpPost]
         public async Task<IActionResult> UpdateQuantity(int id, int quantity)
         {
-            var cartItem = await _context.CartItems.FindAsync(id);
+            var cartItem = await _cartRepo.GetCartItemByIdAsync(id);
+
             if (cartItem != null)
             {
-                // Miktar en az 1 olabilir
                 if (quantity < 1) quantity = 1;
-
-                // Miktar en fazla 10 olabilir (Opsiyonel sınır)
                 if (quantity > 10) quantity = 10;
 
                 cartItem.Quantity = quantity;
-                await _context.SaveChangesAsync();
+                await _cartRepo.SaveChangesAsync();
             }
+
             return RedirectToAction("Index");
         }
     }

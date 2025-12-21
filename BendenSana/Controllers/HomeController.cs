@@ -1,5 +1,4 @@
 using BendenSana.Models;
-using BendenSana.Repositories;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 
@@ -7,22 +6,15 @@ namespace BendenSana.Controllers
 {
     public class HomeController : Controller
     {
-        private readonly IProductRepository _productRepository;
 
-        public HomeController(IProductRepository productRepository)
+        public HomeController()
         {
-            _productRepository = productRepository;
         }
 
         public IActionResult Index()
         {
-            var recentProducts = _productRepository.GetProductsWithCategories()
-                .Where(p => p.Status == ProductStatus.available)
-                .OrderByDescending(p => p.CreatedAt)
-                .Take(8)
-                .ToList();
 
-            return View(recentProducts);
+            return View();
         }
 
         public IActionResult About()

@@ -1,4 +1,5 @@
 ﻿using BendenSana.Models; // ApplicationUser burada
+using BendenSana.Models.Repositories;
 using BendenSana.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -11,12 +12,12 @@ namespace BendenSana.Controllers
     public class PaymentController : Controller
     {
         private readonly UserManager<ApplicationUser> _userManager;
-        private readonly AppDbContext _context;
+        private readonly IPaymentRepository _paymentRepo;
 
-        public PaymentController(UserManager<ApplicationUser> userManager, AppDbContext context)
+        public PaymentController(UserManager<ApplicationUser> userManager, IPaymentRepository paymentRepo)
         {
             _userManager = userManager;
-            _context = context;
+            _paymentRepo = paymentRepo;
         }
 
         // GET: Ödeme Bilgilerini Göster
@@ -26,12 +27,11 @@ namespace BendenSana.Controllers
             var user = await _userManager.GetUserAsync(User);
             if (user == null) return RedirectToAction("Login", "Account");
 
-            // Kullanıcının kayıtlı kartını bul (Varsayılan veya ilk kart)
-            var card = await _context.Set<UserCard>().FirstOrDefaultAsync(c => c.UserId == user.Id);
+            // Kullanıcının kayıtlı kartını repository üzerinden bul
+            var card = await _paymentRepo.GetCardByUserIdAsync(user.Id);
 
             var model = new PaymentOptionsViewModel
             {
-                // Eğer kart yoksa isim soyisimi user'dan alabiliriz
                 FirstName = card != null ? card.CardHolderName.Split(' ')[0] : user.FirstName,
                 LastName = card != null && card.CardHolderName.Contains(' ') ? card.CardHolderName.Split(' ')[1] : user.LastName,
                 CardNumber = card?.CardNumber,
@@ -51,7 +51,7 @@ namespace BendenSana.Controllers
 
             if (!ModelState.IsValid) return View(model);
 
-            var card = await _context.Set<UserCard>().FirstOrDefaultAsync(c => c.UserId == user.Id);
+            var card = await _paymentRepo.GetCardByUserIdAsync(user.Id);
 
             if (card == null)
             {
@@ -65,7 +65,7 @@ namespace BendenSana.Controllers
                     Cvv = model.Cvv,
                     IsDefault = true
                 };
-                _context.Set<UserCard>().Add(card);
+                await _paymentRepo.AddCardAsync(card);
             }
             else
             {
@@ -75,10 +75,10 @@ namespace BendenSana.Controllers
                 card.ExpiryDate = model.ExpiryDate;
                 card.Cvv = model.Cvv;
 
-                _context.Set<UserCard>().Update(card);
+                await _paymentRepo.UpdateCardAsync(card);
             }
 
-            await _context.SaveChangesAsync();
+            await _paymentRepo.SaveChangesAsync();
             TempData["Success"] = "Ödeme seçenekleriniz güncellendi.";
 
             return RedirectToAction("Index");
