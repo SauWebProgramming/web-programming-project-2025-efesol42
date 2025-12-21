@@ -40,7 +40,7 @@ namespace BendenSana.Controllers
 
         public IActionResult Index() => RedirectToAction("Search");
 
-        [Authorize(Roles = "User")]
+        [Authorize]
         public async Task<IActionResult> MyProducts()
         {
             var user = await _userManager.GetUserAsync(User);
@@ -59,8 +59,7 @@ namespace BendenSana.Controllers
             return View(product);
         }
 
-        [Authorize(Roles = "User")]
-        [HttpPost]
+        [HttpPost, Authorize]
         public async Task<IActionResult> AddReview(int productId, int? rating, string? comment)
         {
             var user = await _userManager.GetUserAsync(User);
@@ -85,8 +84,7 @@ namespace BendenSana.Controllers
             return RedirectToAction("Details", new { id = productId });
         }
 
-        [Authorize(Roles = "User, Seller")]
-        [HttpGet]
+        [Authorize, HttpGet]
         public async Task<IActionResult> Create()
         {
             ViewBag.Categories = new SelectList(await _categoryRepo.GetAllAsync(), "Id", "Name");
